@@ -1,0 +1,5 @@
+﻿  DirectXApp.cpp
+  GameTimer.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winnt.h(169,1): error C1189: #error:  "No Target Architecture"
+F:\DirectX11Learning\DirectX11Learning\GameTimer.cpp(51,2): error C2059: syntax error: '}'
+  Generating Code...
