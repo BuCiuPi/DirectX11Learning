@@ -40,7 +40,7 @@ void DirectX11Application::UpdateScene(float dt)
 	// Convert Spherical to Cartesian coordinates.
 
 	// Initialize the view matrix
-	XMVECTOR pos = XMVectorSet(mMousePosXY.x, 1.0f, mMousePosXY.y, 0.0f);
+	XMVECTOR pos = XMVectorSet(0.0f, 1.0f, mMousePosXY.y, 0.0f);
 	XMVECTOR Target = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	g_View = XMMatrixLookAtLH(pos, Target, Up);
