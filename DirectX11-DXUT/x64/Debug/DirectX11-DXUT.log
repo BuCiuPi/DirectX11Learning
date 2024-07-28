@@ -1,0 +1,19 @@
+﻿  DirectX11Application.cpp
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(95,55): warning C4100: 'y': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(95,48): warning C4100: 'x': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(95,34): warning C4100: 'btnState': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(96,53): warning C4100: 'y': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(96,46): warning C4100: 'x': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(96,32): warning C4100: 'btnState': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(97,55): warning C4100: 'y': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(97,48): warning C4100: 'x': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\D3DApp.h(97,34): warning C4100: 'btnState': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(7,18): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(8,18): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(43,61): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(43,40): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(35,46): warning C4100: 'dt': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(109,47): warning C4100: 'btnState': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(117,45): warning C4100: 'btnState': unreferenced formal parameter
+F:\CPlusPlus\DirectX11-DXUT\DirectX11-DXUT\DirectX11Application.cpp(125,47): warning C4100: 'btnState': unreferenced formal parameter
+  DirectX11-DXUT.vcxproj -> F:\CPlusPlus\DirectX11-DXUT\x64\Debug\DirectX11-DXUT.exe
