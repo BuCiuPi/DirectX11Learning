@@ -7,25 +7,27 @@ class DirectX11Application : public D3DApp
 {
 public:
 	DirectX11Application(HINSTANCE hInstance);
-	~DirectX11Application();
 
 	bool Init(int nShowCmd);
 	void OnResize();
-	void UpdateScene(float dt);
-	void DrawScene();
+	virtual void UpdateScene(float dt) override;
+	virtual void DrawScene() override;
 
-	void OnMouseDown(WPARAM btnState, int x, int y);
-	void OnMouseUp(WPARAM btnState, int x, int y);
-	void OnMouseMove(WPARAM btnState, int x, int y);
+	virtual	void OnMouseDown(WPARAM btnState, int x, int y) override;
+	virtual void OnMouseUp(WPARAM btnState, int x, int y) override;
+	virtual void OnMouseMove(WPARAM btnState, int x, int y) override;
 
-private:
-	void BuildGeometryBuffer();
-	void BuildFX();
+protected:
+	virtual	void BuildGeometryBuffer() = 0;
+	virtual void BuildConstantBuffer();
+	virtual void BuildFX();
 	HRESULT BuildVertexLayout(ID3DBlob* pVSBlob);
 
-	bool mMouseHolded = false;
-	POINT mMousePosXY;
 	POINT mLastMousePos;
+
+	bool mMouseHolded = false;
+	XMVECTOR mCurrentCameraPos;
+private:
 };
 
 #endif // !DIRECTX11APPLICATION_H

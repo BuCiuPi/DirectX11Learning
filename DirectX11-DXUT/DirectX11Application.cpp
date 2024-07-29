@@ -4,12 +4,7 @@
 
 DirectX11Application::DirectX11Application(HINSTANCE hInstance) : D3DApp(hInstance)
 {
-	mMousePosXY.y = -5.0f;
-	mMousePosXY.x = 0.0f;
-}
-
-DirectX11Application::~DirectX11Application()
-{
+	mCurrentCameraPos = XMVectorSet(0.0f, 2.0f, -5.0f, 0.0f);
 }
 
 bool DirectX11Application::Init(int nShowCmd)
@@ -20,6 +15,7 @@ bool DirectX11Application::Init(int nShowCmd)
 	}
 
 	BuildGeometryBuffer();
+	BuildConstantBuffer();
 	BuildFX();
 
 	return true;
@@ -29,7 +25,7 @@ void DirectX11Application::OnResize()
 {
 	D3DApp::OnResize();
 
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, AspectRatio(), 0.01f, 100.0f);
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, AspectRatio(), 1.0f, 1000.0f);
 }
 
 void DirectX11Application::UpdateScene(float dt)
@@ -37,36 +33,15 @@ void DirectX11Application::UpdateScene(float dt)
 	// Initialize the world matrix
 	g_World = XMMatrixIdentity();
 
-	// Convert Spherical to Cartesian coordinates.
-
 	// Initialize the view matrix
-	XMVECTOR pos = XMVectorSet(0.0f, 1.0f, mMousePosXY.y, 0.0f);
+
 	XMVECTOR Target = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	g_View = XMMatrixLookAtLH(pos, Target, Up);
+	g_View = XMMatrixLookAtLH(mCurrentCameraPos, Target, Up);
 }
 
 void DirectX11Application::DrawScene()
 {
-	// Update our time
-	static float t = 0.0f;
-	if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
-	{
-		t += (float)XM_PI * 0.0125f;
-	}
-	else
-	{
-		static ULONGLONG timeStart = 0;
-		ULONGLONG timeCur = GetTickCount64();
-		if (timeStart == 0)
-			timeStart = timeCur;
-		t = (timeCur - timeStart) / 1000.0f;
-	}
-
-	//
-	// Animate the cube
-	//
-	g_World = XMMatrixRotationY(t);
 
 	//
 	// Clear the back buffer
@@ -98,7 +73,7 @@ void DirectX11Application::DrawScene()
 	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
-	g_pImmediateContext->DrawIndexed(36, 0, 0);        // 36 vertices needed for 12 triangles in a triangle list
+	g_pImmediateContext->DrawIndexed(mGridIndexCount, 0, 0);        // 36 vertices needed for 12 triangles in a triangle list
 
 	//
 	// Present our back buffer to our front buffer
@@ -126,78 +101,16 @@ void DirectX11Application::OnMouseMove(WPARAM btnState, int x, int y)
 {
 	if (mMouseHolded)
 	{
-		mMousePosXY.x += (x - mLastMousePos.x);
-		mMousePosXY.y += (y - mLastMousePos.y);
+		//mCurrentCameraPos = XMVectorAdd(mCurrentCameraPos, XMVectorSet(x - mLastMousePos.x, 0.0f, 0.0f, 0.0f));
+		mCurrentCameraPos = XMVectorAdd(mCurrentCameraPos, XMVectorSet(0.0f, 0.0f, y - mLastMousePos.y, 0.0f));
 	}
 
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
 }
 
-void DirectX11Application::BuildGeometryBuffer()
+void DirectX11Application::BuildConstantBuffer()
 {
-	SimpleVertex vertices[] =
-	{
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
-	};
-
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(SimpleVertex) * 8;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = vertices;
-	HR(g_pd3dDevice->CreateBuffer(&vbd, &vinitData, &g_pVertexBuffer));
-
-	// Create the index buffer
-
-	UINT indices[] = {
-		// front face
-		0, 1, 2,
-		0, 2, 3,
-
-		// back face
-		4, 6, 5,
-		4, 7, 6,
-
-		// left face
-		4, 5, 1,
-		4, 1, 0,
-
-		// right face
-		3, 2, 6,
-		3, 6, 7,
-
-		// top face
-		1, 5, 6,
-		1, 6, 2,
-
-		// bottom face
-		4, 0, 3,
-		4, 3, 7
-	};
-
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * 36;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = indices;
-	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &g_pIndexBuffer));
-
 	D3D11_BUFFER_DESC bd;
 	// Create the constant buffer
 	bd.Usage = D3D11_USAGE_DEFAULT;

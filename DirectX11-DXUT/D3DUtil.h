@@ -1,6 +1,7 @@
 #pragma once
 
 #include "dxerr.h"
+#include "DirectXMath.h"
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
@@ -40,3 +41,20 @@
 //---------------------------------------------------------------------------------------
 // Utility classes.
 //---------------------------------------------------------------------------------------
+
+using namespace DirectX;
+
+struct SimpleVertex
+{
+	XMFLOAT3 Pos;
+	XMFLOAT4 Color;
+};
+
+
+struct ConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+};
+

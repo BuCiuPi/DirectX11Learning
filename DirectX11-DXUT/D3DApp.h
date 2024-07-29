@@ -13,19 +13,6 @@
 
 using namespace DirectX;
 
-struct SimpleVertex
-{
-	XMFLOAT3 Pos;
-	XMFLOAT4 Color;
-};
-
-
-struct ConstantBuffer
-{
-	XMMATRIX mWorld;
-	XMMATRIX mView;
-	XMMATRIX mProjection;
-};
 
 class D3DApp
 {
@@ -101,6 +88,8 @@ protected:
 	std::wstring mMainWndCaption;
 
 	HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+
+	UINT mGridIndexCount;
 private:
 
 

@@ -19,7 +19,8 @@
 #include <directxmath.h>
 #include <directxcolors.h>
 #include "resource.h"
-#include "DirectX11Application.h"
+#include "BoxApplication.h"
+#include "HillApplication.h"
 
 
 using namespace DirectX;
@@ -29,7 +30,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    DirectX11Application application(hInstance);
+    HillApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {
