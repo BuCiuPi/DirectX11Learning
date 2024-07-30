@@ -9,6 +9,16 @@
 using namespace DirectX;
 struct GeoVertex
 {
+	GeoVertex() {}
+	GeoVertex(
+		float px, float py, float pz,
+		float nx, float ny, float nz,
+		float tx, float ty, float tz,
+		float u, float v)
+		: Position(px, py, pz), Normal(nx, ny, nz),
+		TangentU(tx, ty, tz), TexC(u, v) {}
+
+
 	XMFLOAT3 Position;
 	XMFLOAT3 Normal;
 	XMFLOAT3 TangentU;
@@ -27,6 +37,13 @@ public:
 	GeometryGenerator();
 
 	void CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData);
+	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderTopCap(MeshData& meshData, float height, UINT sliceCount, float topRadius);
+	void BuildCylinderBottomCap(MeshData& meshData, float height, UINT sliceCount, float bottomRadius);
+
+	void CreateBox(float width, float height, float depth, MeshData& meshData);
+	void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData);
+
 private:
 };
 

@@ -17,7 +17,7 @@ void HillApplication::BuildGeometryBuffer()
 	GeometryGenerator geoGen;
 	geoGen.CreateGrid(160.0f, 160.0f, 200, 200, grid);
 
-	mGridIndexCount = grid.Indices.size();
+	mIndexCount = grid.Indices.size();
 
 	std::vector<SimpleVertex> vertices(grid.Vertices.size());
 	for (size_t i = 0; i < grid.Vertices.size(); ++i)
@@ -69,7 +69,7 @@ void HillApplication::BuildGeometryBuffer()
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * mGridIndexCount;
+	ibd.ByteWidth = sizeof(UINT) * mIndexCount;
 	ibd.BindFlags = D3D10_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;

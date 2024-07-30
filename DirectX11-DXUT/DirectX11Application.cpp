@@ -4,7 +4,7 @@
 
 DirectX11Application::DirectX11Application(HINSTANCE hInstance) : D3DApp(hInstance)
 {
-	mCurrentCameraPos = XMVectorSet(0.0f, 2.0f, -5.0f, 0.0f);
+	mCurrentCameraPos = XMVectorSet(0.0f, 2.0f, -10.0f, 0.0f);
 }
 
 bool DirectX11Application::Init(int nShowCmd)
@@ -37,7 +37,7 @@ void DirectX11Application::UpdateScene(float dt)
 
 	XMVECTOR Target = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	g_View = XMMatrixLookAtLH(mCurrentCameraPos, Target, Up);
+	g_View = XMMatrixLookAtLH(XMVectorScale( mCurrentCameraPos, 0.3f), Target, Up);
 }
 
 void DirectX11Application::DrawScene()
@@ -51,6 +51,7 @@ void DirectX11Application::DrawScene()
 
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//g_pImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
@@ -70,10 +71,10 @@ void DirectX11Application::DrawScene()
 	// Renders a triangle
 	//
 	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-	g_pImmediateContext->DrawIndexed(mGridIndexCount, 0, 0);        // 36 vertices needed for 12 triangles in a triangle list
+	g_pImmediateContext->DrawIndexed(mIndexCount, 0, 0);        // 36 vertices needed for 12 triangles in a triangle list
 
 	//
 	// Present our back buffer to our front buffer

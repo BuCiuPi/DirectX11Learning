@@ -89,7 +89,8 @@ protected:
 
 	HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-	UINT mGridIndexCount;
+	UINT mIndexCount;
+	UINT mVertexCount;
 private:
 
 

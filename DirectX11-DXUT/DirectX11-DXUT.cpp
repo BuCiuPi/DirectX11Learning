@@ -21,6 +21,9 @@
 #include "resource.h"
 #include "BoxApplication.h"
 #include "HillApplication.h"
+#include "CylinderApplication.h"
+#include "SphereApplication.h"
+#include "ShapesApplication.h"
 
 
 using namespace DirectX;
@@ -30,7 +33,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    HillApplication application(hInstance);
+    ShapeApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {
