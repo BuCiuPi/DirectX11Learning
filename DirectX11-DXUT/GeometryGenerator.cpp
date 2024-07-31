@@ -329,7 +329,7 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 
 			meshData.Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
 			meshData.Indices.push_back(baseIndex + i * ringVertexCount + (j + 1));
-			meshData.Indices.push_back(baseIndex + (i+1) * ringVertexCount + (j + 1));
+			meshData.Indices.push_back(baseIndex + (i + 1) * ringVertexCount + (j + 1));
 		}
 	}
 
@@ -341,5 +341,100 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 		meshData.Indices.push_back(southPoleIndex);
 		meshData.Indices.push_back(baseIndex + i);
 		meshData.Indices.push_back(baseIndex + i + 1);
+	}
+}
+
+void GeometryGenerator::CreateHeartPlane2D(MeshData& meshData)
+{
+	meshData.Vertices.clear();
+	meshData.Indices.clear();
+
+	GeoVertex centerVertex(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+	float currentX = -1;
+	float xStep = 0.1f;
+	for (UINT i = 0; i < 20; i++)
+	{
+		GeoVertex v;
+		v.Position.x = currentX + (i * xStep);
+		v.Position.y = 0.0f;
+		v.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		v.TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+		float x = v.Position.x;
+
+		if (i < 11)
+		{
+			v.Position.z = -(x + 1);
+		}
+		else
+		{
+			v.Position.z = (x - 1);
+		}
+
+		meshData.Vertices.push_back(v);
+	}
+
+	currentX = 1;
+	for (UINT i = 0; i < 2; i++)
+	{
+		GeoVertex v;
+		v.Position.x = currentX + ((i + 1) * xStep);
+		v.Position.y = 0.0f;
+		v.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		v.TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+		float x = v.Position.x;
+		v.Position.z = -sqrt(-pow(x - 0.5f, 2) + 0.5f) + 0.5f;
+
+		meshData.Vertices.push_back(v);
+	}
+
+	currentX = 1.2f;
+	for (UINT i = 0; i < 25; i++)
+	{
+		GeoVertex v;
+		v.Position.x = currentX - (i * xStep);
+		v.Position.y = 0.0f;
+		v.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		v.TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+		float x = v.Position.x;
+		if (i < 12)
+		{
+			v.Position.z = sqrt(-pow(x - 0.5f, 2) + 0.5f) + 0.5f;
+
+		}
+		else
+		{
+			v.Position.z = sqrt(-pow(x + 0.5f, 2) + 0.5f) + 0.5f;
+		}
+
+		meshData.Vertices.push_back(v);
+	}
+
+	currentX = -1.2;
+	for (UINT i = 0; i < 3; i++)
+	{
+		GeoVertex v;
+		v.Position.x = currentX + (i * xStep);
+		v.Position.y = 0.0f;
+		v.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		v.TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+		float x = v.Position.x;
+		v.Position.z = -sqrt(-pow(x + 0.5f, 2) + 0.5f) + 0.5f;
+
+		meshData.Vertices.push_back(v);
+	}
+
+	meshData.Vertices.push_back(centerVertex);
+
+	UINT vertexCount = meshData.Vertices.size() - 1;
+	for (UINT i = 0; i < vertexCount; i++)
+	{
+		meshData.Indices.push_back(vertexCount);
+		meshData.Indices.push_back(i + 1);
+		meshData.Indices.push_back(i);
 	}
 }

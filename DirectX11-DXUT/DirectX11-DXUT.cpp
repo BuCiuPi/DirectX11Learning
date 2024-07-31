@@ -24,6 +24,8 @@
 #include "CylinderApplication.h"
 #include "SphereApplication.h"
 #include "ShapesApplication.h"
+#include "HeartPlaneApplication.h"
+#include "WaveApplication.h"
 
 
 using namespace DirectX;
@@ -33,7 +35,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    ShapeApplication application(hInstance);
+    WaveApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

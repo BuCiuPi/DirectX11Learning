@@ -51,7 +51,7 @@ void DirectX11Application::DrawScene()
 
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//g_pImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
@@ -62,7 +62,17 @@ void DirectX11Application::DrawScene()
 	// Update variables
 	//
 	ConstantBuffer cb;
-	cb.mWorld = XMMatrixTranspose(g_World);
+	cb.mWorld = XMMatrixTranspose(g_World);//--------------------------------------------------------------------------------------
+// File: Tutorial04.fx
+//
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License (MIT).
+//--------------------------------------------------------------------------------------
+
+//--------------------------------------------------------------------------------------
+// Constant Buffer Variables
+//--------------------------------------------------------------------------------------
+
 	cb.mView = XMMatrixTranspose(g_View);
 	cb.mProjection = XMMatrixTranspose(g_Projection);
 	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);

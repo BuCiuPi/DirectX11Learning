@@ -43,6 +43,7 @@ public:
 
 	void CreateBox(float width, float height, float depth, MeshData& meshData);
 	void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void CreateHeartPlane2D(MeshData& meshData);
 
 private:
 };

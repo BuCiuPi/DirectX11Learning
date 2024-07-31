@@ -11,7 +11,6 @@ public:
 	virtual void DrawScene() override;
 
 	virtual void BuildGeometryBuffer() override;
-	virtual void UpdateScene(float dt) override;
 
 private:
 	UINT mBoxVertexCount;

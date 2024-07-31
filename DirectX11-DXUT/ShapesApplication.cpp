@@ -3,11 +3,11 @@
 #include "DirectXMath.h"
 ShapeApplication::ShapeApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCurrentCameraPos = XMVectorSet(0.0f, 20.0f, -100.0f, 0.0f);
+	mCurrentCameraPos = XMVectorSet(0.0f, 100.0f, -100.0f, 0.0f);
 
 	XMMATRIX I = XMMatrixIdentity();
 
-	XMStoreFloat4x4(&mGridWorld, I);
+	XMStoreFloat4x4(&mGridWorld, XMMatrixMultiply(I,XMMatrixScaling(20.0f, 1.0f, 20.0f)));
 
 	XMMATRIX boxScale = XMMatrixScaling(2.0f, 1.0f, 2.0f);
 	XMMATRIX boxOffset = XMMatrixTranslation(0.0f, 0.5f, 0.0f);
@@ -106,7 +106,8 @@ void ShapeApplication::BuildGeometryBuffer()
 	GeometryGenerator geoGen;
 
 	geoGen.CreateBox(1.0f, 1.0f, 1.0f, box);
-	geoGen.CreateGrid(20.0f, 30.0f, 60, 40, grid);
+	//geoGen.CreateGrid(20.0f, 30.0f, 60, 40, grid);
+	geoGen.CreateHeartPlane2D(grid);
 	geoGen.CreateSphere(0.5f, 20, 20, sphere);
 	geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20, cylinder);
 
@@ -196,10 +197,3 @@ void ShapeApplication::BuildGeometryBuffer()
 	mVertexCount = mSphereVertexCount;
 	mIndexCount = mSphereIndexCount;
 }
-
-void ShapeApplication::UpdateScene(float dt)
-{
-	DirectX11Application::UpdateScene(dt);
-}
-
-
