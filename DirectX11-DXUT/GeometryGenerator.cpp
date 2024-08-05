@@ -59,7 +59,6 @@ void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, Mes
 
 void GeometryGenerator::CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData)
 {
-
 	meshData.Vertices.clear();
 	meshData.Indices.clear();
 
@@ -115,7 +114,6 @@ void GeometryGenerator::CreateCylinder(float bottomRadius, float topRadius, floa
 			meshData.Indices.push_back((i + 1) * ringVertexCount + (j + 1));
 			meshData.Indices.push_back(i * ringVertexCount + (j + 1));
 		}
-
 	}
 
 	BuildCylinderTopCap(meshData, height, sliceCount, topRadius);
@@ -261,7 +259,6 @@ void GeometryGenerator::CreateBox(float width, float height, float depth, MeshDa
 	i[33] = 20; i[34] = 22; i[35] = 23;
 
 	meshData.Indices.assign(&i[0], &i[36]);
-
 }
 
 void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData)
@@ -276,7 +273,7 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 	float phiStep = XM_PI / stackCount;
 	float thetaStep = 2.0f * XM_PI / sliceCount;
 
-	for (UINT i = 0; i <= stackCount - 1; i++)
+	for (UINT i = 1; i <= stackCount - 1; i++)
 	{
 		float phi = i * phiStep;
 
@@ -309,7 +306,7 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 
 	meshData.Vertices.push_back(bottomVertex);
 
-	for (UINT i = 0; i <= sliceCount; i++)
+	for (UINT i = 1; i <= sliceCount; i++)
 	{
 		meshData.Indices.push_back(0);
 		meshData.Indices.push_back(i + 1);
@@ -319,7 +316,7 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 	UINT baseIndex = 1;
 	UINT ringVertexCount = sliceCount + 1;
 
-	for (UINT i = 0; i < stackCount - 1; ++i)
+	for (UINT i = 0; i < stackCount - 2; ++i)
 	{
 		for (UINT j = 0; j < sliceCount; ++j)
 		{
@@ -403,7 +400,6 @@ void GeometryGenerator::CreateHeartPlane2D(MeshData& meshData)
 		if (i < 12)
 		{
 			v.Position.z = sqrt(-pow(x - 0.5f, 2) + 0.5f) + 0.5f;
-
 		}
 		else
 		{

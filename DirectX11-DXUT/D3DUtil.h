@@ -1,6 +1,7 @@
 #pragma once
 #include "dxerr.h"
 #include "DirectXMath.h"
+#include "LightHelper.h"
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
@@ -46,6 +47,8 @@ using namespace DirectX;
 struct SimpleVertex
 {
 	XMFLOAT3 Pos;
+	XMFLOAT3 Normal;
+	XMFLOAT2 Tex;
 	XMFLOAT4 Color;
 };
 
@@ -55,5 +58,15 @@ struct ConstantBuffer
 	XMMATRIX mWorld;
 	XMMATRIX mView;
 	XMMATRIX mProjection;
+	XMMATRIX mWorldInvTranspose;
+	Material gMaterial;
+};
+
+struct PerFrameBuffer
+{
+	DirectionalLight gDirLight;
+	PointLight gPointLight;
+	SpotLight gSpotLight;
+	XMFLOAT4 gEyePosW;
 };
 

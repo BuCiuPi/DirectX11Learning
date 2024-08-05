@@ -3,12 +3,13 @@
 
 HeartPlaneApplication::HeartPlaneApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCurrentCameraPos = XMVectorSet(0.0f, 10.0f, -20.0f, 0.0f);
+	mCamera.Position = XMVectorSet(0.0f, 10.0f, -20.0f, 0.0f);
 }
 
 void HeartPlaneApplication::DrawScene()
 {
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

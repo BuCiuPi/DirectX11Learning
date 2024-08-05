@@ -2,13 +2,14 @@
 #define DIRECTX11APPLICATION_H
 
 #include "D3DApp.h"
+#include "Camera.h"
 
 class DirectX11Application : public D3DApp
 {
 public:
 	DirectX11Application(HINSTANCE hInstance);
 
-	bool Init(int nShowCmd);
+	virtual bool Init(int nShowCmd);
 	void OnResize();
 	virtual void UpdateScene(float dt) override;
 	virtual void DrawScene() override;
@@ -21,12 +22,13 @@ protected:
 	virtual	void BuildGeometryBuffer() = 0;
 	virtual void BuildConstantBuffer();
 	virtual void BuildFX();
-	HRESULT BuildVertexLayout(ID3DBlob* pVSBlob);
+	virtual HRESULT BuildVertexLayout(ID3DBlob* pVSBlob);
 
 	POINT mLastMousePos;
 
 	bool mMouseHolded = false;
-	XMVECTOR mCurrentCameraPos;
+
+	Camera mCamera;
 private:
 };
 

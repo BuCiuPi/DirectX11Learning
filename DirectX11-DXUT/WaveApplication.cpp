@@ -1,19 +1,36 @@
 #include "WaveApplication.h"
 #include "D3DUtil.h"
 #include "GeometryGenerator.h"
+#include "MathHelper.h"
 
 WaveApplication::WaveApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCurrentCameraPos = XMVectorSet(0.0f, 10.0f, -150.0f, 0.0f);
+	mCamera.Position = XMVectorSet(0.0f, 30.0f, -150.0f, 0.0f);
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mGridWorld, I);
 	XMStoreFloat4x4(&mWavesWorld, I);
 }
 
+bool WaveApplication::Init(int nShowCmd)
+{
+	if (!D3DApp::Init(nShowCmd))
+	{
+		return false;
+	}
+	mWaves.Init(200, 200, 0.3f, 0.03f, 3.25f, 0.4f);
+
+	BuildGeometryBuffer();
+	BuildConstantBuffer();
+	BuildFX();
+
+	return true;
+}
+
 void WaveApplication::DrawScene()
 {
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -33,27 +50,63 @@ void WaveApplication::DrawScene()
 	//
 	// Draw the land.
 	//
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
+	g_pImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
 	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mGridWorld));
 	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-	g_pImmediateContext->IASetVertexBuffers(0, 1, &mLandVB, &stride, &offset);
-	g_pImmediateContext->IASetIndexBuffer(mLandIB, DXGI_FORMAT_R32_UINT, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
 	g_pImmediateContext->DrawIndexed(mGridIndexCount, 0, 0);
 
-	////
-	//// Draw the waves.
-	////
+	//
+	// Draw the waves.
+	//
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	//cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mWavesWorld));
-	//g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mWavesWorld));
+	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-	//g_pImmediateContext->IASetVertexBuffers(0, 1, &mWavesVB, &stride, &offset);
-	//g_pImmediateContext->IASetIndexBuffer(mWavesIB, DXGI_FORMAT_R32_UINT, 0);
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &mWavesVB, &stride, &offset);
+	g_pImmediateContext->IASetIndexBuffer(mWavesIB, DXGI_FORMAT_R32_UINT, 0);
 
-	//g_pImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
+	g_pImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
 
 	g_pSwapChain->Present(0, 0);
+}
+
+void WaveApplication::UpdateScene(float dt)
+{
+
+	DirectX11Application::UpdateScene(dt);
+
+	static float t_base = 0.0f;
+	if ((mTimer.GetTotalTime() - t_base) >= 0.25f)
+	{
+		t_base += 0.25f;
+
+		DWORD i = 5 + rand() % 190;
+		DWORD j = 5 + rand() % 190;
+
+		float r = MathHelper::RandF(1.0f, 2.0f);
+
+		mWaves.Disturb(i, j, r);
+	}
+
+	mWaves.Update(dt);
+
+	D3D11_MAPPED_SUBRESOURCE mappedData;
+	HR(g_pImmediateContext->Map(mWavesVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData));
+
+	SimpleVertex* v = reinterpret_cast<SimpleVertex*>(mappedData.pData);
+	for (UINT i = 0; i < mWaves.VertexCount(); ++i)
+	{
+		v[i].Pos = mWaves[i];
+		v[i].Color = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	g_pImmediateContext->Unmap(mWavesVB, 0);
 }
 
 void WaveApplication::BuildGeometryBuffer()
@@ -65,6 +118,8 @@ void WaveApplication::BuildGeometryBuffer()
 	geoGen.CreateGrid(160.0f, 160.0f, 50, 50, grid);
 
 	mGridIndexCount = grid.Indices.size();
+	mIndexCount = mGridIndexCount;
+	mVertexCount = grid.Vertices.size();
 
 	//
 	// Extract the vertex elements we are interested and apply the height function to
@@ -117,7 +172,7 @@ void WaveApplication::BuildGeometryBuffer()
 	vbd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = &vertices[0];
-	HR(g_pd3dDevice->CreateBuffer(&vbd, &vinitData, &mLandVB));
+	HR(g_pd3dDevice->CreateBuffer(&vbd, &vinitData, &g_pVertexBuffer));
 
 	//
 	// Pack the indices of all the meshes into one index buffer.
@@ -131,59 +186,59 @@ void WaveApplication::BuildGeometryBuffer()
 	ibd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &grid.Indices[0];
-	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mLandIB));
+	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &g_pIndexBuffer));
 
 
-	//BuildWaveBuffer();
+	BuildWaveBuffer();
 }
 
 void WaveApplication::BuildWaveBuffer() {
-		// Create the vertex buffer.  Note that we allocate space only, as
-	// we will be updating the data every time step of the simulation.
+	// Create the vertex buffer.  Note that we allocate space only, as
+// we will be updating the data every time step of the simulation.
 
-    D3D11_BUFFER_DESC vbd;
-    vbd.Usage = D3D11_USAGE_DYNAMIC;
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
 	vbd.ByteWidth = sizeof(SimpleVertex) * mWaves.VertexCount();
-    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vbd.MiscFlags = 0;
-    HR(g_pd3dDevice->CreateBuffer(&vbd, 0, &mWavesVB));
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vbd.MiscFlags = 0;
+	HR(g_pd3dDevice->CreateBuffer(&vbd, 0, &mWavesVB));
 
 
 	// Create the index buffer.  The index buffer is fixed, so we only 
 	// need to create and set once.
 
-	std::vector<UINT> indices(3*mWaves.TriangleCount()); // 3 indices per face
+	std::vector<UINT> indices(3 * mWaves.TriangleCount()); // 3 indices per face
 
 	// Iterate over each quad.
 	UINT m = mWaves.RowCount();
 	UINT n = mWaves.ColumnCount();
 	int k = 0;
-	for(UINT i = 0; i < m-1; ++i)
+	for (UINT i = 0; i < m - 1; ++i)
 	{
-		for(DWORD j = 0; j < n-1; ++j)
+		for (DWORD j = 0; j < n - 1; ++j)
 		{
-			indices[k]   = i*n+j;
-			indices[k+1] = i*n+j+1;
-			indices[k+2] = (i+1)*n+j;
+			indices[k] = i * n + j;
+			indices[k + 1] = i * n + j + 1;
+			indices[k + 2] = (i + 1) * n + j;
 
-			indices[k+3] = (i+1)*n+j;
-			indices[k+4] = i*n+j+1;
-			indices[k+5] = (i+1)*n+j+1;
+			indices[k + 3] = (i + 1) * n + j;
+			indices[k + 4] = i * n + j + 1;
+			indices[k + 5] = (i + 1) * n + j + 1;
 
 			k += 6; // next quad
 		}
 	}
 
 	D3D11_BUFFER_DESC ibd;
-    ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
 	ibd.ByteWidth = sizeof(UINT) * indices.size();
-    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    ibd.CPUAccessFlags = 0;
-    ibd.MiscFlags = 0;
-    D3D11_SUBRESOURCE_DATA iinitData;
-    iinitData.pSysMem = &indices[0];
-    HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mWavesIB));
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &indices[0];
+	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mWavesIB));
 
 }
 

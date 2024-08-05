@@ -26,6 +26,8 @@
 #include "ShapesApplication.h"
 #include "HeartPlaneApplication.h"
 #include "WaveApplication.h"
+#include "LitApplication.h"
+#include "CrateApplication.h"
 
 
 using namespace DirectX;
@@ -35,7 +37,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    WaveApplication application(hInstance);
+    CrateApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

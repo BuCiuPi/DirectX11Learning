@@ -65,7 +65,7 @@ public:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 	HRESULT InitDevice();
 	virtual void OnResize();
-	void CleanupDevice();
+	virtual void CleanupDevice();
 	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 	virtual void UpdateScene(float dt)=0;

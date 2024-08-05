@@ -15,6 +15,12 @@ cbuffer ConstantBuffer : register( b0 )
 	matrix Projection;
 }
 
+struct VS_INPUT
+{
+    float4 Pos : POSITION;
+    float4 Color : COLOR;
+};
+
 //--------------------------------------------------------------------------------------
 struct VS_OUTPUT
 {
@@ -25,13 +31,13 @@ struct VS_OUTPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VS( float4 Pos : POSITION, float4 Color : COLOR )
+VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Pos = mul( Pos, World );
+    output.Pos = mul( input.Pos, World );
     output.Pos = mul( output.Pos, View );
     output.Pos = mul( output.Pos, Projection );
-    output.Color = Color;
+    output.Color = input.Color;
     return output;
 }
 

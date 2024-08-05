@@ -16,6 +16,9 @@
     <Filter Include="FX">
       <UniqueIdentifier>{2fb61d70-adc5-448f-be97-94741673b662}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Textures">
+      <UniqueIdentifier>{1835a9a0-227b-4cc6-8efa-700a01b792e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -35,9 +38,6 @@
     </ClInclude>
     <ClInclude Include="GameTimer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX11Application.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="MathHelper.h">
       <Filter>Header Files</Filter>
@@ -67,6 +67,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Waves.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LitApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectX11Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CrateApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,6 +131,18 @@
     <ClCompile Include="Waves.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LitApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CrateApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX11-DXUT.rc">
@@ -126,6 +156,18 @@
     <Image Include="DirectX11-DXUT.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Textures\darkbrick.bmp">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\darkbrickdxt1.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\WoodCrate01.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\WoodCrate02.dds">
+      <Filter>Textures</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="color.fxh">
@@ -135,5 +177,19 @@
     <None Include="heart.fxh">
       <Filter>FX</Filter>
     </None>
+    <None Include="Lighting.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="normal.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="Texture.fxh">
+      <Filter>FX</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LightingHelper.fxh">
+      <Filter>FX</Filter>
+    </Text>
   </ItemGroup>
 </Project>

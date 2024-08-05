@@ -9,7 +9,10 @@ class WaveApplication :public DirectX11Application
 public:
 	WaveApplication(HINSTANCE hInstance);
 
+	virtual bool Init(int nShowCmd) override;
+
 	virtual void DrawScene()override;
+	virtual void UpdateScene(float dt)override;
 
 	virtual void BuildGeometryBuffer() override;
 

@@ -6,6 +6,8 @@
 #include "d3dApp.h"
 #include <sstream>
 
+#define D3D_COMPILE_STANDARD_FILE_INCLUDE ((ID3DInclude*)(UINT_PTR)1)
+
 namespace
 {
 	// This is just used to forward Windows messages from a global window
@@ -14,9 +16,9 @@ namespace
 	D3DApp* gd3dApp = 0;
 }
 
-D3DApp::D3DApp(HINSTANCE hInstance) 
+D3DApp::D3DApp(HINSTANCE hInstance)
 	: g_pDepthStencilView(0),
-	 g_pDepthStencilBuffer(0)
+	g_pDepthStencilBuffer(0)
 {
 	ZeroMemory(&g_pSceneViewport, sizeof(D3D11_VIEWPORT));
 
@@ -231,29 +233,21 @@ void D3DApp::OnResize()
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 	// Use 4X MSAA? --must match swap chain MSAA values.
-	if (mEnable4xMsaa)
-	{
-		depthStencilDesc.SampleDesc.Count = 4;
-		depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality - 1;
-	}
-	// No MSAA
-	else
-	{
-		depthStencilDesc.SampleDesc.Count = 1;
-		depthStencilDesc.SampleDesc.Quality = 0;
-	}
+	depthStencilDesc.SampleDesc.Count = 1;
+	depthStencilDesc.SampleDesc.Quality = 0;
+
 
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthStencilDesc.CPUAccessFlags = 0;
 	depthStencilDesc.MiscFlags = 0;
 
-	//HR(g_pd3dDevice->CreateTexture2D(&depthStencilDesc, 0, &g_pDepthStencilBuffer));
-	//HR(g_pd3dDevice->CreateDepthStencilView(g_pDepthStencilBuffer, 0, &g_pDepthStencilView));
+	HR(g_pd3dDevice->CreateTexture2D(&depthStencilDesc, 0, &g_pDepthStencilBuffer));
+	HR(g_pd3dDevice->CreateDepthStencilView(g_pDepthStencilBuffer, 0, &g_pDepthStencilView));
 
 	// Bind the render target view and depth/stencil view to the pipeline.
 
-	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, nullptr);
+	g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
 
 	// Set the viewport transform.
 
@@ -531,7 +525,7 @@ HRESULT D3DApp::CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoi
 #endif
 
 	ID3DBlob* pErrorBlob = nullptr;
-	hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel,
+	hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
 		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
 	if (FAILED(hr))
 	{

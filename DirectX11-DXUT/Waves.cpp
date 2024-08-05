@@ -90,9 +90,9 @@ void Waves::Update(float dt)
 
 	if (t >= mTimeStep)
 	{
-		for (DWORD i = 0; i < mNumRows - 1; i++)
+		for (DWORD i = 1; i < mNumRows - 1; i++)
 		{
-			for (DWORD j = 0; j < mNumCols - 1; j++)
+			for (DWORD j = 1; j < mNumCols - 1; j++)
 			{
 				mPrevSolution[i * mNumCols + j].y =
 					mK1 * mPrevSolution[i * mNumCols + j].y +

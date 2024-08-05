@@ -1,10 +1,12 @@
 #include "DirectX11Application.h"
 #include "MathHelper.h"
 #include "D3DUtil.h"
+#include "Windows.h"
 
 DirectX11Application::DirectX11Application(HINSTANCE hInstance) : D3DApp(hInstance)
+, mCamera(XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f))
 {
-	mCurrentCameraPos = XMVectorSet(0.0f, 2.0f, -10.0f, 0.0f);
+
 }
 
 bool DirectX11Application::Init(int nShowCmd)
@@ -25,19 +27,13 @@ void DirectX11Application::OnResize()
 {
 	D3DApp::OnResize();
 
-	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, AspectRatio(), 1.0f, 1000.0f);
+	g_Projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, AspectRatio(), 0.01f, 1000.0f);
 }
 
 void DirectX11Application::UpdateScene(float dt)
 {
-	// Initialize the world matrix
 	g_World = XMMatrixIdentity();
-
-	// Initialize the view matrix
-
-	XMVECTOR Target = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	g_View = XMMatrixLookAtLH(XMVectorScale( mCurrentCameraPos, 0.3f), Target, Up);
+	g_View = XMMatrixLookAtLH(XMVectorScale(mCamera.Position, 0.3f), mCamera.Target, mCamera.Up);
 }
 
 void DirectX11Application::DrawScene()
@@ -47,11 +43,11 @@ void DirectX11Application::DrawScene()
 	// Clear the back buffer
 	//
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
-	//g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	g_pImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	//g_pImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
@@ -62,17 +58,7 @@ void DirectX11Application::DrawScene()
 	// Update variables
 	//
 	ConstantBuffer cb;
-	cb.mWorld = XMMatrixTranspose(g_World);//--------------------------------------------------------------------------------------
-// File: Tutorial04.fx
-//
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License (MIT).
-//--------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-
+	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(g_View);
 	cb.mProjection = XMMatrixTranspose(g_Projection);
 	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
@@ -113,7 +99,7 @@ void DirectX11Application::OnMouseMove(WPARAM btnState, int x, int y)
 	if (mMouseHolded)
 	{
 		//mCurrentCameraPos = XMVectorAdd(mCurrentCameraPos, XMVectorSet(x - mLastMousePos.x, 0.0f, 0.0f, 0.0f));
-		mCurrentCameraPos = XMVectorAdd(mCurrentCameraPos, XMVectorSet(0.0f, 0.0f, y - mLastMousePos.y, 0.0f));
+		mCamera.Position = XMVectorAdd(mCamera.Position, XMVectorSet(0.0f, 0.0f, y - mLastMousePos.y, 0.0f));
 	}
 
 	mLastMousePos.x = x;

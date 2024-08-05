@@ -149,15 +149,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BoxApplication.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CrateApplication.h" />
     <ClInclude Include="CylinderApplication.h" />
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="D3DUtil.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DirectX11Application.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="HeartPlaneApplication.h" />
     <ClInclude Include="HillApplication.h" />
+    <ClInclude Include="LightHelper.h" />
+    <ClInclude Include="LitApplication.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ShapesApplication.h" />
@@ -168,14 +173,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BoxApplication.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CrateApplication.cpp" />
     <ClCompile Include="CylinderApplication.cpp" />
     <ClCompile Include="D3DApp.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DirectX11-DXUT.cpp" />
     <ClCompile Include="DirectX11Application.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="HeartPlaneApplication.cpp" />
     <ClCompile Include="HillApplication.cpp" />
+    <ClCompile Include="LitApplication.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
@@ -188,6 +197,10 @@
   <ItemGroup>
     <Image Include="DirectX11-DXUT.ico" />
     <Image Include="small.ico" />
+    <Image Include="Textures\darkbrick.bmp" />
+    <Image Include="Textures\darkbrickdxt1.dds" />
+    <Image Include="Textures\WoodCrate01.dds" />
+    <Image Include="Textures\WoodCrate02.dds" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Dependencies\DXUT-main\Core\DXUT_2022_Win10.vcxproj">
@@ -200,7 +213,13 @@
   <ItemGroup>
     <None Include="color.fxh" />
     <None Include="heart.fxh" />
+    <None Include="normal.fxh" />
     <None Include="packages.config" />
+    <None Include="Lighting.fxh" />
+    <None Include="Texture.fxh" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LightingHelper.fxh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
