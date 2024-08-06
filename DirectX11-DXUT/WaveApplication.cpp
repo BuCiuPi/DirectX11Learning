@@ -2,14 +2,45 @@
 #include "D3DUtil.h"
 #include "GeometryGenerator.h"
 #include "MathHelper.h"
+#include "DDSTextureLoader.h"
 
 WaveApplication::WaveApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCamera.Position = XMVectorSet(0.0f, 30.0f, -150.0f, 0.0f);
+	mCamera.Position = XMVectorSet(0.0f, 150.0f, -250.0f, 0.0f);
 
 	XMMATRIX I = XMMatrixIdentity();
-	XMStoreFloat4x4(&mGridWorld, I);
+	XMStoreFloat4x4(&mLandWorld, I);
 	XMStoreFloat4x4(&mWavesWorld, I);
+	g_View, I;
+	g_World = I;
+
+	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
+	XMStoreFloat4x4(&mGrassTexTransform, grassTexScale);
+
+	mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mDirLights[0].Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mDirLights[0].Direction = XMFLOAT3(0.57735f, -0.57735f, 0.57735f);
+
+	mDirLights[1].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	mDirLights[1].Diffuse = XMFLOAT4(0.20f, 0.20f, 0.20f, 1.0f);
+	mDirLights[1].Specular = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
+	mDirLights[1].Direction = XMFLOAT3(-0.57735f, -0.57735f, 0.57735f);
+
+	mDirLights[2].Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	mDirLights[2].Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	mDirLights[2].Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
+
+	mLandMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLandMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	mLandMat.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 16.0f);
+
+	mWavesMat.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mWavesMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	mWavesMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 32.0f);
+
+	mWaterTexOffset = XMFLOAT2(0.0f, 0.0f);
 }
 
 bool WaveApplication::Init(int nShowCmd)
@@ -18,7 +49,7 @@ bool WaveApplication::Init(int nShowCmd)
 	{
 		return false;
 	}
-	mWaves.Init(200, 200, 0.3f, 0.03f, 3.25f, 0.4f);
+	mWaves.Init(160, 160, 1.0f, 0.03f, 3.25f, 0.4f);
 
 	BuildGeometryBuffer();
 	BuildConstantBuffer();
@@ -39,37 +70,60 @@ void WaveApplication::DrawScene()
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
 
-	ConstantBuffer cb;
+	WavePerFrameBuffer pfb;
+	for (size_t i = 0; i < 3; i++)
+	{
+		pfb.gDirLights[i] = mDirLights[i];
+	}
+	g_pImmediateContext->UpdateSubresource(mPerFrameBuffer, 0, nullptr, &pfb, 0, 0);
+	g_pImmediateContext->PSSetConstantBuffers(1, 1, &mPerFrameBuffer);
+
+	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(g_View);
 	cb.mProjection = XMMatrixTranspose(g_Projection);
+	XMVECTOR detBox = XMMatrixDeterminant(g_World);
+	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 
 	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
-	//
-	// Draw the land.
-	//
-	g_pImmediateContext->IASetVertexBuffers(0, 1, &g_pVertexBuffer, &stride, &offset);
-	g_pImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
 
-	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mGridWorld));
+	//
+	 //Draw the land.
+	//
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &mLandVB, &stride, &offset);
+	g_pImmediateContext->IASetIndexBuffer(mLandIB, DXGI_FORMAT_R32_UINT, 0);
+
+	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mLandWorld));
+	cb.gTexTransform = XMMatrixTranspose(XMLoadFloat4x4(&mGrassTexTransform));
+	cb.gMaterial = mLandMat;
 	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-	g_pImmediateContext->DrawIndexed(mGridIndexCount, 0, 0);
+	g_pImmediateContext->PSSetShaderResources(0, 1, &mGrassMapSRV);
+
+	g_pImmediateContext->DrawIndexed(mLandIndexCount, 0, 0);
 
 	//
 	// Draw the waves.
 	//
-	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
-
-	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mWavesWorld));
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &mWavesVB, &stride, &offset);
 	g_pImmediateContext->IASetIndexBuffer(mWavesIB, DXGI_FORMAT_R32_UINT, 0);
+
+	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+
+	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mWavesWorld));
+	cb.gTexTransform = XMMatrixTranspose(XMLoadFloat4x4(&mWaterTexTransform));
+	cb.gMaterial = mWavesMat;
+	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+
+	g_pImmediateContext->PSSetShaderResources(0, 1, &mWavesMapSRV);
 
 	g_pImmediateContext->DrawIndexed(3 * mWaves.TriangleCount(), 0, 0);
 
@@ -78,7 +132,6 @@ void WaveApplication::DrawScene()
 
 void WaveApplication::UpdateScene(float dt)
 {
-
 	DirectX11Application::UpdateScene(dt);
 
 	static float t_base = 0.0f;
@@ -86,8 +139,8 @@ void WaveApplication::UpdateScene(float dt)
 	{
 		t_base += 0.25f;
 
-		DWORD i = 5 + rand() % 190;
-		DWORD j = 5 + rand() % 190;
+		DWORD i = 5 + rand() % (mWaves.RowCount() - 10);
+		DWORD j = 5 + rand() % (mWaves.ColumnCount() - 10);
 
 		float r = MathHelper::RandF(1.0f, 2.0f);
 
@@ -103,10 +156,23 @@ void WaveApplication::UpdateScene(float dt)
 	for (UINT i = 0; i < mWaves.VertexCount(); ++i)
 	{
 		v[i].Pos = mWaves[i];
-		v[i].Color = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+		v[i].Normal = mWaves.Normal(i);
+
+		v[i].Tex.x = 0.5f + mWaves[i].x / mWaves.Width();
+		v[i].Tex.y = 0.5f - mWaves[i].z / mWaves.Depth();
 	}
 
 	g_pImmediateContext->Unmap(mWavesVB, 0);
+
+	XMMATRIX wavesScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
+
+	// Translate texture over time.
+	mWaterTexOffset.y += 0.05f * dt;
+	mWaterTexOffset.x += 0.1f * dt;
+	XMMATRIX wavesOffset = XMMatrixTranslation(mWaterTexOffset.x, mWaterTexOffset.y, 0.0f);
+
+	// Combine scale and translation.
+	XMStoreFloat4x4(&mWaterTexTransform, wavesScale * wavesOffset);
 }
 
 void WaveApplication::BuildGeometryBuffer()
@@ -117,8 +183,8 @@ void WaveApplication::BuildGeometryBuffer()
 
 	geoGen.CreateGrid(160.0f, 160.0f, 50, 50, grid);
 
-	mGridIndexCount = grid.Indices.size();
-	mIndexCount = mGridIndexCount;
+	mLandIndexCount = grid.Indices.size();
+	mIndexCount = mLandIndexCount;
 	mVertexCount = grid.Vertices.size();
 
 	//
@@ -135,33 +201,8 @@ void WaveApplication::BuildGeometryBuffer()
 		p.y = GetHeight(p.x, p.z);
 
 		vertices[i].Pos = p;
-
-		// Color the vertex based on its height.
-		if (p.y < -10.0f)
-		{
-			// Sandy beach color.
-			vertices[i].Color = XMFLOAT4(1.0f, 0.96f, 0.62f, 1.0f);
-		}
-		else if (p.y < 5.0f)
-		{
-			// Light yellow-green.
-			vertices[i].Color = XMFLOAT4(0.48f, 0.77f, 0.46f, 1.0f);
-		}
-		else if (p.y < 12.0f)
-		{
-			// Dark yellow-green.
-			vertices[i].Color = XMFLOAT4(0.1f, 0.48f, 0.19f, 1.0f);
-		}
-		else if (p.y < 20.0f)
-		{
-			// Dark brown.
-			vertices[i].Color = XMFLOAT4(0.45f, 0.39f, 0.34f, 1.0f);
-		}
-		else
-		{
-			// White snow.
-			vertices[i].Color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		}
+		vertices[i].Normal = GetHillNormal(p.x, p.z);
+		vertices[i].Tex = grid.Vertices[i].TexC;
 	}
 
 	D3D11_BUFFER_DESC vbd;
@@ -172,7 +213,7 @@ void WaveApplication::BuildGeometryBuffer()
 	vbd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = &vertices[0];
-	HR(g_pd3dDevice->CreateBuffer(&vbd, &vinitData, &g_pVertexBuffer));
+	HR(g_pd3dDevice->CreateBuffer(&vbd, &vinitData, &mLandVB));
 
 	//
 	// Pack the indices of all the meshes into one index buffer.
@@ -180,14 +221,13 @@ void WaveApplication::BuildGeometryBuffer()
 
 	D3D11_BUFFER_DESC ibd;
 	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * mGridIndexCount;
+	ibd.ByteWidth = sizeof(UINT) * mLandIndexCount;
 	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &grid.Indices[0];
-	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &g_pIndexBuffer));
-
+	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mLandIB));
 
 	BuildWaveBuffer();
 }
@@ -204,8 +244,7 @@ void WaveApplication::BuildWaveBuffer() {
 	vbd.MiscFlags = 0;
 	HR(g_pd3dDevice->CreateBuffer(&vbd, 0, &mWavesVB));
 
-
-	// Create the index buffer.  The index buffer is fixed, so we only 
+	// Create the index buffer.  The index buffer is fixed, so we only
 	// need to create and set once.
 
 	std::vector<UINT> indices(3 * mWaves.TriangleCount()); // 3 indices per face
@@ -239,10 +278,126 @@ void WaveApplication::BuildWaveBuffer() {
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
 	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mWavesIB));
+}
 
+void WaveApplication::BuildConstantBuffer()
+{
+	D3D11_BUFFER_DESC bd;
+	// Create the constant buffer
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(WaveConstantBuffer);
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	bd.StructureByteStride = 0;
+
+	HR(g_pd3dDevice->CreateBuffer(&bd, nullptr, &g_pConstantBuffer));
+
+	D3D11_BUFFER_DESC pfb;
+
+	pfb.Usage = D3D11_USAGE_DEFAULT;
+	pfb.ByteWidth = sizeof(PerFrameBuffer);
+	pfb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	pfb.CPUAccessFlags = 0;
+	pfb.MiscFlags = 0;
+	pfb.StructureByteStride = 0;
+	HR(g_pd3dDevice->CreateBuffer(&pfb, nullptr, &mPerFrameBuffer));
+
+	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/grass.dds", nullptr, &mGrassMapSRV));
+	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/water2.dds", nullptr, &mWavesMapSRV));
+
+	D3D11_SAMPLER_DESC sampDesc = {};
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MipLODBias = 0.0f;
+	sampDesc.MaxAnisotropy = 1;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	HR(g_pd3dDevice->CreateSamplerState(&sampDesc, &mSamplerLinear));
+}
+
+HRESULT WaveApplication::BuildVertexLayout(ID3DBlob* pVSBlob)
+{
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	UINT numElements = ARRAYSIZE(layout);
+
+	HRESULT hr = g_pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &g_pVertexLayout);
+
+	pVSBlob->Release();
+	return hr;
+}
+
+void WaveApplication::CleanupDevice()
+{
+	ReleaseCOM(mLandVB);
+	ReleaseCOM(mLandIB);
+	ReleaseCOM(mWavesVB);
+	ReleaseCOM(mWavesIB);
+	ReleaseCOM(mGrassMapSRV);
+	ReleaseCOM(mWavesMapSRV);
 }
 
 float WaveApplication::GetHeight(float x, float z) const
 {
 	return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
+}
+
+XMFLOAT3 WaveApplication::GetHillNormal(float x, float z) const
+{
+	XMFLOAT3 n(-0.03f * z * cosf(0.1f * x), 1.0f, -0.3f * sinf(0.1f * x) + 0.03f * x * sinf(0.1f * z));
+	XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n));
+	XMStoreFloat3(&n, unitNormal);
+	return n;
+}
+
+void WaveApplication::BuildFX()
+{
+	// Compile the vertex shader
+	ID3DBlob* pVSBlob = nullptr;
+	HRESULT hr = CompileShaderFromFile(L"Wave.fxh", "VS", "vs_4_0", &pVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the vertex shader
+	hr = g_pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &g_pVertexShader);
+	if (FAILED(hr))
+	{
+		pVSBlob->Release();
+		return;
+	}
+
+	hr = BuildVertexLayout(pVSBlob);
+	if (FAILED(hr))
+	{
+		pVSBlob->Release();
+		return;
+	}
+
+	// Compile the pixel shader
+	ID3DBlob* pPSBlob = nullptr;
+	hr = CompileShaderFromFile(L"Wave.fxh", "PS", "ps_4_0", &pPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the pixel shader
+	hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &g_pPixelShader);
+	pPSBlob->Release();
+	if (FAILED(hr))
+		return;
 }

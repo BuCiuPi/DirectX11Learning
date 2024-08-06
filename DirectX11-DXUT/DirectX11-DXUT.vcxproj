@@ -217,6 +217,7 @@
     <None Include="packages.config" />
     <None Include="Lighting.fxh" />
     <None Include="Texture.fxh" />
+    <None Include="Wave.fxh" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="LightingHelper.fxh" />

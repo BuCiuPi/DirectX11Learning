@@ -62,11 +62,27 @@ struct ConstantBuffer
 	Material gMaterial;
 };
 
+struct WaveConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+	XMMATRIX mWorldInvTranspose;
+	XMMATRIX gTexTransform;
+	Material gMaterial;
+};
+
 struct PerFrameBuffer
 {
 	DirectionalLight gDirLight;
 	PointLight gPointLight;
 	SpotLight gSpotLight;
+	XMFLOAT4 gEyePosW;
+};
+
+struct WavePerFrameBuffer
+{
+	DirectionalLight gDirLights[3];
 	XMFLOAT4 gEyePosW;
 };
 

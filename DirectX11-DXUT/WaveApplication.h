@@ -15,19 +15,47 @@ public:
 	virtual void UpdateScene(float dt)override;
 
 	virtual void BuildGeometryBuffer() override;
-
 	void BuildWaveBuffer();
 
+	virtual void BuildConstantBuffer() override;
+
+	virtual HRESULT BuildVertexLayout(ID3DBlob* pVSBlob) override;
+
+	virtual void CleanupDevice() override;
+
 	float GetHeight(float x, float z) const;
+	XMFLOAT3 GetHillNormal(float x, float z) const;
+
+	virtual void BuildFX() override;
 
 private:
-	ID3D11Buffer* mLandVB;
-	ID3D11Buffer* mLandIB;
-	ID3D11Buffer* mWavesVB;
-	ID3D11Buffer* mWavesIB;
+	ID3D11Buffer* mLandVB = nullptr;
+	ID3D11Buffer* mLandIB = nullptr;
 
-	XMFLOAT4X4 mGridWorld;
+	ID3D11Buffer* mWavesVB = nullptr;
+	ID3D11Buffer* mWavesIB = nullptr;
+
+	ID3D11Buffer* mPerFrameBuffer = nullptr;
+	ID3D11SamplerState* mSamplerLinear = nullptr;
+
+	XMFLOAT4X4 mGrassTexTransform;
+	XMFLOAT4X4 mWaterTexTransform;
+	XMFLOAT4X4 mLandWorld;
 	XMFLOAT4X4 mWavesWorld;
+
+	ID3D11ShaderResourceView* mGrassMapSRV = nullptr;
+	ID3D11ShaderResourceView* mWavesMapSRV = nullptr;
+
+	DirectionalLight mDirLights[3];
+
+	Material mLandMat;
+	Material mWavesMat;
+
+	UINT mLandIndexCount;
+
+	XMFLOAT2 mWaterTexOffset;
+
+
 
 	Waves mWaves;
 
