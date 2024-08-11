@@ -16,7 +16,6 @@ public:
 
 	virtual void BuildFX() override;
 	virtual void BuildConstantBuffer() override;
-	virtual HRESULT BuildVertexLayout(ID3DBlob* pVSBlob) override;
 
 private:
 	ID3D11Buffer* mPerFrameBuffer = nullptr;

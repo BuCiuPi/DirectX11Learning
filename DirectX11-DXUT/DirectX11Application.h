@@ -22,7 +22,6 @@ protected:
 	virtual	void BuildGeometryBuffer() = 0;
 	virtual void BuildConstantBuffer();
 	virtual void BuildFX();
-	virtual HRESULT BuildVertexLayout(ID3DBlob* pVSBlob);
 
 	POINT mLastMousePos;
 

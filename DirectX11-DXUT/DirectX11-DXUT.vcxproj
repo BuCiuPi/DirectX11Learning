@@ -115,13 +115,13 @@
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Core;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Optional;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Core;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Optional;$(SolutionDir)$(ProjectName)\Dependencies\Effects11\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;dxguid.lib;comctl32.lib;usp10.lib;imm32.lib;version.lib;d3d11.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Core\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Optional\Bin\Desktop_2022_Win10\Win32\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3dcompiler.lib;Effects11d.lib;dxguid.lib;comctl32.lib;usp10.lib;imm32.lib;version.lib;d3d11.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Core\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Optional\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderType>Effect</ShaderType>
@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BlendingApplication.h" />
     <ClInclude Include="BoxApplication.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CrateApplication.h" />
@@ -164,6 +165,8 @@
     <ClInclude Include="LightHelper.h" />
     <ClInclude Include="LitApplication.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="MirrorApplication.h" />
+    <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ShapesApplication.h" />
     <ClInclude Include="SphereApplication.h" />
@@ -172,11 +175,13 @@
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BlendingApplication.cpp" />
     <ClCompile Include="BoxApplication.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CrateApplication.cpp" />
     <ClCompile Include="CylinderApplication.cpp" />
     <ClCompile Include="D3DApp.cpp" />
+    <ClCompile Include="D3DUtil.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DirectX11-DXUT.cpp" />
     <ClCompile Include="DirectX11Application.cpp" />
@@ -186,6 +191,8 @@
     <ClCompile Include="HillApplication.cpp" />
     <ClCompile Include="LitApplication.cpp" />
     <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="MirrorApplication.cpp" />
+    <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
     <ClCompile Include="WaveApplication.cpp" />
@@ -209,13 +216,18 @@
     <ProjectReference Include="Dependencies\DXUT-main\Optional\DXUTOpt_2022_Win10.vcxproj">
       <Project>{61b333c2-c4f7-4cc1-a9bf-83f6d95588eb}</Project>
     </ProjectReference>
+    <ProjectReference Include="Dependencies\Effects11\Effects11_2019_Win10.vcxproj">
+      <Project>{df460eab-570d-4b50-9089-2e2fc801bf38}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Blending.fxh" />
     <None Include="color.fxh" />
     <None Include="heart.fxh" />
     <None Include="normal.fxh" />
     <None Include="packages.config" />
     <None Include="Lighting.fxh" />
+    <None Include="Stencil.fxh" />
     <None Include="Texture.fxh" />
     <None Include="Wave.fxh" />
   </ItemGroup>

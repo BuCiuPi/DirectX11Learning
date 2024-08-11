@@ -254,26 +254,6 @@ void LitApplication::BuildGeometryBuffer()
 	mIndexCount = mSphereIndexCount;
 }
 
-HRESULT LitApplication::BuildVertexLayout(ID3DBlob* pVSBlob)
-{
-	// Define the input layout
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	UINT numElements = ARRAYSIZE(layout);
-
-	// Create the input layout
-	HRESULT hr = g_pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
-		pVSBlob->GetBufferSize(), &g_pVertexLayout);
-
-	pVSBlob->Release();
-
-	return hr;
-}
-
 void LitApplication::BuildFX()
 {
 	// Compile the vertex shader
@@ -294,7 +274,14 @@ void LitApplication::BuildFX()
 		return;
 	}
 
-	hr = BuildVertexLayout(pVSBlob);
+	D3D11_INPUT_ELEMENT_DESC layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	UINT numElements = ARRAYSIZE(layout);
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, pVSBlob, layout, numElements, &g_pVertexLayout);
 	if (FAILED(hr))
 	{
 		pVSBlob->Release();

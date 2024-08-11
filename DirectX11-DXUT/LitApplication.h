@@ -16,7 +16,6 @@ public:
 
 protected:
 	virtual void BuildGeometryBuffer() override;
-	virtual HRESULT BuildVertexLayout(ID3DBlob* pVSBlob) override;
 	virtual void BuildFX() override;
 	virtual void BuildConstantBuffer() override;
 

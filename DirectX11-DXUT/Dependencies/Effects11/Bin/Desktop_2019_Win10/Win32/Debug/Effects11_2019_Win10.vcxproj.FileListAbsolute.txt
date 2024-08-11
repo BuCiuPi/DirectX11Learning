@@ -1,0 +1,1 @@
+F:\CPlusPlus\directx-sdk-samples-main\Effects11\Bin\Desktop_2019_Win10\Win32\Debug\Effects11d.lib

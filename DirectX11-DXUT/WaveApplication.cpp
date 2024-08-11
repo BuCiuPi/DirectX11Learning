@@ -232,7 +232,8 @@ void WaveApplication::BuildGeometryBuffer()
 	BuildWaveBuffer();
 }
 
-void WaveApplication::BuildWaveBuffer() {
+void WaveApplication::BuildWaveBuffer() 
+{
 	// Create the vertex buffer.  Note that we allocate space only, as
 // we will be updating the data every time step of the simulation.
 
@@ -319,22 +320,6 @@ void WaveApplication::BuildConstantBuffer()
 	HR(g_pd3dDevice->CreateSamplerState(&sampDesc, &mSamplerLinear));
 }
 
-HRESULT WaveApplication::BuildVertexLayout(ID3DBlob* pVSBlob)
-{
-	D3D11_INPUT_ELEMENT_DESC layout[] =
-	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-	};
-	UINT numElements = ARRAYSIZE(layout);
-
-	HRESULT hr = g_pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &g_pVertexLayout);
-
-	pVSBlob->Release();
-	return hr;
-}
-
 void WaveApplication::CleanupDevice()
 {
 	ReleaseCOM(mLandVB);
@@ -378,7 +363,7 @@ void WaveApplication::BuildFX()
 		return;
 	}
 
-	hr = BuildVertexLayout(pVSBlob);
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, pVSBlob, InputLayoutDesc::Basic32, ARRAYSIZE(InputLayoutDesc::Basic32), &g_pVertexLayout);
 	if (FAILED(hr))
 	{
 		pVSBlob->Release();

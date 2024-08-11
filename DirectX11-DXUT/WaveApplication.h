@@ -19,8 +19,6 @@ public:
 
 	virtual void BuildConstantBuffer() override;
 
-	virtual HRESULT BuildVertexLayout(ID3DBlob* pVSBlob) override;
-
 	virtual void CleanupDevice() override;
 
 	float GetHeight(float x, float z) const;

@@ -1,0 +1,8 @@
+﻿  d3dxGlobal.cpp
+  EffectAPI.cpp
+  EffectLoad.cpp
+  EffectNonRuntime.cpp
+  EffectReflection.cpp
+  EffectRuntime.cpp
+  Generating Code...
+  Effects11_2019_Win10.vcxproj -> F:\CPlusPlus\directx-sdk-samples-main\Effects11\Bin\Desktop_2019_Win10\Win32\Release\Effects11.lib
