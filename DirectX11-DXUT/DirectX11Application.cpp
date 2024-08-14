@@ -4,9 +4,9 @@
 #include "Windows.h"
 
 DirectX11Application::DirectX11Application(HINSTANCE hInstance) : D3DApp(hInstance)
-, mCamera(XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f))
+, mCamera(XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f)), mTheta(1.5f * MathHelper::Pi), mPhi(0.42f * MathHelper::Pi), mRadius(50.0f)
 {
-
+	
 }
 
 bool DirectX11Application::Init(int nShowCmd)
@@ -32,6 +32,16 @@ void DirectX11Application::OnResize()
 
 void DirectX11Application::UpdateScene(float dt)
 {
+	// Convert Spherical to Cartesian coordinates.
+	float x = mRadius * sinf(mPhi) * cosf(mTheta);
+	float z = mRadius * sinf(mPhi) * sinf(mTheta);
+	float y = mRadius * cosf(mPhi);
+
+	// Build the view matrix.
+	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+
+	mCamera.Position = pos;
+
 	g_World = XMMatrixIdentity();
 	g_View = XMMatrixLookAtLH(XMVectorScale(mCamera.Position, 0.3f), mCamera.Target, mCamera.Up);
 }
@@ -84,6 +94,8 @@ void DirectX11Application::OnMouseDown(WPARAM btnState, int x, int y)
 
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
+
+	SetCapture(g_hWnd);
 }
 
 void DirectX11Application::OnMouseUp(WPARAM btnState, int x, int y)
@@ -92,14 +104,42 @@ void DirectX11Application::OnMouseUp(WPARAM btnState, int x, int y)
 
 	mLastMousePos.x = x;
 	mLastMousePos.y = y;
+
+	ReleaseCapture();
 }
 
 void DirectX11Application::OnMouseMove(WPARAM btnState, int x, int y)
 {
-	if (mMouseHolded)
+	//if (mMouseHolded)
+	//{
+	//	//mCurrentCameraPos = XMVectorAdd(mCurrentCameraPos, XMVectorSet(x - mLastMousePos.x, 0.0f, 0.0f, 0.0f));
+	//	mCamera.Position = XMVectorAdd(mCamera.Position, XMVectorSet(0.0f, 0.0f, y - mLastMousePos.y, 0.0f));
+	//}
+
+	if ((btnState & MK_LBUTTON) != 0)
 	{
-		//mCurrentCameraPos = XMVectorAdd(mCurrentCameraPos, XMVectorSet(x - mLastMousePos.x, 0.0f, 0.0f, 0.0f));
-		mCamera.Position = XMVectorAdd(mCamera.Position, XMVectorSet(0.0f, 0.0f, y - mLastMousePos.y, 0.0f));
+		// Make each pixel correspond to a quarter of a degree.
+		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
+		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
+
+		// Update angles based on input to orbit camera around box.
+		mTheta += dx;
+		mPhi += dy;
+
+		// Restrict the angle mPhi.
+		mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
+	}
+	else if ((btnState & MK_RBUTTON) != 0)
+	{
+		// Make each pixel correspond to 0.01 unit in the scene.
+		float dx = 0.01f * static_cast<float>(x - mLastMousePos.x);
+		float dy = 0.01f * static_cast<float>(y - mLastMousePos.y);
+
+		// Update the camera radius based on input.
+		mRadius += dx - dy;
+
+		// Restrict the radius.
+		mRadius = MathHelper::Clamp(mRadius, 3.0f, 50.0f);
 	}
 
 	mLastMousePos.x = x;

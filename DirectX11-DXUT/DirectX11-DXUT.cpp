@@ -30,6 +30,7 @@
 #include "CrateApplication.h"
 #include "BlendingApplication.h"
 #include "MirrorApplication.h"
+#include "BillboardApplication.h"
 
 
 using namespace DirectX;
@@ -39,7 +40,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    MirrorApplication application(hInstance);
+    BillboardApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

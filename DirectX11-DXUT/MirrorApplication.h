@@ -21,13 +21,6 @@ public:
 	virtual void CleanupDevice() override;
 
 	virtual void BuildFX() override;
-
-	virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-
-	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-
-	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
-
 private:
 	ID3D11Buffer* mRoomVB = nullptr;
 
@@ -57,11 +50,6 @@ private:
 	UINT mBoxIndexCount;
 
 	UINT mGridIndexCount;
-
-	float mTheta;
-	float mPhi;
-	float mRadius;
-
 	POINT mLastMousePos;
 
 };

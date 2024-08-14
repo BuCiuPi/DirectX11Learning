@@ -4,9 +4,10 @@
 #include <directxcolors.h>
 #include "DirectXMath.h"
 #include "dxerr.h"
-#include "DDSTextureLoader.h"
 #include "LightHelper.h"
 #include "MathHelper.h"
+#include "DXUT.h"
+#include "DDSTextureLoader.h"
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
@@ -105,6 +106,13 @@ namespace Vertex
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;
 	};
+
+
+	struct TreePointSprite
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT2 Size;
+	};
 }
 
 class InputLayoutDesc
@@ -125,3 +133,4 @@ public:
 	static ID3D11InputLayout* TreePointSprite;
 };
 
+HRESULT LoadTextureArray(ID3D11DeviceContext* deviceContex, ID3D11Device* pd3dDevice, LPCTSTR* szTextureNames, int iNumTextures, ID3D11Texture2D** ppTex2D, ID3D11ShaderResourceView** ppSRV);

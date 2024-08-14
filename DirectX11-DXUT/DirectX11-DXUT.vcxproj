@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BillboardApplication.h" />
     <ClInclude Include="BlendingApplication.h" />
     <ClInclude Include="BoxApplication.h" />
     <ClInclude Include="Camera.h" />
@@ -155,7 +156,6 @@
     <ClInclude Include="CylinderApplication.h" />
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="D3DUtil.h" />
-    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DirectX11Application.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameTimer.h" />
@@ -175,6 +175,7 @@
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BillboardApplication.cpp" />
     <ClCompile Include="BlendingApplication.cpp" />
     <ClCompile Include="BoxApplication.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -182,7 +183,6 @@
     <ClCompile Include="CylinderApplication.cpp" />
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="D3DUtil.cpp" />
-    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DirectX11-DXUT.cpp" />
     <ClCompile Include="DirectX11Application.cpp" />
     <ClCompile Include="GameTimer.cpp" />
@@ -229,6 +229,7 @@
     <None Include="Lighting.fxh" />
     <None Include="Stencil.fxh" />
     <None Include="Texture.fxh" />
+    <None Include="TreeSprite.fxh" />
     <None Include="Wave.fxh" />
   </ItemGroup>
   <ItemGroup>

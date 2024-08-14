@@ -27,6 +27,10 @@ protected:
 
 	bool mMouseHolded = false;
 
+	float mTheta;
+	float mPhi;
+	float mRadius;
+
 	Camera mCamera;
 private:
 };

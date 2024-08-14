@@ -5,7 +5,7 @@
 #include <vector>
 
 MirrorApplication::MirrorApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
-,mTheta(1.5f * MathHelper::Pi), mPhi(0.42f * MathHelper::Pi), mRadius(50.0f)
+
 {
 	mCamera.Position = XMVectorSet(0.0f, 5.0f, -10.0f, 0.0f);
 
@@ -274,15 +274,6 @@ void MirrorApplication::UpdateScene(float dt)
 		t = (timeCur - timeStart) / 1000.0f;
 	}
 
-	// Convert Spherical to Cartesian coordinates.
-	float x = mRadius * sinf(mPhi) * cosf(mTheta);
-	float z = mRadius * sinf(mPhi) * sinf(mTheta);
-	float y = mRadius * cosf(mPhi);
-
-	// Build the view matrix.
-	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-
-	mCamera.Position = pos;
 
 	// Don't let user move below ground plane.
 	mSkullTranslation.y = MathHelper::Max(mSkullTranslation.y, 0.0f);
@@ -524,51 +515,4 @@ void MirrorApplication::BuildFX()
 	pPSBlob->Release();
 	if (FAILED(hr))
 		return;
-}
-
-void MirrorApplication::OnMouseDown(WPARAM btnState, int x, int y)
-{
-	mMouseHolded = true;
-
-	mLastMousePos.x = x;
-	mLastMousePos.y = y;
-
-	SetCapture(g_hWnd);
-}
-
-void MirrorApplication::OnMouseUp(WPARAM btnState, int x, int y)
-{
-	ReleaseCapture();
-}
-
-void MirrorApplication::OnMouseMove(WPARAM btnState, int x, int y)
-{
-	if ((btnState & MK_LBUTTON) != 0)
-	{
-		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
-		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
-
-		// Update angles based on input to orbit camera around box.
-		mTheta += dx;
-		mPhi += dy;
-
-		// Restrict the angle mPhi.
-		mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
-	}
-	else if ((btnState & MK_RBUTTON) != 0)
-	{
-		// Make each pixel correspond to 0.01 unit in the scene.
-		float dx = 0.01f * static_cast<float>(x - mLastMousePos.x);
-		float dy = 0.01f * static_cast<float>(y - mLastMousePos.y);
-
-		// Update the camera radius based on input.
-		mRadius += dx - dy;
-
-		// Restrict the radius.
-		mRadius = MathHelper::Clamp(mRadius, 3.0f, 50.0f);
-	}
-
-	mLastMousePos.x = x;
-	mLastMousePos.y = y;
 }
