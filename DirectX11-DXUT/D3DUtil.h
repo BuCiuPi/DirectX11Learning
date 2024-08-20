@@ -8,6 +8,8 @@
 #include "MathHelper.h"
 #include "DXUT.h"
 #include "DDSTextureLoader.h"
+#include "RenderStates.h"
+#include "Waves.h"
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------

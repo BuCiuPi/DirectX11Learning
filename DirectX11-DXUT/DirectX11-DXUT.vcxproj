@@ -148,8 +148,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
     <ClInclude Include="BlendingApplication.h" />
+    <ClInclude Include="BlurApplication.h" />
+    <ClInclude Include="BlurFilter.h" />
     <ClInclude Include="BoxApplication.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CrateApplication.h" />
@@ -171,12 +174,16 @@
     <ClInclude Include="ShapesApplication.h" />
     <ClInclude Include="SphereApplication.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TessellationApplication.h" />
     <ClInclude Include="WaveApplication.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
     <ClCompile Include="BlendingApplication.cpp" />
+    <ClCompile Include="BlurApplication.cpp" />
+    <ClCompile Include="BlurFilter.cpp" />
     <ClCompile Include="BoxApplication.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CrateApplication.cpp" />
@@ -195,6 +202,7 @@
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
+    <ClCompile Include="TessellationApplication.cpp" />
     <ClCompile Include="WaveApplication.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
@@ -222,18 +230,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Blending.fxh" />
+    <None Include="Blur.fxh" />
     <None Include="color.fxh" />
     <None Include="heart.fxh" />
     <None Include="normal.fxh" />
     <None Include="packages.config" />
     <None Include="Lighting.fxh" />
     <None Include="Stencil.fxh" />
+    <None Include="Tessellation.fxh" />
     <None Include="Texture.fxh" />
     <None Include="TreeSprite.fxh" />
     <None Include="Wave.fxh" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="BezierTessellation.fxh" />
     <Text Include="LightingHelper.fxh" />
+    <Text Include="ScreenQuad.fxh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

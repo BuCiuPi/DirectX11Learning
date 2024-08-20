@@ -38,12 +38,12 @@ void DirectX11Application::UpdateScene(float dt)
 	float y = mRadius * cosf(mPhi);
 
 	// Build the view matrix.
-	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+	XMFLOAT3 pos = XMFLOAT3(x, y, z);
 
-	mCamera.Position = pos;
+	mCamera.SetPosition(pos);
 
 	g_World = XMMatrixIdentity();
-	g_View = XMMatrixLookAtLH(XMVectorScale(mCamera.Position, 0.3f), mCamera.Target, mCamera.Up);
+	g_View = XMMatrixLookAtLH(XMVectorScale(mCamera.GetPositionXM(), 0.3f), mCamera.Target, mCamera.Up);
 }
 
 void DirectX11Application::DrawScene()
@@ -139,7 +139,7 @@ void DirectX11Application::OnMouseMove(WPARAM btnState, int x, int y)
 		mRadius += dx - dy;
 
 		// Restrict the radius.
-		mRadius = MathHelper::Clamp(mRadius, 3.0f, 50.0f);
+		mRadius = MathHelper::Clamp(mRadius, 3.0f,1000.0f);
 	}
 
 	mLastMousePos.x = x;

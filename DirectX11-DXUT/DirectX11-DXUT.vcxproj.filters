@@ -96,6 +96,18 @@
     <ClInclude Include="BillboardApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BlurApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TessellationApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BezierApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -164,6 +176,18 @@
     <ClCompile Include="BillboardApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BlurApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlurFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TessellationApplication.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BezierApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX11-DXUT.rc">
@@ -219,9 +243,21 @@
     <None Include="TreeSprite.fxh">
       <Filter>FX</Filter>
     </None>
+    <None Include="Blur.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="Tessellation.fxh">
+      <Filter>FX</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="LightingHelper.fxh">
+      <Filter>FX</Filter>
+    </Text>
+    <Text Include="ScreenQuad.fxh">
+      <Filter>FX</Filter>
+    </Text>
+    <Text Include="BezierTessellation.fxh">
       <Filter>FX</Filter>
     </Text>
   </ItemGroup>

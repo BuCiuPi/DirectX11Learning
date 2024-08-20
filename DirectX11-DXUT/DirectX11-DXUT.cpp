@@ -31,6 +31,9 @@
 #include "BlendingApplication.h"
 #include "MirrorApplication.h"
 #include "BillboardApplication.h"
+#include "BlurApplication.h"
+#include "TessellationApplication.h"
+#include "BezierApplication.h"
 
 
 using namespace DirectX;
@@ -40,7 +43,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    BillboardApplication application(hInstance);
+    BezierApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

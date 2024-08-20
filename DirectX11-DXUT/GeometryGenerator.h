@@ -45,6 +45,9 @@ public:
 	void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData);
 	void CreateHeartPlane2D(MeshData& meshData);
 
+	void CreateFullscreenQuad(MeshData& meshData);
+
+
 private:
 };
 
