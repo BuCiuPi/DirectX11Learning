@@ -48,8 +48,6 @@ public:
 	ID3D11Buffer* g_pConstantBuffer = nullptr;
 
 	XMMATRIX                g_World;
-	XMMATRIX                g_View;
-	XMMATRIX                g_Projection;
 
 	GameTimer mTimer;
 

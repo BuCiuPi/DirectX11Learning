@@ -7,11 +7,11 @@
 
 TessellationApplication::TessellationApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
+	mCamera.SetPosition(0.0f, 5.0f, -10.0f);
 	mRadius = 20.0f;
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mLandWorld, I);
-	g_View, I;
 	g_World = I;
 
 	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
@@ -69,15 +69,15 @@ void TessellationApplication::DrawScene()
 	{
 		pfb.gDirLights[i] = mDirLights[i];
 	}
-	XMStoreFloat4(&pfb.gEyePosW, mCamera.Position);
+	pfb.gEyePosW = mCamera.GetPosition();
 	g_pImmediateContext->UpdateSubresource(mPerFrameBuffer, 0, nullptr, &pfb, 0, 0);
 	g_pImmediateContext->HSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(g_View);
-	cb.mProjection = XMMatrixTranspose(g_Projection);
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 

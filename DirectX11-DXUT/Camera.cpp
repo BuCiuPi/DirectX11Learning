@@ -103,6 +103,9 @@ void Camera::SetLens(float fovY, float aspect, float near, float far)
 	mNearZ = near;
 	mFarZ = far;
 
+	mNearWindowHeight = 2.0f * mNearZ * tan(0.5f * mFovY);
+	mFarWindowHeight = 2.0f * mFarZ * tan(0.5f * mFovY);
+
 	XMMATRIX p = XMMatrixPerspectiveFovLH(mFovY, mAspect, mNearZ, mFarZ);
 	XMStoreFloat4x4(&mProj, p);
 }
@@ -156,6 +159,15 @@ void Camera::Walk(float d)
 {
 	XMVECTOR s = XMVectorReplicate(d);
 	XMVECTOR l = XMLoadFloat3(&mLook);
+	XMVECTOR p = XMLoadFloat3(&mPosition);
+
+	XMStoreFloat3(&mPosition, XMVectorMultiplyAdd(s, l, p));
+}
+
+void Camera::Fly(float d)
+{
+	XMVECTOR s = XMVectorReplicate(d);
+	XMVECTOR l = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 	XMVECTOR p = XMLoadFloat3(&mPosition);
 
 	XMStoreFloat3(&mPosition, XMVectorMultiplyAdd(s, l, p));
@@ -217,9 +229,4 @@ void Camera::UpdateViewMatrix()
 	mView(1, 3) = 0.0f;
 	mView(2, 3) = 0.0f;
 	mView(3, 3) = 1.0f;
-}
-
-XMVECTOR Camera::GetViewDirection()
-{
-	return XMVector3Normalize(Target - Position);
 }

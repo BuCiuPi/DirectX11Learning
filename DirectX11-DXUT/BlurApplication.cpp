@@ -6,14 +6,13 @@
 
 BlurApplication::BlurApplication(HINSTANCE hInstacne) : DirectX11Application(hInstacne)
 {
-	mCamera.Position = XMVectorSet(0.0f, 150.0f, -250.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, 150.0f, -250.0f));
 	mRadius = 400.0f;
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mLandWorld, I);
 	XMStoreFloat4x4(&mWavesWorld, I);
 	XMStoreFloat4x4(&mBoxWorld, XMMatrixScaling(50.0f, 50.0f, 50.0f));
-	g_View, I;
 	g_World = I;
 
 	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
@@ -115,8 +114,8 @@ void BlurApplication::DrawSceneGeometry()
 
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(g_View);
-	cb.mProjection = XMMatrixTranspose(g_Projection);
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 

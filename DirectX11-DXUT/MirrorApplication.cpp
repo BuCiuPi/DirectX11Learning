@@ -7,14 +7,13 @@
 MirrorApplication::MirrorApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 
 {
-	mCamera.Position = XMVectorSet(0.0f, 5.0f, -10.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, 5.0f, -10.0));
 
 	mSkullTranslation = XMFLOAT3(0.0f, 1.0f, -5.0f);
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mRoomWorld, I);
 	XMStoreFloat4x4(&mSkullWorld, I);
-	g_View, I;
 	g_World = I;
 
 	mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
@@ -91,8 +90,8 @@ void MirrorApplication::DrawScene()
 
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(g_View);
-	cb.mProjection = XMMatrixTranspose(g_Projection);
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 
 	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);

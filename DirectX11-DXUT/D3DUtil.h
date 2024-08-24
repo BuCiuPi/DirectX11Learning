@@ -91,7 +91,7 @@ struct PerFrameBuffer
 struct WavePerFrameBuffer
 {
 	DirectionalLight gDirLights[3];
-	XMFLOAT4 gEyePosW;
+	XMFLOAT3 gEyePosW;
 };
 
 namespace Vertex

@@ -43,7 +43,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    BezierApplication application(hInstance);
+    BlendingApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

@@ -7,10 +7,14 @@ using namespace DirectX;
 class Camera
 {
 public:
-	Camera(XMVECTOR Pos) {
-		Position = Pos;
-		Target = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-		Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	Camera(XMFLOAT3 Pos) {
+		mPosition = Pos;
+		mUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		mRight = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		mLook = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+
+		SetLens(XM_PIDIV2,1, 1.0f, 1000.0f);
 	};
 
 	XMVECTOR GetPositionXM() const;
@@ -40,7 +44,7 @@ public:
 	void SetLens(float fovY, float aspect, float near, float far);
 
 	void LookAt(FXMVECTOR pos, FXMVECTOR target, FXMVECTOR worldUp);
-	void LookAt(const XMFLOAT3& pos,const XMFLOAT3& target,const XMFLOAT3& up);
+	void LookAt(const XMFLOAT3& pos, const XMFLOAT3& target, const XMFLOAT3& up);
 
 	XMMATRIX View() const;
 	XMMATRIX Proj() const;
@@ -48,15 +52,13 @@ public:
 
 	void Strafe(float d);
 	void Walk(float d);
+	void Fly(float d);
 
 	void Pitch(float angle);
 	void RotateY(float angle);
 
 	void UpdateViewMatrix();
 
-
-	XMVECTOR GetViewDirection();
-	
 private:
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mRight;
@@ -74,10 +76,6 @@ private:
 	XMFLOAT4X4 mProj;
 
 public:
-	XMVECTOR Position;
-	XMVECTOR Target;
-	XMVECTOR Up;
-
 };
 
 #endif // !CAMERA_H

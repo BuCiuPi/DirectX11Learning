@@ -15,14 +15,13 @@ LPCTSTR mTreeTextureNames[] =
 
 BillboardApplication::BillboardApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCamera.Position = XMVectorSet(0.0f, 150.0f, -250.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, 150.0f, -250.0f));
 	mRadius = 300.0f;
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mLandWorld, I);
 	XMStoreFloat4x4(&mWavesWorld, I);
 	XMStoreFloat4x4(&mBoxWorld, XMMatrixScaling(50.0f, 50.0f, 50.0f));
-	g_View, I;
 	g_World = I;
 
 	XMMATRIX grassTexScale = XMMatrixScaling(5.0f, 5.0f, 0.0f);
@@ -98,15 +97,15 @@ void BillboardApplication::DrawScene()
 	{
 		pfb.gDirLights[i] = mDirLights[i];
 	}
-	pfb.gEyePosW = mEyePosW;
+	pfb.gEyePosW = mCamera.GetPosition();
 	g_pImmediateContext->UpdateSubresource(mPerFrameBuffer, 0, nullptr, &pfb, 0, 0);
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 	g_pImmediateContext->GSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(g_View);
-	cb.mProjection = XMMatrixTranspose(g_Projection);
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 
@@ -275,7 +274,7 @@ void BillboardApplication::UpdateScene(float dt)
 	XMStoreFloat4x4(&mWaterTexTransform, wavesScale * wavesOffset);
 
 	XMFLOAT4 camPos;
-	XMStoreFloat4(&camPos, mCamera.Position);
+	XMStoreFloat4(&camPos, mCamera.GetPositionXM());
 	mEyePosW = camPos;
 }
 

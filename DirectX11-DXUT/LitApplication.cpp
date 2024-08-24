@@ -3,7 +3,7 @@
 
 LitApplication::LitApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCamera.Position = XMVectorSet(0.0f, 15.0f, -50.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, 15.0f, -50.0));
 
 	XMMATRIX I = XMMatrixIdentity();
 
@@ -84,8 +84,8 @@ void LitApplication::DrawScene()
 
 	ConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(g_View);
-	cb.mProjection = XMMatrixTranspose(g_Projection);
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 
 
 	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
@@ -326,7 +326,7 @@ void LitApplication::UpdateScene(float dt)
 	DirectX11Application::UpdateScene(dt);
 
 	XMFLOAT4 camPos;
-	XMStoreFloat4(&camPos, mCamera.Position);
+	XMStoreFloat4(&camPos, mCamera.GetPositionXM());
 	mEyePosW = camPos;
 
 	mPointLight.Position.x = 20.0f * cosf(0.2f * mTimer.GetTotalTime());
@@ -334,5 +334,5 @@ void LitApplication::UpdateScene(float dt)
 	mPointLight.Position.y = 1.0f;
 
 	mSpotLight.Position = XMFLOAT3(mEyePosW.x, mEyePosW.y, mEyePosW.z);
-	XMStoreFloat3(&mSpotLight.Direction, mCamera.GetViewDirection());
+	XMStoreFloat3(&mSpotLight.Direction, mCamera.GetLookXM());
 }

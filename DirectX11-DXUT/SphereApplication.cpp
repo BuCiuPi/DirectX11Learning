@@ -4,7 +4,7 @@
 
 SphereApplication::SphereApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCamera.Position = XMVectorSet(0.0f, -3.0f, -10.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, -3.0f, -10.0));
 }
 
 void SphereApplication::BuildGeometryBuffer()

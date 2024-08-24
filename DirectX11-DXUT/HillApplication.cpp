@@ -7,7 +7,7 @@
 
 HillApplication::HillApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCamera.Position = XMVectorSet(0.0f, 100.0f, -50.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, 100.0f, -50.0));
 }
 
 void HillApplication::BuildGeometryBuffer()

@@ -12,6 +12,8 @@ public:
 	virtual bool Init(int nShowCmd);
 	void OnResize();
 	virtual void UpdateScene(float dt) override;
+	void UpdateCameraState(float dt);
+
 	virtual void DrawScene() override;
 
 	virtual	void OnMouseDown(WPARAM btnState, int x, int y) override;
@@ -25,11 +27,11 @@ protected:
 
 	POINT mLastMousePos;
 
-	bool mMouseHolded = false;
-
 	float mTheta;
 	float mPhi;
 	float mRadius;
+
+	bool mIsCameraMoveable = true;
 
 	Camera mCamera;
 private:

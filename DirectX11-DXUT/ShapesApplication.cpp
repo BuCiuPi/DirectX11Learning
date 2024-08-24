@@ -3,7 +3,7 @@
 #include "DirectXMath.h"
 ShapeApplication::ShapeApplication(HINSTANCE hInstance) : DirectX11Application(hInstance)
 {
-	mCamera.Position = XMVectorSet(0.0f, 100.0f, -100.0f, 0.0f);
+	mCamera.SetPosition(XMFLOAT3(0.0f, 100.0f, -100.0));
 
 	XMMATRIX I = XMMatrixIdentity();
 
@@ -48,8 +48,8 @@ void ShapeApplication::DrawScene()
 
 	ConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(g_View);
-	cb.mProjection = XMMatrixTranspose(g_Projection);
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 
 	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
