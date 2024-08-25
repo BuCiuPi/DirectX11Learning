@@ -165,6 +165,7 @@
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="HeartPlaneApplication.h" />
     <ClInclude Include="HillApplication.h" />
+    <ClInclude Include="InstancingAndCullingApplication.h" />
     <ClInclude Include="LightHelper.h" />
     <ClInclude Include="LitApplication.h" />
     <ClInclude Include="MathHelper.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="HeartPlaneApplication.cpp" />
     <ClCompile Include="HillApplication.cpp" />
+    <ClCompile Include="InstancingAndCullingApplication.cpp" />
     <ClCompile Include="LitApplication.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="MirrorApplication.cpp" />
@@ -233,6 +235,7 @@
     <None Include="Blur.fxh" />
     <None Include="color.fxh" />
     <None Include="heart.fxh" />
+    <None Include="Instancing.fxh" />
     <None Include="normal.fxh" />
     <None Include="packages.config" />
     <None Include="Lighting.fxh" />

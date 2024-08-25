@@ -34,6 +34,7 @@
 #include "BlurApplication.h"
 #include "TessellationApplication.h"
 #include "BezierApplication.h"
+#include "InstancingAndCullingApplication.h"
 
 
 using namespace DirectX;
@@ -43,7 +44,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    BlendingApplication application(hInstance);
+    InstancingAndCullingApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

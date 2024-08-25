@@ -94,6 +94,12 @@ struct WavePerFrameBuffer
 	XMFLOAT3 gEyePosW;
 };
 
+struct InstancedData
+{
+	XMFLOAT4X4 World;
+	XMFLOAT4 Color;
+};
+
 namespace Vertex
 {
 	// Basic 32-byte vertex structure.
@@ -122,6 +128,7 @@ class InputLayoutDesc
 public:
 	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
 	static const D3D11_INPUT_ELEMENT_DESC TreePointSprite[2];
+	static const D3D11_INPUT_ELEMENT_DESC InstancedBasic32[8];
 
 };
 

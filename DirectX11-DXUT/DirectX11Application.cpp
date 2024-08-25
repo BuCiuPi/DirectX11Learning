@@ -54,7 +54,7 @@ void DirectX11Application::UpdateCameraState(float dt)
 
 	//mCamera.SetPosition(pos);
 
-	float camSpeed = 10.0f;
+	float camSpeed = mCamera.CameraSpeed;
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 		camSpeed *= 2;

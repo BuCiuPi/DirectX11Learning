@@ -59,6 +59,8 @@ public:
 
 	void UpdateViewMatrix();
 
+	float CameraSpeed = 10.0f;
+
 private:
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mRight;
