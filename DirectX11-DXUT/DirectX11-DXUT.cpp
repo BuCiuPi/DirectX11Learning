@@ -35,6 +35,7 @@
 #include "TessellationApplication.h"
 #include "BezierApplication.h"
 #include "InstancingAndCullingApplication.h"
+#include "PickingApplication.h"
 
 
 using namespace DirectX;
@@ -44,7 +45,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    InstancingAndCullingApplication application(hInstance);
+    PickingApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

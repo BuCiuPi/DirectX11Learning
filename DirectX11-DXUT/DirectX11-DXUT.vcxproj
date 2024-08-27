@@ -170,6 +170,7 @@
     <ClInclude Include="LitApplication.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="MirrorApplication.h" />
+    <ClInclude Include="PickingApplication.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ShapesApplication.h" />
@@ -201,6 +202,7 @@
     <ClCompile Include="LitApplication.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="MirrorApplication.cpp" />
+    <ClCompile Include="PickingApplication.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
@@ -234,6 +236,7 @@
     <None Include="Blending.fxh" />
     <None Include="Blur.fxh" />
     <None Include="color.fxh" />
+    <None Include="DirLight.fxh" />
     <None Include="heart.fxh" />
     <None Include="Instancing.fxh" />
     <None Include="normal.fxh" />

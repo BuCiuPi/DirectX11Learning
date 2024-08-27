@@ -146,6 +146,16 @@ XMMATRIX Camera::ViewProj() const
 	return XMMatrixMultiply(View(), Proj());
 }
 
+XMFLOAT4X4 Camera::View4x4() const
+{
+	return mView;
+}
+
+XMFLOAT4X4 Camera::Proj4x4() const
+{
+	return 	mProj;
+}
+
 void Camera::Strafe(float d)
 {
 	XMVECTOR s = XMVectorReplicate(d);

@@ -50,6 +50,9 @@ public:
 	XMMATRIX Proj() const;
 	XMMATRIX ViewProj() const;
 
+	XMFLOAT4X4 View4x4() const;
+	XMFLOAT4X4 Proj4x4() const;
+
 	void Strafe(float d);
 	void Walk(float d);
 	void Fly(float d);
