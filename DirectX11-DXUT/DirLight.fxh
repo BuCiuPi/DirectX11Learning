@@ -20,7 +20,7 @@ cbuffer WavePerFrameBuffer : register(b1)
 
 struct VS_INPUT
 {
-    float4 Pos : POSITION;
+    float3 Pos : POSITION;
     float3 NormalL : NORMAL;
     float2 Texture : TEXCOORD;
 };
@@ -29,7 +29,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 Pos : SV_POSITION;
-    float4 PosW : POSITION;
+    float3 PosW : POSITION;
     float3 NormalW : NORMAL;
     float2 Texture : TEXCOORD;
 };
@@ -40,8 +40,8 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT) 0;
-    output.PosW = mul(input.Pos, World);
-    output.Pos = mul(mul(output.PosW, View), Projection);
+    output.PosW = mul(float4(input.Pos, 1.0f), World).xyz;
+    output.Pos = mul(mul(float4(output.PosW, 1.0f), View), Projection);
     
     output.NormalW = mul(input.NormalL, (float3x3) WorldInvTranspose);
     output.Texture = mul(float4(input.Texture, 0.0f, 1.0f), gTexTransform).xy;

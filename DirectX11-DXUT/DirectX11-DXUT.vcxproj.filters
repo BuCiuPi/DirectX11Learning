@@ -114,6 +114,15 @@
     <ClInclude Include="PickingApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CubeMapApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sky.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCubeMapApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -188,17 +197,26 @@
     <ClCompile Include="BlurFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TessellationApplication.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="BezierApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CubeMapApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TessellationApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="InstancingAndCullingApplication.cpp">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sky.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PickingApplication.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCubeMapApplication.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +241,60 @@
       <Filter>Textures</Filter>
     </Image>
     <Image Include="Textures\WoodCrate02.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\bricks.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\checkboard.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\desertcube1024.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\floor.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\grass.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\grasscube1024.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\ice.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\snowcube1024.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\stone.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\sunsetcube1024.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\tree0.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\tree1.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\tree2.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\tree3.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\water1.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\water2.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\WireFence.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="Textures\brick01.dds">
       <Filter>Textures</Filter>
     </Image>
   </ItemGroup>
@@ -265,6 +337,12 @@
       <Filter>FX</Filter>
     </None>
     <None Include="DirLight.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="DirLightTex.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="Sky.fxh">
       <Filter>FX</Filter>
     </None>
   </ItemGroup>

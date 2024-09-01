@@ -156,10 +156,12 @@
     <ClInclude Include="BoxApplication.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CrateApplication.h" />
+    <ClInclude Include="CubeMapApplication.h" />
     <ClInclude Include="CylinderApplication.h" />
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="D3DUtil.h" />
     <ClInclude Include="DirectX11Application.h" />
+    <ClInclude Include="DynamicCubeMapApplication.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="GeometryGenerator.h" />
@@ -174,6 +176,7 @@
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ShapesApplication.h" />
+    <ClInclude Include="Sky.h" />
     <ClInclude Include="SphereApplication.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TessellationApplication.h" />
@@ -189,11 +192,13 @@
     <ClCompile Include="BoxApplication.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CrateApplication.cpp" />
+    <ClCompile Include="CubeMapApplication.cpp" />
     <ClCompile Include="CylinderApplication.cpp" />
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="D3DUtil.cpp" />
     <ClCompile Include="DirectX11-DXUT.cpp" />
     <ClCompile Include="DirectX11Application.cpp" />
+    <ClCompile Include="DynamicCubeMapApplication.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="HeartPlaneApplication.cpp" />
@@ -205,6 +210,7 @@
     <ClCompile Include="PickingApplication.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
+    <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
     <ClCompile Include="TessellationApplication.cpp" />
     <ClCompile Include="WaveApplication.cpp" />
@@ -216,8 +222,26 @@
   <ItemGroup>
     <Image Include="DirectX11-DXUT.ico" />
     <Image Include="small.ico" />
+    <Image Include="Textures\brick01.dds" />
+    <Image Include="Textures\bricks.dds" />
+    <Image Include="Textures\checkboard.dds" />
     <Image Include="Textures\darkbrick.bmp" />
     <Image Include="Textures\darkbrickdxt1.dds" />
+    <Image Include="Textures\desertcube1024.dds" />
+    <Image Include="Textures\floor.dds" />
+    <Image Include="Textures\grass.dds" />
+    <Image Include="Textures\grasscube1024.dds" />
+    <Image Include="Textures\ice.dds" />
+    <Image Include="Textures\snowcube1024.dds" />
+    <Image Include="Textures\stone.dds" />
+    <Image Include="Textures\sunsetcube1024.dds" />
+    <Image Include="Textures\tree0.dds" />
+    <Image Include="Textures\tree1.dds" />
+    <Image Include="Textures\tree2.dds" />
+    <Image Include="Textures\tree3.dds" />
+    <Image Include="Textures\water1.dds" />
+    <Image Include="Textures\water2.dds" />
+    <Image Include="Textures\WireFence.dds" />
     <Image Include="Textures\WoodCrate01.dds" />
     <Image Include="Textures\WoodCrate02.dds" />
   </ItemGroup>
@@ -237,11 +261,13 @@
     <None Include="Blur.fxh" />
     <None Include="color.fxh" />
     <None Include="DirLight.fxh" />
+    <None Include="DirLightTex.fxh" />
     <None Include="heart.fxh" />
     <None Include="Instancing.fxh" />
     <None Include="normal.fxh" />
     <None Include="packages.config" />
     <None Include="Lighting.fxh" />
+    <None Include="Sky.fxh" />
     <None Include="Stencil.fxh" />
     <None Include="Tessellation.fxh" />
     <None Include="Texture.fxh" />

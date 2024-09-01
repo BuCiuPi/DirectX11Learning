@@ -2,7 +2,6 @@
 #define DIRECTX11APPLICATION_H
 
 #include "D3DApp.h"
-#include "Camera.h"
 
 class DirectX11Application : public D3DApp
 {

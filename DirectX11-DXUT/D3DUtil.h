@@ -10,6 +10,8 @@
 #include "DDSTextureLoader.h"
 #include "RenderStates.h"
 #include "Waves.h"
+#include "Camera.h"
+#include "Sky.h"
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
@@ -80,6 +82,11 @@ struct WaveConstantBuffer
 	Material gMaterial;
 };
 
+struct SkyConstantBuffer
+{
+	XMMATRIX mMVP;
+};
+
 struct PerFrameBuffer
 {
 	DirectionalLight gDirLight;
@@ -127,6 +134,7 @@ class InputLayoutDesc
 {
 public:
 	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
+	static const D3D11_INPUT_ELEMENT_DESC Pos[1];
 	static const D3D11_INPUT_ELEMENT_DESC TreePointSprite[2];
 	static const D3D11_INPUT_ELEMENT_DESC InstancedBasic32[8];
 
@@ -135,10 +143,10 @@ public:
 class InputLayouts
 {
 public:
-	static HRESULT BuildVertexLayout(ID3D11Device* device, ID3DBlob* pVSBlob,const D3D11_INPUT_ELEMENT_DESC layout[], UINT numElements, ID3D11InputLayout** inputLayout);
+	static HRESULT BuildVertexLayout(ID3D11Device* device, ID3DBlob* pVSBlob, const D3D11_INPUT_ELEMENT_DESC layout[], UINT numElements, ID3D11InputLayout** inputLayout);
 	static void DestroyAll();
-
 	static ID3D11InputLayout* Basic32;
+	static ID3D11InputLayout* Pos;
 	static ID3D11InputLayout* TreePointSprite;
 };
 

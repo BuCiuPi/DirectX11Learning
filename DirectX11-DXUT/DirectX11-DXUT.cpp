@@ -34,6 +34,8 @@
 #include "BlurApplication.h"
 #include "TessellationApplication.h"
 #include "BezierApplication.h"
+#include "CubeMapApplication.h"
+#include "DynamicCubeMapApplication.h"
 #include "InstancingAndCullingApplication.h"
 #include "PickingApplication.h"
 
@@ -45,7 +47,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    PickingApplication application(hInstance);
+    DynamicCubeMapApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {
