@@ -37,6 +37,7 @@
 #include "CubeMapApplication.h"
 #include "DynamicCubeMapApplication.h"
 #include "InstancingAndCullingApplication.h"
+#include "NormalMappingApplication.h"
 #include "PickingApplication.h"
 
 
@@ -47,7 +48,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    DynamicCubeMapApplication application(hInstance);
+    NormalMappingApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

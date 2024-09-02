@@ -38,8 +38,10 @@ public:
 
 	void CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData);
 	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);
-	void BuildCylinderTopCap(MeshData& meshData, float height, UINT sliceCount, float topRadius);
-	void BuildCylinderBottomCap(MeshData& meshData, float height, UINT sliceCount, float bottomRadius);
+	void BuildCylinderTopCap(float bottomRadius, float topRadius, float height,
+		UINT sliceCount, UINT stackCount, MeshData& meshData);
+	void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height,
+		UINT sliceCount, UINT stackCount, MeshData& meshData);
 
 	void CreateBox(float width, float height, float depth, MeshData& meshData);
 	void CreateSphere(float radius, UINT sliceCount, UINT stackCount, MeshData& meshData);

@@ -123,6 +123,9 @@
     <ClInclude Include="DynamicCubeMapApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NormalMappingApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -216,6 +219,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DynamicCubeMapApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalMappingApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -343,6 +349,9 @@
       <Filter>FX</Filter>
     </None>
     <None Include="Sky.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="NormalMap.fxh">
       <Filter>FX</Filter>
     </None>
   </ItemGroup>

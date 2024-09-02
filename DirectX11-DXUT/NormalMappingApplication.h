@@ -1,24 +1,17 @@
-#ifndef DYNAMIC_CUBE_MAP_APPLICATION_H
-#define DYNAMIC_CUBE_MAP_APPLICATION_H
-
+#ifndef NORMALMAPPING_APPLICATION_H
+#define NORMALMAPPING_APPLICATION_H
 #include "DirectX11Application.h"
-class DynamicCubeMapApplication : public DirectX11Application
+class NormalMappingApplication : public DirectX11Application
 {
-public:
-	DynamicCubeMapApplication(HINSTANCE hinstance);
-
+public :
+	NormalMappingApplication(HINSTANCE hInstance);
 	virtual bool Init(int nShowCmd) override;
 
 	virtual void DrawScene()override;
-	 void DrawCubeMap();
-	 void DrawSceneGeo(const Camera& mCam, bool drawCenterSphere);
 	virtual void UpdateScene(float dt)override;
-
-	void BuildCubeFaceCamera(float x, float y, float z);
 
 	virtual void BuildGeometryBuffer() override;
 	void BuildSkullGeometryBuffer();
-	void BuildDynamicCubeMapView();
 
 	virtual void BuildConstantBuffer() override;
 
@@ -27,16 +20,6 @@ public:
 	virtual void BuildFX() override;
 
 private:
-
-	ID3D11DepthStencilView* mDynamicCubeMapDSV = nullptr;
-	ID3D11RenderTargetView* mDynamicCubeMapRTV[6];
-	ID3D11ShaderResourceView* mDynamicCubeMapSRV = nullptr;
-	D3D11_VIEWPORT mCubeMapViewport;
-
-	static const int CubeMapSize = 256;
-
-	Camera mCubeMapCamera[6];
-
 	ID3D11VertexShader* mSkyVertexShader = nullptr;
 	ID3D11PixelShader* mSkyPixelShader = nullptr;
 
@@ -64,6 +47,11 @@ private:
 	ID3D11ShaderResourceView* mStoneSRV = nullptr;
 	ID3D11ShaderResourceView* mBrickSRV = nullptr;
 
+	ID3D11ShaderResourceView* mStoneNormalTexSRV = nullptr;
+	ID3D11ShaderResourceView* mBrickNormalTexSRV = nullptr;
+
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+
 	DirectionalLight mDirLights[3];
 
 	Material mGridMat;
@@ -77,6 +65,7 @@ private:
 	XMFLOAT4X4 mBoxWorld;
 	XMFLOAT4X4 mGridWorld;
 	XMFLOAT4X4 mSkullWorld;
+
 
 	UINT mBoxVertexCount;
 	UINT mGridVertexCount;
@@ -104,5 +93,6 @@ private:
 
 };
 
-#endif
+#endif // !NORMALMAPPING_APPLICATION_H
+
 

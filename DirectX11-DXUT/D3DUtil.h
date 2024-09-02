@@ -128,6 +128,14 @@ namespace Vertex
 		XMFLOAT3 Pos;
 		XMFLOAT2 Size;
 	};
+
+	struct PosNormalTexTan
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT3 Normal;
+		XMFLOAT2 Tex;
+		XMFLOAT3 TangentU;
+	};
 }
 
 class InputLayoutDesc
@@ -137,6 +145,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC Pos[1];
 	static const D3D11_INPUT_ELEMENT_DESC TreePointSprite[2];
 	static const D3D11_INPUT_ELEMENT_DESC InstancedBasic32[8];
+	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTan[4];
 
 };
 
@@ -148,6 +157,7 @@ public:
 	static ID3D11InputLayout* Basic32;
 	static ID3D11InputLayout* Pos;
 	static ID3D11InputLayout* TreePointSprite;
+	static ID3D11InputLayout* PosNormalTexTan;
 };
 
 HRESULT LoadTextureArray(ID3D11DeviceContext* deviceContex, ID3D11Device* pd3dDevice, LPCTSTR* szTextureNames, int iNumTextures, ID3D11Texture2D** ppTex2D, ID3D11ShaderResourceView** ppSRV);

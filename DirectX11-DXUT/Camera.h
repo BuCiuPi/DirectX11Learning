@@ -7,6 +7,15 @@ using namespace DirectX;
 class Camera
 {
 public:
+	Camera()
+	{
+		mUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		mRight = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		mLook = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+		SetLens(XM_PIDIV2, 1, 1.0f, 1000.0f);
+	};
+
 	Camera(XMFLOAT3 Pos) {
 		mPosition = Pos;
 		mUp = XMFLOAT3(0.0f, 1.0f, 0.0f);

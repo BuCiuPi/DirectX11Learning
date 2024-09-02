@@ -1,19 +1,13 @@
-#include "DynamicCubeMapApplication.h"
+#include "NormalMappingApplication.h"
 
 #include <fstream>
 
 #include "GeometryGenerator.h"
 
-DynamicCubeMapApplication::DynamicCubeMapApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
+NormalMappingApplication::NormalMappingApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
 {
 	mCamera.SetPosition(0.0f, 2.0f, -15.0f);
-
-	BuildCubeFaceCamera(0.0f, 2.0f, 0.0f);
-
-	for (int i = 0; i < 6; ++i)
-	{
-		mDynamicCubeMapRTV[i] = 0;
-	}
+	mCamera.CameraSpeed = 5.0f;
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mGridWorld, I);
@@ -57,7 +51,7 @@ DynamicCubeMapApplication::DynamicCubeMapApplication(HINSTANCE hinstance) : Dire
 
 	mCylinderMat.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mCylinderMat.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	mCylinderMat.Specular = XMFLOAT4(0.8f, 0.8f, 0.8f, 16.0f);
+	mCylinderMat.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 32.0f);
 	mCylinderMat.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	mSphereMat.Ambient = XMFLOAT4(0.2f, 0.3f, 0.4f, 1.0f);
@@ -76,15 +70,13 @@ DynamicCubeMapApplication::DynamicCubeMapApplication(HINSTANCE hinstance) : Dire
 	mSkullMat.Reflect = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 }
 
-bool DynamicCubeMapApplication::Init(int nShowCmd)
+bool NormalMappingApplication::Init(int nShowCmd)
 {
 	if (!D3DApp::Init(nShowCmd))
 	{
 		return false;
 	}
 	RenderStates::InitAll(g_pd3dDevice);
-
-	BuildDynamicCubeMapView();
 
 	BuildGeometryBuffer();
 	BuildSkullGeometryBuffer();
@@ -94,48 +86,16 @@ bool DynamicCubeMapApplication::Init(int nShowCmd)
 	return true;
 }
 
-void DynamicCubeMapApplication::DrawScene()
+void NormalMappingApplication::DrawScene()
 {
-	DrawCubeMap();
-}
-
-void DynamicCubeMapApplication::DrawCubeMap()
-{
-	ID3D11RenderTargetView* renderTargets[1];
-
-	g_pImmediateContext->RSSetViewports(1, &mCubeMapViewport);
-	for (int i = 0; i < 6; ++i)
-	{
-		g_pImmediateContext->ClearRenderTargetView(mDynamicCubeMapRTV[i], reinterpret_cast<const float*>(&Colors::Silver));
-		g_pImmediateContext->ClearDepthStencilView(mDynamicCubeMapDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-		renderTargets[0] = mDynamicCubeMapRTV[i];
-		g_pImmediateContext->OMSetRenderTargets(1, renderTargets, mDynamicCubeMapDSV);
-		DrawSceneGeo(mCubeMapCamera[i], false);
-	}
-
-
-	g_pImmediateContext->RSSetViewports(1, &g_pSceneViewport);
-	renderTargets[0] = g_pRenderTargetView;
-	g_pImmediateContext->OMSetRenderTargets(1, renderTargets, g_pDepthStencilView);
-
-	g_pImmediateContext->GenerateMips(mDynamicCubeMapSRV);
-
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
 	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	DrawSceneGeo(mCamera, true);
-
-	g_pSwapChain->Present(0, 0);
-}
-
-void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenterSphere)
-{
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
-	UINT stride = sizeof(Vertex::Basic32);
+	UINT stride = sizeof(Vertex::PosNormalTexTan);
 	UINT offset = 0;
 
 	WavePerFrameBuffer pfb;
@@ -143,14 +103,15 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 	{
 		pfb.gDirLights[i] = mDirLights[i];
 	}
-	pfb.gEyePosW = mCam.GetPosition();
+	pfb.gEyePosW = mCamera.GetPosition();
 	g_pImmediateContext->UpdateSubresource(mPerFrameBuffer, 0, nullptr, &pfb, 0, 0);
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 
+
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
-	cb.mView = XMMatrixTranspose(mCam.View());
-	cb.mProjection = XMMatrixTranspose(mCam.Proj());
+	cb.mView = XMMatrixTranspose(mCamera.View());
+	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 
@@ -159,10 +120,12 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
 	g_pImmediateContext->PSSetSamplers(1, 1, &mSamAnisotropic);
 
-	g_pImmediateContext->PSSetShaderResources(1, 1, &mDynamicCubeMapSRV);
+	ID3D11ShaderResourceView* skySRV = mSky->CubeMapSRV();
+	g_pImmediateContext->PSSetShaderResources(1, 1, &skySRV);
 
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &mShapesVB, &stride, &offset);
 	g_pImmediateContext->IASetIndexBuffer(mShapesIB, DXGI_FORMAT_R32_UINT, 0);
+
 
 	cb.mWorld = XMLoadFloat4x4(&mGridWorld);
 	cb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(6.0f, 8.0f, 1.0f));
@@ -172,6 +135,7 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
 	g_pImmediateContext->PSSetShaderResources(0, 1, &mFloorSRV);
+	g_pImmediateContext->PSSetShaderResources(2, 1, &mStoneNormalTexSRV);
 
 	g_pImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
 
@@ -186,6 +150,7 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 
 	g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
 
+
 	for (int i = 0; i < 10; ++i)
 	{
 		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mCylWorld[i]));
@@ -197,8 +162,10 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 		g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
 		g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
+		g_pImmediateContext->PSSetShaderResources(2, 1, &mBrickNormalTexSRV);
 
 		g_pImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
+
 
 		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSphereWorld[i]));
 		cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
@@ -209,33 +176,25 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 		g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
 		g_pImmediateContext->PSSetShaderResources(0, 1, &mStoneSRV);
+		g_pImmediateContext->PSSetShaderResources(2, 1, &nullSRV);
 
 		g_pImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
 	}
 
-	if (drawCenterSphere)
-	{
-		// drawSkull
-		g_pImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
-		g_pImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
+	g_pImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
+	// drawSkull
+	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSkullWorld));
+	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+	cb.gMaterial = mSkullMat;
+	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSkullWorld));
-		cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
-		cb.gMaterial = mSkullMat;
-		g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-		g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-		g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	g_pImmediateContext->PSSetShaderResources(0, 1, &nullSRV);
 
-		ID3D11ShaderResourceView* nullSRV = nullptr;
-		g_pImmediateContext->PSSetShaderResources(0, 1, &nullSRV);
+	g_pImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
 
-		g_pImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-	}
-	else
-	{
-		ID3D11ShaderResourceView* nullSRV = nullptr;
-		g_pImmediateContext->PSSetShaderResources(0, 1, &nullSRV);
-	}
 
 	// draw sky
 
@@ -260,74 +219,17 @@ void DynamicCubeMapApplication::DrawSceneGeo(const Camera& mCam, bool drawCenter
 
 	g_pImmediateContext->OMSetDepthStencilState(nullptr, 0);
 	g_pImmediateContext->RSSetState(nullptr);
+
+
+	g_pSwapChain->Present(0, 0);
 }
 
-void DynamicCubeMapApplication::UpdateScene(float dt)
+void NormalMappingApplication::UpdateScene(float dt)
 {
 	DirectX11Application::UpdateScene(dt);
-
-	static float t = 0.0f;
-	if (g_driverType == D3D_DRIVER_TYPE_REFERENCE)
-	{
-		t += (float)XM_PI * 0.0125f;
-	}
-	else
-	{
-		static ULONGLONG timeStart = 0;
-		ULONGLONG timeCur = GetTickCount64();
-		if (timeStart == 0)
-			timeStart = timeCur;
-		t = (timeCur - timeStart) / 1000.0f;
-	}
-
-	XMMATRIX skullScale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
-	XMMATRIX skullOffset = XMMatrixTranslation(0.0f, 1.0f, 0.0f);
-	XMMATRIX skullLocalRotate = XMMatrixRotationY(2.0f * t);
-	XMMATRIX skullGlobalRotate = XMMatrixRotationY(0.5f * t);
-	XMStoreFloat4x4(&mSkullWorld, skullScale * skullLocalRotate * skullOffset * skullGlobalRotate);
-
-	//for (int i = 0; i < 6; ++i)
-	//{
-	//	float dx = XMConvertToRadians(0.2f * t);
-	//	mCubeMapCamera[i].RotateY(dx);
-	//	mCubeMapCamera[i].UpdateViewMatrix();
-	//}
 }
 
-void DynamicCubeMapApplication::BuildCubeFaceCamera(float x, float y, float z)
-{
-	XMFLOAT3 center(x, y, z);
-	XMFLOAT3 worldUp(0.0f, 1.0f, 0.0f);
-
-	XMFLOAT3 targets[6] =
-	{
-		XMFLOAT3(x + 1.0f, y, z), // +X
-		XMFLOAT3(x - 1.0f, y, z), // -X
-		XMFLOAT3(x, y + 1.0f, z), // +Y
-		XMFLOAT3(x, y - 1.0f, z), // -Y
-		XMFLOAT3(x, y, z + 1.0f), // +Z
-		XMFLOAT3(x, y, z - 1.0f)  // -Z
-	};
-
-	XMFLOAT3 ups[6] =
-	{
-		XMFLOAT3(0.0f, 1.0f, 0.0f),  // +X
-		XMFLOAT3(0.0f, 1.0f, 0.0f),  // -X
-		XMFLOAT3(0.0f, 0.0f, -1.0f), // +Y
-		XMFLOAT3(0.0f, 0.0f, +1.0f), // -Y
-		XMFLOAT3(0.0f, 1.0f, 0.0f),	 // +Z
-		XMFLOAT3(0.0f, 1.0f, 0.0f)	 // -Z
-	};
-
-	for (int i = 0; i < 6; ++i)
-	{
-		mCubeMapCamera[i].LookAt(center, targets[i], ups[i]);
-		mCubeMapCamera[i].SetLens(0.5f * XM_PI, 1.0f, 0.1f, 1000.0f);
-		mCubeMapCamera[i].UpdateViewMatrix();
-	}
-}
-
-void DynamicCubeMapApplication::BuildGeometryBuffer()
+void NormalMappingApplication::BuildGeometryBuffer()
 {
 	MeshData box;
 	MeshData grid;
@@ -338,7 +240,7 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 	geoGen.CreateBox(1.0f, 1.0f, 1.0f, box);
 	geoGen.CreateGrid(20.0f, 30.0f, 60, 40, grid);
 	geoGen.CreateSphere(0.5f, 20, 20, sphere);
-	geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20, cylinder);
+	geoGen.CreateCylinder(0.5f, 0.5f, 3.0f, 20, 20, cylinder);
 
 	// Cache the vertex offsets to each object in the concatenated vertex buffer.
 	mBoxVertexOffset = 0;
@@ -375,7 +277,7 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 	// vertices of all the meshes into one vertex buffer.
 	//
 
-	std::vector<Vertex::Basic32> vertices(totalVertexCount);
+	std::vector<Vertex::PosNormalTexTan> vertices(totalVertexCount);
 
 	UINT k = 0;
 	for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
@@ -383,6 +285,7 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 		vertices[k].Pos = box.Vertices[i].Position;
 		vertices[k].Normal = box.Vertices[i].Normal;
 		vertices[k].Tex = box.Vertices[i].TexC;
+		vertices[k].TangentU = box.Vertices[i].TangentU;
 	}
 
 	for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
@@ -390,6 +293,7 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 		vertices[k].Pos = grid.Vertices[i].Position;
 		vertices[k].Normal = grid.Vertices[i].Normal;
 		vertices[k].Tex = grid.Vertices[i].TexC;
+		vertices[k].TangentU = grid.Vertices[i].TangentU;
 	}
 
 	for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
@@ -397,6 +301,7 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 		vertices[k].Pos = sphere.Vertices[i].Position;
 		vertices[k].Normal = sphere.Vertices[i].Normal;
 		vertices[k].Tex = sphere.Vertices[i].TexC;
+		vertices[k].TangentU = sphere.Vertices[i].TangentU;
 	}
 
 	for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
@@ -404,11 +309,12 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 		vertices[k].Pos = cylinder.Vertices[i].Position;
 		vertices[k].Normal = cylinder.Vertices[i].Normal;
 		vertices[k].Tex = cylinder.Vertices[i].TexC;
+		vertices[k].TangentU = cylinder.Vertices[i].TangentU;
 	}
 
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::Basic32) * totalVertexCount;
+	vbd.ByteWidth = sizeof(Vertex::PosNormalTexTan) * totalVertexCount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
@@ -437,7 +343,7 @@ void DynamicCubeMapApplication::BuildGeometryBuffer()
 	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
 }
 
-void DynamicCubeMapApplication::BuildSkullGeometryBuffer()
+void NormalMappingApplication::BuildSkullGeometryBuffer()
 {
 	std::ifstream fin("Models/skull.txt");
 
@@ -455,7 +361,7 @@ void DynamicCubeMapApplication::BuildSkullGeometryBuffer()
 	fin >> ignore >> tcount;
 	fin >> ignore >> ignore >> ignore >> ignore;
 
-	std::vector<Vertex::Basic32> vertices(vcount);
+	std::vector<Vertex::PosNormalTexTan> vertices(vcount);
 	for (UINT i = 0; i < vcount; ++i)
 	{
 		fin >> vertices[i].Pos.x >> vertices[i].Pos.y >> vertices[i].Pos.z;
@@ -477,7 +383,7 @@ void DynamicCubeMapApplication::BuildSkullGeometryBuffer()
 
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex::Basic32) * vcount;
+	vbd.ByteWidth = sizeof(Vertex::PosNormalTexTan) * vcount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
@@ -500,79 +406,8 @@ void DynamicCubeMapApplication::BuildSkullGeometryBuffer()
 	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mSkullIB));
 }
 
-void DynamicCubeMapApplication::BuildDynamicCubeMapView()
-{
-	D3D11_TEXTURE2D_DESC texDesc;
-	texDesc.Width = CubeMapSize;
-	texDesc.Height = CubeMapSize;
-	texDesc.MipLevels = 0;
-	texDesc.ArraySize = 6;
-	texDesc.SampleDesc.Count = 1;
-	texDesc.SampleDesc.Quality = 0;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	texDesc.CPUAccessFlags = 0;
-	texDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS | D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	ID3D11Texture2D* cubeTex = 0;
-	HR(g_pd3dDevice->CreateTexture2D(&texDesc, 0, &cubeTex));
-
-	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-	rtvDesc.Format = texDesc.Format;
-	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
-	rtvDesc.Texture2DArray.ArraySize = 1;
-	rtvDesc.Texture2DArray.MipSlice = 0;
-
-	for (int i = 0; i < 6; ++i)
-	{
-		rtvDesc.Texture2DArray.FirstArraySlice = i;
-		HR(g_pd3dDevice->CreateRenderTargetView(cubeTex, &rtvDesc, &mDynamicCubeMapRTV[i]));
-	}
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = texDesc.Format;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	srvDesc.TextureCube.MostDetailedMip = 0;
-	srvDesc.TextureCube.MipLevels = -1;
-
-	HR(g_pd3dDevice->CreateShaderResourceView(cubeTex, &srvDesc, &mDynamicCubeMapSRV));
-	ReleaseCOM(cubeTex);
-
-	D3D11_TEXTURE2D_DESC depthTexDesc;
-	depthTexDesc.Width = CubeMapSize;
-	depthTexDesc.Height = CubeMapSize;
-	depthTexDesc.MipLevels = 1;
-	depthTexDesc.ArraySize = 1;
-	depthTexDesc.SampleDesc.Count = 1;
-	depthTexDesc.SampleDesc.Quality = 0;
-	depthTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthTexDesc.CPUAccessFlags = 0;
-	depthTexDesc.MiscFlags = 0;
-
-	ID3D11Texture2D* depthTex = 0;
-	HR(g_pd3dDevice->CreateTexture2D(&depthTexDesc, 0, &depthTex));
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
-	dsvDesc.Format = depthTexDesc.Format;
-	dsvDesc.Flags = 0;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	dsvDesc.Texture2D.MipSlice = 0;
-	HR(g_pd3dDevice->CreateDepthStencilView(depthTex, &dsvDesc, &mDynamicCubeMapDSV));
-
-	ReleaseCOM(depthTex);
-
-	mCubeMapViewport.TopLeftX = 0.0f;
-	mCubeMapViewport.TopLeftY = 0.0f;
-	mCubeMapViewport.Width = (float)CubeMapSize;
-	mCubeMapViewport.Height = (float)CubeMapSize;
-	mCubeMapViewport.MinDepth = 0.0f;
-	mCubeMapViewport.MaxDepth = 1.0f;
-}
-
-void DynamicCubeMapApplication::BuildConstantBuffer()
+void NormalMappingApplication::BuildConstantBuffer()
 {
 	D3D11_BUFFER_DESC bd;
 	// Create the constant buffer
@@ -610,7 +445,12 @@ void DynamicCubeMapApplication::BuildConstantBuffer()
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/stone.dds", nullptr, &mStoneSRV));
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/bricks.dds", nullptr, &mBrickSRV));
 
-	mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
+	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/floor_nmap.dds", nullptr, &mStoneNormalTexSRV));
+	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/bricks_nmap.dds", nullptr, &mBrickNormalTexSRV));
+
+	//mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
+	//mSky = new Sky(g_pd3dDevice, L"Textures/snowcube1024.dds", 10.0f);
+	mSky = new Sky(g_pd3dDevice, L"Textures/desertcube1024.dds", 10.0f);
 
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -637,7 +477,7 @@ void DynamicCubeMapApplication::BuildConstantBuffer()
 	HR(g_pd3dDevice->CreateSamplerState(&sampAni, &mSamAnisotropic));
 }
 
-void DynamicCubeMapApplication::CleanupDevice()
+void NormalMappingApplication::CleanupDevice()
 {
 	DirectX11Application::CleanupDevice();
 	SafeDelete(mSky);
@@ -649,13 +489,15 @@ void DynamicCubeMapApplication::CleanupDevice()
 	ReleaseCOM(mFloorSRV);
 	ReleaseCOM(mStoneSRV);
 	ReleaseCOM(mBrickSRV);
+	ReleaseCOM(mStoneNormalTexSRV);
+	ReleaseCOM(mBrickNormalTexSRV);
 }
 
-void DynamicCubeMapApplication::BuildFX()
+void NormalMappingApplication::BuildFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* pVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"DirLightTex.fxh", "VS", "vs_5_0", &pVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"NormalMap.fxh", "VS", "vs_5_0", &pVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -671,7 +513,7 @@ void DynamicCubeMapApplication::BuildFX()
 		return;
 	}
 
-	InputLayouts::BuildVertexLayout(g_pd3dDevice, pVSBlob, InputLayoutDesc::Basic32, ARRAYSIZE(InputLayoutDesc::Basic32), &g_pVertexLayout);
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, pVSBlob, InputLayoutDesc::PosNormalTexTan, ARRAYSIZE(InputLayoutDesc::PosNormalTexTan), &g_pVertexLayout);
 	if (FAILED(hr))
 	{
 		pVSBlob->Release();
@@ -680,7 +522,7 @@ void DynamicCubeMapApplication::BuildFX()
 
 	// Compile the pixel shader
 	ID3DBlob* pPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"DirLightTex.fxh", "PS", "ps_5_0", &pPSBlob);
+	hr = CompileShaderFromFile(L"NormalMap.fxh", "PS", "ps_5_0", &pPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
