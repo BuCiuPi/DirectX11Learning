@@ -20,6 +20,14 @@ public :
 	virtual void BuildFX() override;
 
 private:
+
+	ID3D11InputLayout* mDisplacementVertexLayout = nullptr;
+
+	ID3D11VertexShader* mDisplacementVertexShader = nullptr;
+	ID3D11HullShader* mDisplacementHullShader = nullptr;
+	ID3D11DomainShader* mDisplacementDomainShader = nullptr;
+	ID3D11PixelShader* mDisplacementPixelShader = nullptr;
+
 	ID3D11VertexShader* mSkyVertexShader = nullptr;
 	ID3D11PixelShader* mSkyPixelShader = nullptr;
 

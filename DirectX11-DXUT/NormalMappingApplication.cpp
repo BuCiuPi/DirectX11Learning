@@ -91,8 +91,10 @@ void NormalMappingApplication::DrawScene()
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
 	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	g_pImmediateContext->IASetInputLayout(mDisplacementVertexLayout);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	//g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	UINT stride = sizeof(Vertex::PosNormalTexTan);
@@ -105,8 +107,15 @@ void NormalMappingApplication::DrawScene()
 	}
 	pfb.gEyePosW = mCamera.GetPosition();
 	g_pImmediateContext->UpdateSubresource(mPerFrameBuffer, 0, nullptr, &pfb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(1, 1, &mPerFrameBuffer);
+	g_pImmediateContext->HSSetConstantBuffers(1, 1, &mPerFrameBuffer);
+	g_pImmediateContext->DSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 	g_pImmediateContext->PSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 
+	g_pImmediateContext->VSSetShader(mDisplacementVertexShader, nullptr, 0);
+	g_pImmediateContext->HSSetShader(mDisplacementHullShader, nullptr, 0);
+	g_pImmediateContext->DSSetShader(mDisplacementDomainShader, nullptr, 0);
+	g_pImmediateContext->PSSetShader(mDisplacementPixelShader, nullptr, 0);
 
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
@@ -115,9 +124,11 @@ void NormalMappingApplication::DrawScene()
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 
-	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+	//g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+	//g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
+
 	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+	g_pImmediateContext->DSSetSamplers(0, 1, &mSamplerLinear);
 	g_pImmediateContext->PSSetSamplers(1, 1, &mSamAnisotropic);
 
 	ID3D11ShaderResourceView* skySRV = mSky->CubeMapSRV();
@@ -127,98 +138,113 @@ void NormalMappingApplication::DrawScene()
 	g_pImmediateContext->IASetIndexBuffer(mShapesIB, DXGI_FORMAT_R32_UINT, 0);
 
 
-	cb.mWorld = XMLoadFloat4x4(&mGridWorld);
-	cb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(6.0f, 8.0f, 1.0f));
-	cb.gMaterial = mGridMat;
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//cb.mWorld = XMLoadFloat4x4(&mGridWorld);
+	//cb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(6.0f, 8.0f, 1.0f));
+	//cb.gMaterial = mGridMat;
+	//g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	//g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-	g_pImmediateContext->PSSetShaderResources(0, 1, &mFloorSRV);
-	g_pImmediateContext->PSSetShaderResources(2, 1, &mStoneNormalTexSRV);
+	//g_pImmediateContext->PSSetShaderResources(0, 1, &mFloorSRV);
+	//g_pImmediateContext->PSSetShaderResources(2, 1, &mStoneNormalTexSRV);
 
-	g_pImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
+	//g_pImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
 
-	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mBoxWorld));
-	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
-	cb.gMaterial = mBoxMat;
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mBoxWorld));
+	//cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+	//cb.gMaterial = mBoxMat;
+	//g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	//g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-	g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
+	//g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
 
-	g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
+	//g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
 
 
 	for (int i = 0; i < 10; ++i)
 	{
+
+
+
+		// todo : set shader
 		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mCylWorld[i]));
 		cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
 		cb.gMaterial = mCylinderMat;
 
 		g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 		g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+		g_pImmediateContext->HSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+		g_pImmediateContext->DSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 		g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
 		g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
 		g_pImmediateContext->PSSetShaderResources(2, 1, &mBrickNormalTexSRV);
+		g_pImmediateContext->DSSetShaderResources(2, 1, &mBrickNormalTexSRV);
 
 		g_pImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
 
 
-		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSphereWorld[i]));
-		cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
-		cb.gMaterial = mSphereMat;
+		//// draw sphere
 
-		g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-		g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-		g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+		//g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
+		//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		g_pImmediateContext->PSSetShaderResources(0, 1, &mStoneSRV);
-		g_pImmediateContext->PSSetShaderResources(2, 1, &nullSRV);
+		//g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
+		//g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
-		g_pImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
+		//cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSphereWorld[i]));
+		//cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+		//cb.gMaterial = mSphereMat;
+
+		//g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+		//g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+		//g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+
+		//g_pImmediateContext->PSSetShaderResources(0, 1, &mStoneSRV);
+		//g_pImmediateContext->PSSetShaderResources(2, 1, &nullSRV);
+
+		//g_pImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
 	}
 
-	g_pImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
-	g_pImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
-	// drawSkull
-	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSkullWorld));
-	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
-	cb.gMaterial = mSkullMat;
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//g_pImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
+	//g_pImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
+	//// drawSkull
+	//cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSkullWorld));
+	//cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+	//cb.gMaterial = mSkullMat;
+	//g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	//g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
 
-	g_pImmediateContext->PSSetShaderResources(0, 1, &nullSRV);
+	//g_pImmediateContext->PSSetShaderResources(0, 1, &nullSRV);
 
-	g_pImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+	//g_pImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
 
 
 	// draw sky
 
-	g_pImmediateContext->VSSetShader(mSkyVertexShader, nullptr, 0);
-	g_pImmediateContext->PSSetShader(mSkyPixelShader, nullptr, 0);
-	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+	//g_pImmediateContext->VSSetShader(mSkyVertexShader, nullptr, 0);
+	//g_pImmediateContext->PSSetShader(mSkyPixelShader, nullptr, 0);
+	//g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
 
-	SkyConstantBuffer scb;
-	XMFLOAT3 camPos = mCamera.GetPosition();
-	XMMATRIX skyWorld = XMMatrixTranslation(camPos.x, camPos.y, camPos.z);
+	//SkyConstantBuffer scb;
+	//XMFLOAT3 camPos = mCamera.GetPosition();
+	//XMMATRIX skyWorld = XMMatrixTranslation(camPos.x, camPos.y, camPos.z);
 
-	scb.mMVP = XMMatrixTranspose(XMMatrixMultiply(skyWorld, mCamera.ViewProj()));
+	//scb.mMVP = XMMatrixTranspose(XMMatrixMultiply(skyWorld, mCamera.ViewProj()));
 
-	g_pImmediateContext->UpdateSubresource(mSkyConstantBuffer, 0, nullptr, &scb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &mSkyConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &mSkyConstantBuffer);
+	//g_pImmediateContext->UpdateSubresource(mSkyConstantBuffer, 0, nullptr, &scb, 0, 0);
+	//g_pImmediateContext->VSSetConstantBuffers(0, 1, &mSkyConstantBuffer);
+	//g_pImmediateContext->PSSetConstantBuffers(0, 1, &mSkyConstantBuffer);
 
-	g_pImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
-	g_pImmediateContext->RSSetState(RenderStates::NoCullRS);
+	//g_pImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+	//g_pImmediateContext->RSSetState(RenderStates::NoCullRS);
 
-	mSky->Draw(g_pImmediateContext, mCamera);
+	//mSky->Draw(g_pImmediateContext, mCamera);
 
-	g_pImmediateContext->OMSetDepthStencilState(nullptr, 0);
-	g_pImmediateContext->RSSetState(nullptr);
+	//g_pImmediateContext->OMSetDepthStencilState(nullptr, 0);
+	//g_pImmediateContext->RSSetState(nullptr);
 
 
 	g_pSwapChain->Present(0, 0);
@@ -533,6 +559,79 @@ void NormalMappingApplication::BuildFX()
 	// Create the pixel shader
 	hr = g_pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &g_pPixelShader);
 	pPSBlob->Release();
+	if (FAILED(hr))
+		return;
+	////////////////////////////// Normal Displacement
+
+	ID3DBlob* dispVSBlob = nullptr;
+	hr = CompileShaderFromFile(L"DisplacementNormalMapping.fxh", "VS", "vs_5_0", &dispVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the vertex shader
+	hr = g_pd3dDevice->CreateVertexShader(dispVSBlob->GetBufferPointer(), dispVSBlob->GetBufferSize(), nullptr, &mDisplacementVertexShader);
+	if (FAILED(hr))
+	{
+		dispVSBlob->Release();
+		return;
+	}
+
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, dispVSBlob, InputLayoutDesc::PosNormalTexTan, ARRAYSIZE(InputLayoutDesc::PosNormalTexTan), &mDisplacementVertexLayout);
+	if (FAILED(hr))
+	{
+		dispVSBlob->Release();
+		return;
+	}
+
+	// Compile the hull shader
+	ID3DBlob* pHSBlob = nullptr;
+	hr = CompileShaderFromFile(L"DisplacementNormalMapping.fxh", "HS", "hs_5_0", &pHSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the Hull shader
+	hr = g_pd3dDevice->CreateHullShader(pHSBlob->GetBufferPointer(), pHSBlob->GetBufferSize(), nullptr, &mDisplacementHullShader);
+	pHSBlob->Release();
+	if (FAILED(hr))
+		return;
+
+	// Compile the Domain shader
+	ID3DBlob* pDSBlob = nullptr;
+	hr = CompileShaderFromFile(L"DisplacementNormalMapping.fxh", "DS", "ds_5_0", &pDSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the Domain shader
+	hr = g_pd3dDevice->CreateDomainShader(pDSBlob->GetBufferPointer(), pDSBlob->GetBufferSize(), nullptr, &mDisplacementDomainShader);
+	pDSBlob->Release();
+	if (FAILED(hr))
+		return;
+
+	// Compile the pixel shader
+	ID3DBlob* dispPSBlob = nullptr;
+	hr = CompileShaderFromFile(L"DisplacementNormalMapping.fxh", "PS", "ps_5_0", &dispPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the pixel shader
+	hr = g_pd3dDevice->CreatePixelShader(dispPSBlob->GetBufferPointer(), dispPSBlob->GetBufferSize(), nullptr, &mDisplacementPixelShader);
+	dispPSBlob->Release();
 	if (FAILED(hr))
 		return;
 

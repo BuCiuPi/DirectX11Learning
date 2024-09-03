@@ -264,6 +264,7 @@
     <None Include="color.fxh" />
     <None Include="DirLight.fxh" />
     <None Include="DirLightTex.fxh" />
+    <None Include="DisplacementNormalMapping.fxh" />
     <None Include="heart.fxh" />
     <None Include="Instancing.fxh" />
     <None Include="normal.fxh" />

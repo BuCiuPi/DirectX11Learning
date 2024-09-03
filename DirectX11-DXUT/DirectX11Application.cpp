@@ -26,7 +26,7 @@ void DirectX11Application::OnResize()
 {
 	D3DApp::OnResize();
 
-	mCamera.SetLens(XM_PIDIV2, AspectRatio(), 1.0f, 1000.0f);
+	mCamera.SetLens(XM_PIDIV2, AspectRatio(), 0.01f, 1000.0f);
 	mCamera.UpdateViewMatrix();
 }
 
