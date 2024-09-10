@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
+    <ClInclude Include="BitmapBuilder.h" />
     <ClInclude Include="BlendingApplication.h" />
     <ClInclude Include="BlurApplication.h" />
     <ClInclude Include="BlurFilter.h" />
@@ -180,6 +181,8 @@
     <ClInclude Include="Sky.h" />
     <ClInclude Include="SphereApplication.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="TerrainApplication.h" />
     <ClInclude Include="TessellationApplication.h" />
     <ClInclude Include="WaveApplication.h" />
     <ClInclude Include="Waves.h" />
@@ -187,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
+    <ClCompile Include="BitmapBuilder.cpp" />
     <ClCompile Include="BlendingApplication.cpp" />
     <ClCompile Include="BlurApplication.cpp" />
     <ClCompile Include="BlurFilter.cpp" />
@@ -214,6 +218,8 @@
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="TerrainApplication.cpp" />
     <ClCompile Include="TessellationApplication.cpp" />
     <ClCompile Include="WaveApplication.cpp" />
     <ClCompile Include="Waves.cpp" />
@@ -273,6 +279,7 @@
     <None Include="Lighting.fxh" />
     <None Include="Sky.fxh" />
     <None Include="Stencil.fxh" />
+    <None Include="Terrain.fxh" />
     <None Include="Tessellation.fxh" />
     <None Include="Texture.fxh" />
     <None Include="TreeSprite.fxh" />

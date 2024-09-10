@@ -126,6 +126,15 @@
     <ClInclude Include="NormalMappingApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BitmapBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -222,6 +231,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NormalMappingApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BitmapBuilder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -355,6 +373,9 @@
       <Filter>FX</Filter>
     </None>
     <None Include="DisplacementNormalMapping.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="Terrain.fxh">
       <Filter>FX</Filter>
     </None>
   </ItemGroup>

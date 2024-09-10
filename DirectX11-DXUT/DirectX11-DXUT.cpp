@@ -39,6 +39,7 @@
 #include "InstancingAndCullingApplication.h"
 #include "NormalMappingApplication.h"
 #include "PickingApplication.h"
+#include "TerrainApplication.h"
 
 
 using namespace DirectX;
@@ -48,7 +49,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    NormalMappingApplication application(hInstance);
+    TerrainApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

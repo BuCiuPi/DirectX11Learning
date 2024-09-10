@@ -87,6 +87,14 @@ struct SkyConstantBuffer
 	XMMATRIX mMVP;
 };
 
+struct TerrainConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+	Material gMaterial;
+};
+
 struct PerFrameBuffer
 {
 	DirectionalLight gDirLight;
@@ -99,6 +107,25 @@ struct WavePerFrameBuffer
 {
 	DirectionalLight gDirLights[3];
 	XMFLOAT3 gEyePosW;
+};
+
+struct TerrainPerFrameBuffer
+{
+	DirectionalLight gDirLights[3];
+	XMFLOAT3 gEyePosW;
+
+	float gMinDist;
+	float gMaxDist;
+
+	float gMinTex;
+	float gMaxTex;
+
+	float gTexelCellSpaceU;
+	float gTexelCellSpaceV;
+	float gWorldCellSpace;
+	XMFLOAT2 gTexScale;
+
+	XMFLOAT4 gWorldFrustumPlanes[6];
 };
 
 struct InstancedData
@@ -136,6 +163,13 @@ namespace Vertex
 		XMFLOAT2 Tex;
 		XMFLOAT3 TangentU;
 	};
+
+	struct Terrain
+	{
+		XMFLOAT3 Pos;
+		XMFLOAT2 Tex;
+		XMFLOAT2 BoundsY;
+	};
 }
 
 class InputLayoutDesc
@@ -146,6 +180,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC TreePointSprite[2];
 	static const D3D11_INPUT_ELEMENT_DESC InstancedBasic32[8];
 	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTan[4];
+	static const D3D11_INPUT_ELEMENT_DESC Terrain[3];
 
 };
 
@@ -158,6 +193,70 @@ public:
 	static ID3D11InputLayout* Pos;
 	static ID3D11InputLayout* TreePointSprite;
 	static ID3D11InputLayout* PosNormalTexTan;
+	static ID3D11InputLayout* Terrain;
 };
 
 HRESULT LoadTextureArray(ID3D11DeviceContext* deviceContex, ID3D11Device* pd3dDevice, LPCTSTR* szTextureNames, int iNumTextures, ID3D11Texture2D** ppTex2D, ID3D11ShaderResourceView** ppSRV);
+
+
+
+
+static void ExtractFrustumPlanes(XMFLOAT4 planes[6], CXMMATRIX m)
+{
+	XMFLOAT4X4 M;
+	XMStoreFloat4x4(&M, m);
+	//
+	// Left
+	//
+	planes[0].x = M(0, 3) + M(0, 0);
+	planes[0].y = M(1, 3) + M(1, 0);
+	planes[0].z = M(2, 3) + M(2, 0);
+	planes[0].w = M(3, 3) + M(3, 0);
+
+	//
+	// Right
+	//
+	planes[1].x = M(0, 3) - M(0, 0);
+	planes[1].y = M(1, 3) - M(1, 0);
+	planes[1].z = M(2, 3) - M(2, 0);
+	planes[1].w = M(3, 3) - M(3, 0);
+
+	//
+	// Bottom
+	//
+	planes[2].x = M(0, 3) + M(0, 1);
+	planes[2].y = M(1, 3) + M(1, 1);
+	planes[2].z = M(2, 3) + M(2, 1);
+	planes[2].w = M(3, 3) + M(3, 1);
+
+	//
+	// Top
+	//
+	planes[3].x = M(0, 3) - M(0, 1);
+	planes[3].y = M(1, 3) - M(1, 1);
+	planes[3].z = M(2, 3) - M(2, 1);
+	planes[3].w = M(3, 3) - M(3, 1);
+
+	//
+	// Near
+	//
+	planes[4].x = M(0, 2);
+	planes[4].y = M(1, 2);
+	planes[4].z = M(2, 2);
+	planes[4].w = M(3, 2);
+
+	//
+	// Far
+	//
+	planes[5].x = M(0, 3) - M(0, 2);
+	planes[5].y = M(1, 3) - M(1, 2);
+	planes[5].z = M(2, 3) - M(2, 2);
+	planes[5].w = M(3, 3) - M(3, 2);
+
+	// Normalize the plane equations.
+	for (int i = 0; i < 6; ++i)
+	{
+		XMVECTOR v = XMPlaneNormalize(XMLoadFloat4(&planes[i]));
+		XMStoreFloat4(&planes[i], v);
+	}
+}

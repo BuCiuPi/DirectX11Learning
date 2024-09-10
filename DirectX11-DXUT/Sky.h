@@ -23,6 +23,8 @@ private:
 
 	ID3D11ShaderResourceView* mCubeMapSRV;
 
+	ID3D11SamplerState* mSamplerLinear;
+
 	UINT mIndexCount;
 };
 #endif
