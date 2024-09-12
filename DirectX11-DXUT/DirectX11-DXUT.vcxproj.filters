@@ -135,6 +135,12 @@
     <ClInclude Include="BitmapBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -240,6 +246,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BitmapBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -376,6 +388,12 @@
       <Filter>FX</Filter>
     </None>
     <None Include="Terrain.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="StreamOutParticle.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="FireParticle.fxh">
       <Filter>FX</Filter>
     </None>
   </ItemGroup>

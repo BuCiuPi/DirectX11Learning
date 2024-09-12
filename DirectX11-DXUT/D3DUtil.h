@@ -95,12 +95,32 @@ struct TerrainConstantBuffer
 	Material gMaterial;
 };
 
+struct ParticleConstantBuffer
+{
+	XMFLOAT3 gAccelW;
+	float fill;
+};
+
 struct PerFrameBuffer
 {
 	DirectionalLight gDirLight;
 	PointLight gPointLight;
 	SpotLight gSpotLight;
 	XMFLOAT4 gEyePosW;
+};
+
+struct ParticlePerFrameBuffer
+{
+	XMMATRIX gViewProj;
+
+	XMFLOAT3 gEyePosW;
+	float gGameTime;
+
+	XMFLOAT3 gEmitPosW;
+	float gTimeStep;
+
+	XMFLOAT3 gEmitDirW;
+	float gFill;
 };
 
 struct WavePerFrameBuffer
@@ -170,6 +190,15 @@ namespace Vertex
 		XMFLOAT2 Tex;
 		XMFLOAT2 BoundsY;
 	};
+
+	struct Particle
+	{
+		XMFLOAT3 InitialPos;
+		XMFLOAT3 InitialVel;
+		XMFLOAT2 Size;
+		float Age;
+		unsigned int Type;
+	};
 }
 
 class InputLayoutDesc
@@ -181,6 +210,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC InstancedBasic32[8];
 	static const D3D11_INPUT_ELEMENT_DESC PosNormalTexTan[4];
 	static const D3D11_INPUT_ELEMENT_DESC Terrain[3];
+	static const D3D11_INPUT_ELEMENT_DESC Particle[5];
 
 };
 
@@ -194,12 +224,14 @@ public:
 	static ID3D11InputLayout* TreePointSprite;
 	static ID3D11InputLayout* PosNormalTexTan;
 	static ID3D11InputLayout* Terrain;
+	static ID3D11InputLayout* Particle;
 };
 
 HRESULT LoadTextureArray(ID3D11DeviceContext* deviceContex, ID3D11Device* pd3dDevice, LPCTSTR* szTextureNames, int iNumTextures, ID3D11Texture2D** ppTex2D, ID3D11ShaderResourceView** ppSRV);
 
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-
+ID3D11ShaderResourceView* CreateRandomTexture1DSRV(ID3D11Device* device);
 
 static void ExtractFrustumPlanes(XMFLOAT4 planes[6], CXMMATRIX m)
 {

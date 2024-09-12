@@ -1,5 +1,4 @@
 #include "Sky.h"
-#include "D3DUtil.h"
 #include "GeometryGenerator.h"
 
 Sky::Sky(ID3D11Device* device, const std::wstring& fileName, float skySphereRadius)
@@ -61,6 +60,16 @@ Sky::Sky(ID3D11Device* device, const std::wstring& fileName, float skySphereRadi
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	HR(device->CreateSamplerState(&sampDesc, &mSamplerLinear));
 
+	D3D11_BUFFER_DESC sbd;
+	// Create the constant buffer
+	sbd.Usage = D3D11_USAGE_DEFAULT;
+	sbd.ByteWidth = sizeof(SkyConstantBuffer);
+	sbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	sbd.CPUAccessFlags = 0;
+	sbd.MiscFlags = 0;
+	sbd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&sbd, nullptr, &mSkyConstantBuffer));
 }
 
 Sky::~Sky()
@@ -75,6 +84,51 @@ ID3D11ShaderResourceView* Sky::CubeMapSRV()
 	return  mCubeMapSRV;
 }
 
+bool Sky::BuildSkyFX(ID3D11Device* g_pd3dDevice)
+{
+	// Compile the vertex shader
+	ID3DBlob* skyVSBlob = nullptr;
+	HRESULT hr = CompileShaderFromFile(L"Sky.fxh", "VS", "vs_5_0", &skyVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the vertex shader
+	hr = g_pd3dDevice->CreateVertexShader(skyVSBlob->GetBufferPointer(), skyVSBlob->GetBufferSize(), nullptr, &mSkyVertexShader);
+	if (FAILED(hr))
+	{
+		skyVSBlob->Release();
+		return false;
+	}
+
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, skyVSBlob, InputLayoutDesc::Pos, ARRAYSIZE(InputLayoutDesc::Pos), &InputLayouts::Pos);
+	if (FAILED(hr))
+	{
+		skyVSBlob->Release();
+		return false;
+	}
+
+	// Compile the pixel shader
+	ID3DBlob* skyPSBlob = nullptr;
+	hr = CompileShaderFromFile(L"Sky.fxh", "PS", "ps_5_0", &skyPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the pixel shader
+	hr = g_pd3dDevice->CreatePixelShader(skyPSBlob->GetBufferPointer(), skyPSBlob->GetBufferSize(), nullptr, &mSkyPixelShader);
+	skyPSBlob->Release();
+	if (FAILED(hr))
+		return false;
+	return  true;
+}
+
 void Sky::Draw(ID3D11DeviceContext* dc, const Camera& camera)
 {
 	UINT stride = sizeof(XMFLOAT3);
@@ -86,9 +140,31 @@ void Sky::Draw(ID3D11DeviceContext* dc, const Camera& camera)
 	dc->IASetInputLayout(InputLayouts::Pos);
 	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	dc->VSSetSamplers(0, 1, &mSamplerLinear);
+	dc->VSSetShader(mSkyVertexShader, nullptr, 0);
+	dc->PSSetShader(mSkyPixelShader, nullptr, 0);
 
+	SkyConstantBuffer scb;
+	XMFLOAT3 camPos = camera.GetPosition();
+	XMMATRIX skyWorld = XMMatrixTranslation(camPos.x, camPos.y, camPos.z);
+
+	scb.mMVP = XMMatrixTranspose(XMMatrixMultiply(skyWorld, camera.ViewProj()));
+
+	dc->UpdateSubresource(mSkyConstantBuffer, 0, nullptr, &scb, 0, 0);
+	dc->VSSetConstantBuffers(0, 1, &mSkyConstantBuffer);
+	dc->PSSetConstantBuffers(0, 1, &mSkyConstantBuffer);
+
+	dc->PSSetSamplers(0, 1, &mSamplerLinear);
 	dc->PSSetShaderResources(0, 1, &mCubeMapSRV);
+	dc->PSSetShaderResources(1, 1, &mCubeMapSRV);
+
+
+	dc->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
+	dc->RSSetState(RenderStates::NoCullRS);
+
 
 	dc->DrawIndexed(mIndexCount, 0, 0);
+
+	dc->OMSetDepthStencilState(nullptr, 0);
+	dc->RSSetState(nullptr);
+
 }

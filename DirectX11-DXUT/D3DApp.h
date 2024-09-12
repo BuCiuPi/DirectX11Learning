@@ -76,7 +76,6 @@ protected:
 	void CalculateFrameStarts();
 	std::wstring mMainWndCaption;
 
-	HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
 	UINT mIndexCount;
 	UINT mVertexCount;

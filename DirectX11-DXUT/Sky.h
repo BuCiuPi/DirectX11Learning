@@ -12,14 +12,21 @@ public:
 
 	ID3D11ShaderResourceView* CubeMapSRV();
 
+	bool BuildSkyFX(ID3D11Device* g_pd3dDevice);
+
 	void Draw(ID3D11DeviceContext* dc, const Camera& camera);
 private:
 	//Sky(const Sky& rhs);
 	//Sky& operator=(const Sky& rhs);
 
 private:
+	ID3D11VertexShader* mSkyVertexShader = nullptr;
+	ID3D11PixelShader* mSkyPixelShader = nullptr;
+
 	ID3D11Buffer* mVB;
 	ID3D11Buffer* mIB;
+
+	ID3D11Buffer* mSkyConstantBuffer;
 
 	ID3D11ShaderResourceView* mCubeMapSRV;
 

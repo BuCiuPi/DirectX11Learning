@@ -48,6 +48,15 @@ const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::Terrain[3] =
 	{"TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
 };
 
+const D3D11_INPUT_ELEMENT_DESC InputLayoutDesc::Particle[5] =
+{
+	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"VELOCITY", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"SIZE", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"AGE", 0, DXGI_FORMAT_R32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	{"TYPE", 0, DXGI_FORMAT_R32_UINT, 0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0},
+};
+
 
 
 #pragma endregion
@@ -59,6 +68,7 @@ ID3D11InputLayout* InputLayouts::Pos = 0;
 ID3D11InputLayout* InputLayouts::TreePointSprite = 0;
 ID3D11InputLayout* InputLayouts::PosNormalTexTan = 0;
 ID3D11InputLayout* InputLayouts::Terrain = 0;
+ID3D11InputLayout* InputLayouts::Particle = 0;
 
 HRESULT InputLayouts::BuildVertexLayout(ID3D11Device* device, ID3DBlob* pVSBlob, const D3D11_INPUT_ELEMENT_DESC layout[], UINT numElements, ID3D11InputLayout** inputLayout)
 {
@@ -145,3 +155,90 @@ HRESULT LoadTextureArray(ID3D11DeviceContext* deviceContex, ID3D11Device* pd3dDe
 
 	return hr;
 }
+
+HRESULT CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
+{
+	HRESULT hr = S_OK;
+
+	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+	// Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
+	// Setting this flag improves the shader debugging experience, but still allows
+	// the shaders to be optimized and to run exactly the way they will run in
+	// the release configuration of this program.
+	dwShaderFlags |= D3DCOMPILE_DEBUG;
+
+	// Disable optimizations to further improve shader debugging
+	dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+	ID3DBlob* pErrorBlob = nullptr;
+	hr = D3DCompileFromFile(szFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, szEntryPoint, szShaderModel,
+		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+	if (FAILED(hr))
+	{
+		if (pErrorBlob)
+		{
+			OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+			pErrorBlob->Release();
+		}
+		return hr;
+	}
+	if (pErrorBlob) pErrorBlob->Release();
+
+	return S_OK;
+}
+
+ID3D11ShaderResourceView* CreateRandomTexture1DSRV(ID3D11Device* device)
+{
+	// 
+	// Create the random data.
+	//
+	XMFLOAT4 randomValues[1024];
+
+	for (int i = 0; i < 1024; ++i)
+	{
+		randomValues[i].x = MathHelper::RandF(-1.0f, 1.0f);
+		randomValues[i].y = MathHelper::RandF(-1.0f, 1.0f);
+		randomValues[i].z = MathHelper::RandF(-1.0f, 1.0f);
+		randomValues[i].w = MathHelper::RandF(-1.0f, 1.0f);
+	}
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = randomValues;
+	initData.SysMemPitch = 1024 * sizeof(XMFLOAT4);
+	initData.SysMemSlicePitch = 0;
+
+	//
+	// Create the texture.
+	//
+	D3D11_TEXTURE1D_DESC texDesc;
+	texDesc.Width = 1024;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	texDesc.CPUAccessFlags = 0;
+	texDesc.MiscFlags = 0;
+	texDesc.ArraySize = 1;
+
+	ID3D11Texture1D* randomTex = 0;
+	HR(device->CreateTexture1D(&texDesc, &initData, &randomTex));
+
+	//
+	// Create the resource view.
+	//
+	D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+	viewDesc.Format = texDesc.Format;
+	viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE1D;
+	viewDesc.Texture1D.MipLevels = texDesc.MipLevels;
+	viewDesc.Texture1D.MostDetailedMip = 0;
+
+	ID3D11ShaderResourceView* randomTexSRV = 0;
+	HR(device->CreateShaderResourceView(randomTex, &viewDesc, &randomTexSRV));
+
+	ReleaseCOM(randomTex);
+
+	return randomTexSRV;
+}
+

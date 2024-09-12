@@ -7,12 +7,15 @@ ID3D11RasterizerState* RenderStates::CullClockwiseRS = 0;
 ID3D11BlendState* RenderStates::AlphaToCoverageBS = 0;
 ID3D11BlendState* RenderStates::TransparentBS = 0;
 ID3D11BlendState* RenderStates::NoRenderTargetWritesBS = 0;
+ID3D11BlendState* RenderStates::AdditiveBlendingBS = 0;
 
 ID3D11DepthStencilState* RenderStates::MarkMirrorDSS = 0;
 ID3D11DepthStencilState* RenderStates::DrawReflectionDSS = 0;
 ID3D11DepthStencilState* RenderStates::NoDoubleBlendDSS = 0;
 
 ID3D11DepthStencilState* RenderStates::LessEqualDSS = 0;
+ID3D11DepthStencilState* RenderStates::NoDepthWrite = 0;
+ID3D11DepthStencilState* RenderStates::DisableDepth = 0;
 
 void RenderStates::InitAll(ID3D11Device* device)
 {
@@ -93,6 +96,21 @@ void RenderStates::CreateDepthStencilStates(ID3D11Device* device)
 
 	HR(device->CreateDepthStencilState(&lessEqualDesc, &LessEqualDSS));
 
+	D3D11_DEPTH_STENCIL_DESC noDepthWriteDesc;
+	noDepthWriteDesc.DepthEnable = true;
+	noDepthWriteDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	noDepthWriteDesc.DepthFunc =D3D11_COMPARISON_LESS_EQUAL ;
+	noDepthWriteDesc.StencilEnable = false;
+
+	HR(device->CreateDepthStencilState(&noDepthWriteDesc, &NoDepthWrite));
+
+	D3D11_DEPTH_STENCIL_DESC disableDepthDesc;
+	disableDepthDesc.DepthEnable = false;
+	disableDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	disableDepthDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	disableDepthDesc.StencilEnable = false;
+
+	HR(device->CreateDepthStencilState(&disableDepthDesc, &DisableDepth));
 }
 
 void RenderStates::CreateBlendStates(ID3D11Device* device)
@@ -134,6 +152,21 @@ void RenderStates::CreateBlendStates(ID3D11Device* device)
 	noRenderTargetWritesDesc.RenderTarget[0].RenderTargetWriteMask = 0;
 
 	HR(device->CreateBlendState(&noRenderTargetWritesDesc, &NoRenderTargetWritesBS));
+
+	D3D11_BLEND_DESC additiveBlendingWritesDesc = { 0 };
+	additiveBlendingWritesDesc.AlphaToCoverageEnable = false;
+	additiveBlendingWritesDesc.IndependentBlendEnable = false;
+
+	additiveBlendingWritesDesc.RenderTarget[0].BlendEnable = true;
+	additiveBlendingWritesDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	additiveBlendingWritesDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	additiveBlendingWritesDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	additiveBlendingWritesDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	additiveBlendingWritesDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	additiveBlendingWritesDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	additiveBlendingWritesDesc.RenderTarget[0].RenderTargetWriteMask = 0x0F;
+
+	HR(device->CreateBlendState(&additiveBlendingWritesDesc, &AdditiveBlendingBS));
 }
 
 void RenderStates::CreateRasterizerStates(ID3D11Device* device)

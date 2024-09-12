@@ -38,6 +38,7 @@
 #include "DynamicCubeMapApplication.h"
 #include "InstancingAndCullingApplication.h"
 #include "NormalMappingApplication.h"
+#include "ParticleApplication.h"
 #include "PickingApplication.h"
 #include "TerrainApplication.h"
 
@@ -49,7 +50,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    TerrainApplication application(hInstance);
+    ParticleApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

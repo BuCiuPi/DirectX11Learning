@@ -126,15 +126,96 @@ void Terrain::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContex, cons
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	HR(device->CreateSamplerState(&sampDesc, &mSamLinear));
+
+	D3D11_BUFFER_DESC tpfb;
+
+	tpfb.Usage = D3D11_USAGE_DEFAULT;
+	tpfb.ByteWidth = sizeof(TerrainPerFrameBuffer);
+	tpfb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	tpfb.CPUAccessFlags = 0;
+	tpfb.MiscFlags = 0;
+	tpfb.StructureByteStride = 0;
+	HR(device->CreateBuffer(&tpfb, nullptr, &mTerrainPerFrameBuffer));
+
+	D3D11_BUFFER_DESC tbd;
+	// Create the constant buffer
+	tbd.Usage = D3D11_USAGE_DEFAULT;
+	tbd.ByteWidth = sizeof(TerrainConstantBuffer);
+	tbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	tbd.CPUAccessFlags = 0;
+	tbd.MiscFlags = 0;
+	tbd.StructureByteStride = 0;
+
+	HR(device->CreateBuffer(&tbd, nullptr, &mTerrainConstantBuffer));
+
 }
 
-void Terrain::Draw(ID3D11DeviceContext* deviceContext)
+void Terrain::SetConstantBuffer(ID3D11DeviceContext* deviceContext, const Camera& mCamera, DirectionalLight mDirLights[3])
 {
+		TerrainPerFrameBuffer pfb;
+	for (size_t i = 0; i < 3; i++)
+	{
+		pfb.gDirLights[i] = mDirLights[i];
+	}
+	pfb.gEyePosW = mCamera.GetPosition();
+
+	pfb.gMinDist = 20.0f;
+	pfb.gMaxDist = 500.0f;
+
+	pfb.gMinTex = 0.0f;
+	pfb.gMaxTex = 6.0f;
+	
+	pfb.gTexelCellSpaceU = 1.0f / mInfo.HeightmapWidth;
+	pfb.gTexelCellSpaceV = 1.0f / mInfo.HeightmapHeight;
+	pfb.gWorldCellSpace = mInfo.CellSpacing;
+
+	pfb.gTexScale = XMFLOAT2(50.0f, 50.0f);
+
+	ExtractFrustumPlanes(pfb.gWorldFrustumPlanes, mCamera.ViewProj());
+
+
+	deviceContext->UpdateSubresource(mTerrainPerFrameBuffer, 0, nullptr, &pfb, 0, 0);
+	deviceContext->VSSetConstantBuffers(1, 1, &mTerrainPerFrameBuffer);
+	deviceContext->HSSetConstantBuffers(1, 1, &mTerrainPerFrameBuffer);
+	deviceContext->DSSetConstantBuffers(1, 1, &mTerrainPerFrameBuffer);
+	deviceContext->PSSetConstantBuffers(1, 1, &mTerrainPerFrameBuffer);
+
+
+	TerrainConstantBuffer tcb;
+	tcb.mWorld = XMMatrixTranspose(XMMatrixIdentity());
+	tcb.mView = XMMatrixTranspose(mCamera.View());
+	tcb.mProjection = XMMatrixTranspose(mCamera.Proj());
+	tcb.gMaterial = mMat;
+
+	deviceContext->UpdateSubresource(mTerrainConstantBuffer, 0, nullptr, &tcb, 0, 0);
+	deviceContext->VSSetConstantBuffers(0, 1, &mTerrainConstantBuffer);
+	deviceContext->DSSetConstantBuffers(0, 1, &mTerrainConstantBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &mTerrainConstantBuffer);
+}
+
+void Terrain::Draw(ID3D11DeviceContext* deviceContext, const Camera& mCamera, DirectionalLight mDirLights[3])
+{
+	deviceContext->IASetInputLayout(InputLayouts::Terrain);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+
+	deviceContext->VSSetShader(mTerrainVertexShader, nullptr, 0);
+	deviceContext->HSSetShader(mTerrainHullShader, nullptr, 0);
+	deviceContext->DSSetShader(mTerrainDomainShader, nullptr, 0);
+	deviceContext->PSSetShader(mTerrainPixelShader, nullptr, 0);
+
 	UINT stride = sizeof(Vertex::Terrain);
 	UINT offset = 0;
 
 	deviceContext->IASetVertexBuffers(0, 1, &mQuadPatchVB, &stride, &offset);
 	deviceContext->IASetIndexBuffer(mQuadPatchIB, DXGI_FORMAT_R16_UINT, 0);
+
+	SetConstantBuffer(deviceContext, mCamera, mDirLights);
+
+	//g_pImmediateContext->VSGetSamplers(0, 1, &mSamplerLinear);
+	//g_pImmediateContext->HSSetSamplers(0, 1, &mSamplerLinear);
+	//g_pImmediateContext->DSSetSamplers(0, 1, &mSamplerLinear);
+	//g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+
 
 	deviceContext->VSSetSamplers(1, 1, &mSamHeightMap);
 	deviceContext->DSSetSamplers(1, 1, &mSamHeightMap);
@@ -143,20 +224,95 @@ void Terrain::Draw(ID3D11DeviceContext* deviceContext)
 	deviceContext->PSSetSamplers(0, 1, &mSamLinear);
 
 	deviceContext->PSSetShaderResources(0, 1, &mLayerMapArraySRV);
-
 	deviceContext->PSSetShaderResources(1, 1, &mBlendMapSRV);
 
 	deviceContext->VSSetShaderResources(2, 1, &mHeightMapSRV);
 	deviceContext->DSSetShaderResources(2, 1, &mHeightMapSRV);
 	deviceContext->PSSetShaderResources(2, 1, &mHeightMapSRV);
 
-	deviceContext->RSSetState(RenderStates::WireframeRS);
+
 
 	deviceContext->DrawIndexed(mNumPatchQuadFaces * 4, 0, 0);
 
-	deviceContext->RSSetState(0);
 	deviceContext->HSSetShader(0, 0, 0);
 	deviceContext->DSSetShader(0, 0, 0);
+}
+
+void Terrain::BuildTerrainFX(ID3D11Device* device)
+{
+
+	ID3DBlob* dispVSBlob = nullptr;
+	HRESULT	hr = CompileShaderFromFile(L"Terrain.fxh", "VS", "vs_5_0", &dispVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the vertex shader
+	hr = device->CreateVertexShader(dispVSBlob->GetBufferPointer(), dispVSBlob->GetBufferSize(), nullptr, &mTerrainVertexShader);
+	if (FAILED(hr))
+	{
+		dispVSBlob->Release();
+		return;
+	}
+
+	InputLayouts::BuildVertexLayout(device, dispVSBlob, InputLayoutDesc::Terrain, ARRAYSIZE(InputLayoutDesc::Terrain), &InputLayouts::Terrain);
+	if (FAILED(hr))
+	{
+		dispVSBlob->Release();
+		return;
+	}
+
+	// Compile the hull shader
+	ID3DBlob* pHSBlob = nullptr;
+	hr = CompileShaderFromFile(L"Terrain.fxh", "HS", "hs_5_0", &pHSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the Hull shader
+	hr = device->CreateHullShader(pHSBlob->GetBufferPointer(), pHSBlob->GetBufferSize(), nullptr, &mTerrainHullShader);
+	pHSBlob->Release();
+	if (FAILED(hr))
+		return;
+
+	// Compile the Domain shader
+	ID3DBlob* pDSBlob = nullptr;
+	hr = CompileShaderFromFile(L"Terrain.fxh", "DS", "ds_5_0", &pDSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the Domain shader
+	hr = device->CreateDomainShader(pDSBlob->GetBufferPointer(), pDSBlob->GetBufferSize(), nullptr, &mTerrainDomainShader);
+	pDSBlob->Release();
+	if (FAILED(hr))
+		return;
+
+	// Compile the pixel shader
+	ID3DBlob* dispPSBlob = nullptr;
+	hr = CompileShaderFromFile(L"Terrain.fxh", "PS", "ps_5_0", &dispPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the pixel shader
+	hr = device->CreatePixelShader(dispPSBlob->GetBufferPointer(), dispPSBlob->GetBufferSize(), nullptr, &mTerrainPixelShader);
+	dispPSBlob->Release();
+	if (FAILED(hr))
+		return;
+
 }
 
 void Terrain::LoadHeightMap()

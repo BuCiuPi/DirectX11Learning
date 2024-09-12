@@ -29,7 +29,10 @@ public:
 	void SetWorld(CXMMATRIX M);
 
 	void Init(ID3D11Device* device, ID3D11DeviceContext* deviceContex, const InitInfo& initInfo);
-	void Draw(ID3D11DeviceContext* deviceContext);
+	void SetConstantBuffer(ID3D11DeviceContext* deviceContext, const Camera& mCamera, DirectionalLight mDirLights[3]);
+	void Draw(ID3D11DeviceContext* deviceContext, const Camera& mCamera, DirectionalLight mDirLights[3]);
+
+	void BuildTerrainFX(ID3D11Device* device);
 
 	InitInfo mInfo;
 	Material mMat;
@@ -48,6 +51,14 @@ private:
 private:
 	static const int CellsPerPatch = 64;
 
+	ID3D11Buffer* mTerrainConstantBuffer = nullptr;
+	ID3D11Buffer* mTerrainPerFrameBuffer = nullptr;
+
+	ID3D11VertexShader* mTerrainVertexShader = nullptr;
+	ID3D11HullShader* mTerrainHullShader = nullptr;
+	ID3D11DomainShader* mTerrainDomainShader = nullptr;
+	ID3D11PixelShader* mTerrainPixelShader = nullptr;
+
 
 	ID3D11Buffer* mQuadPatchVB = nullptr;
 	ID3D11Buffer* mQuadPatchIB = nullptr;
@@ -55,7 +66,6 @@ private:
 	ID3D11ShaderResourceView* mLayerMapArraySRV = nullptr;
 	ID3D11ShaderResourceView* mBlendMapSRV = nullptr;
 	ID3D11ShaderResourceView* mHeightMapSRV = nullptr;
-
 
 	UINT mNumPatchVertices;
 	UINT mNumPatchQuadFaces;
