@@ -22,7 +22,6 @@ public:
 	virtual void CleanupDevice() override;
 
 	virtual void BuildFX() override;
-	bool BuildSkyFX();
 
 private:
 	

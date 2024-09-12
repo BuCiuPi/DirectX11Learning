@@ -3,7 +3,7 @@
 #include <sstream>
 
 ParticleSystem::ParticleSystem()
-	: mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
+	: mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0), mBlendState(0)
 {
 
 	mFirstRun = true;
@@ -14,6 +14,7 @@ ParticleSystem::ParticleSystem()
 	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	mAccelW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }
 
 ParticleSystem::~ParticleSystem()
@@ -43,8 +44,13 @@ void ParticleSystem::SetEmitDir(const XMFLOAT3& emitDirW)
 	mEmitDirW = emitDirW;
 }
 
+void ParticleSystem::SetAccelerate(const XMFLOAT3& accelW)
+{
+	mAccelW = accelW;
+}
+
 void ParticleSystem::Init(ID3D11Device* device, ID3D11ShaderResourceView* texArraySRV,
-	ID3D11ShaderResourceView* randomTexSRV, UINT maxParticles)
+                          ID3D11ShaderResourceView* randomTexSRV, UINT maxParticles)
 {
 	mMaxParticle = maxParticles;
 	mTexArraySRV = texArraySRV;
@@ -163,7 +169,7 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam)
 	dc->PSSetShader(DrawPS, nullptr, 0);
 
 	ParticleConstantBuffer cb;
-	cb.gAccelW = XMFLOAT3(0.0f, 2.0f, 0.0f);
+	cb.gAccelW = mAccelW;
 
 	dc->UpdateSubresource(mConstantBuffer, 0, nullptr, &cb, 0, 0);
 	dc->VSSetConstantBuffers(0, 1, &mConstantBuffer);
@@ -177,7 +183,7 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam)
 	dc->GSSetConstantBuffers(1, 1, &mPerFrameBuffer);
 
 	dc->OMSetDepthStencilState(RenderStates::NoDepthWrite, 0);
-	dc->OMSetBlendState(RenderStates::AdditiveBlendingBS, blendFactor, 0xffffffff);
+	dc->OMSetBlendState(mBlendState, blendFactor, 0xffffffff);
 
 	dc->DrawAuto();
 
@@ -217,10 +223,10 @@ void ParticleSystem::BuildVB(ID3D11Device* device)
 }
 
 
-void ParticleSystem::BuildStreamOutFX(ID3D11Device* device)
+void ParticleSystem::BuildStreamOutFX(ID3D11Device* device, LPCTSTR StreamOutShaderFileName)
 {
 	ID3DBlob* pVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"StreamOutParticle.fxh", "StreamOutVS", "vs_4_0", &pVSBlob);
+	HRESULT hr = CompileShaderFromFile(StreamOutShaderFileName, "StreamOutVS", "vs_4_0", &pVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -238,7 +244,7 @@ void ParticleSystem::BuildStreamOutFX(ID3D11Device* device)
 
 	// Compile the Geometry shader
 	ID3DBlob* pGSBlob = nullptr;
-	hr = CompileShaderFromFile(L"StreamOutParticle.fxh", "StreamOutGS", "gs_4_0", &pGSBlob);
+	hr = CompileShaderFromFile(StreamOutShaderFileName, "StreamOutGS", "gs_4_0", &pGSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -263,11 +269,11 @@ void ParticleSystem::BuildStreamOutFX(ID3D11Device* device)
 	return ;
 }
 
-void ParticleSystem::BuildFX(ID3D11Device* device, LPCTSTR DrawShaderFileName)
+void ParticleSystem::BuildFX(ID3D11Device* device, LPCTSTR DrawShaderFileName, LPCTSTR StreamOutShaderFileName)
 {
 	if (BuildDrawFX(device, DrawShaderFileName)) return;
 
-	BuildStreamOutFX(device);
+	BuildStreamOutFX(device, StreamOutShaderFileName);
 	return;
 }
 
@@ -330,4 +336,9 @@ bool ParticleSystem::BuildDrawFX(ID3D11Device* device, LPCTSTR DrawShaderFileNam
 	if (FAILED(hr))
 		return true;
 	return false;
+}
+
+void ParticleSystem::SetBlendState(ID3D11BlendState* blendState)
+{
+	mBlendState = blendState;
 }

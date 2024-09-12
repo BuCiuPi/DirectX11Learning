@@ -282,6 +282,8 @@
     <None Include="NormalMap.fxh" />
     <None Include="packages.config" />
     <None Include="Lighting.fxh" />
+    <None Include="RainParticle.fxh" />
+    <None Include="RainStreamOutParticle.fxh" />
     <None Include="Sky.fxh" />
     <None Include="Stencil.fxh" />
     <None Include="StreamOutParticle.fxh" />

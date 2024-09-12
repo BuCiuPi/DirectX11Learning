@@ -87,14 +87,15 @@ void ParticleApplication::DrawScene()
 	mSky->Draw(g_pImmediateContext, mCamera);
 
 	/// Draw Particle
-
 	mFire.SetEyePos(mCamera.GetPosition());
+	mFire.SetBlendState(RenderStates::AdditiveBlendingBS);
+	mRain.SetAccelerate(XMFLOAT3(0.0f, 2.0f, 0.0f));
 	mFire.Draw(g_pImmediateContext, mCamera);
 
-
-	//mRain.SetEyePos(mCamera.GetPosition());
-	//mRain.SetEmitPos(mCamera.GetPosition());
-	//mRain.Draw(g_pImmediateContext, mCamera);
+	mRain.SetEyePos(mCamera.GetPosition());
+	mRain.SetEmitPos(mCamera.GetPosition());
+	mRain.SetAccelerate(XMFLOAT3(-1.0f, -9.8f, 0.0f));
+	mRain.Draw(g_pImmediateContext, mCamera);
 
 	g_pSwapChain->Present(0, 0);
 }
@@ -170,5 +171,7 @@ void ParticleApplication::BuildFX()
 {
 	mTerrain.BuildTerrainFX(g_pd3dDevice);
 	mSky->BuildSkyFX(g_pd3dDevice);
-	mFire.BuildFX(g_pd3dDevice, L"FireParticle.fxh");
+
+	mFire.BuildFX(g_pd3dDevice, L"FireParticle.fxh", L"StreamOutParticle.fxh");
+	mRain.BuildFX(g_pd3dDevice, L"RainParticle.fxh", L"RainStreamOutParticle.fxh");
 }

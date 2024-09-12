@@ -396,6 +396,12 @@
     <None Include="FireParticle.fxh">
       <Filter>FX</Filter>
     </None>
+    <None Include="RainStreamOutParticle.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="RainParticle.fxh">
+      <Filter>FX</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="LightingHelper.fxh">

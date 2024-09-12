@@ -24,6 +24,15 @@ float3 RandUnitVec3(float offset)
     return normalize(v);
 }
 
+float3 RandVec3(float offset)
+{
+    float u = (gGameTime + offset);
+
+    float3 v = gRandomTex.SampleLevel(samLinear, u, 0).xyz;
+
+    return v;
+}
+
 #define PT_EMITTER 0
 #define PT_FLARE 1
 
@@ -41,7 +50,8 @@ Particle StreamOutVS(Particle vin)
     return vin;
 }
 
-[maxvertexcount(2)]
+
+[maxvertexcount(6)]
 void StreamOutGS(point Particle gin[1],
 				inout PointStream<Particle> ptStream)
 {
@@ -49,21 +59,23 @@ void StreamOutGS(point Particle gin[1],
 
     if (gin[0].Type == PT_EMITTER)
     {
-	    if (gin[0].Age > 0.005f)
-	    {
-            float3 vRandom = RandUnitVec3(0.0f);
-            vRandom.x *= 0.5f;
-            vRandom.z *= 0.5f;
+        if (gin[0].Age > 0.002f)
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                float3 vRandom = 35.0f * RandVec3((float) i / 5.0f);
+                vRandom.y = 20.0f;
 
-            Particle p;
-            float3 moveRadius = ((float3(1.0f, 0.0f, 0.0f) * sin(gGameTime * 2.0f)) + (float3(0.0f, 0.0f, 1.0f) * cos(gGameTime * 2.0f))) * 8.0f;
-            p.InitialPosW = gEmitPosW.xyz + moveRadius;
-            p.InitialVelW = 4.0f * vRandom;
-            p.SizeW = float2(3.0f, 3.0f);
-            p.Age = 0.0f;
-            p.Type = PT_FLARE;
+                Particle p;
+                p.InitialPosW = gEmitPosW.xyz + vRandom;
+                p.InitialVelW = float3(0.0f, -20.0f, 0.0f);
+                p.SizeW = float2(1.0f, 1.0f);
+                p.Age = 0.0f;
+                p.Type = PT_FLARE;
 
-            ptStream.Append(p);
+                ptStream.Append(p);
+            }
+
 
             gin[0].Age = 0.0f;
         }
@@ -72,8 +84,8 @@ void StreamOutGS(point Particle gin[1],
     }
     else
     {
-	    if (gin[0].Age <= 1.0f)
-	    {
+        if (gin[0].Age <= 3.0f)
+        {
             ptStream.Append(gin[0]);
         }
     }
