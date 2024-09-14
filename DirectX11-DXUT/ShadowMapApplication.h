@@ -1,0 +1,143 @@
+#ifndef SHADOW_MAP_APPLICATION_H
+#define SHADOW_MAP_APPLICATION_H
+
+#include <DirectXCollision.h>
+
+#include "DirectX11Application.h"
+#include "ShadowMap.h"
+
+class ShadowMapApplication : public  DirectX11Application
+{
+public:
+	ShadowMapApplication(HINSTANCE hInstance);
+
+	virtual bool Init(int nShowCmd) override;
+	void DrawSkull(UINT stride, UINT offset, ShadowMappingConstantBuffer& cb, ID3D11Buffer* shadowConstantBuffer);
+	void DrawEnviroment(ShadowMappingConstantBuffer& cb, ID3D11Buffer* shadowConstantBuffer);
+	void DrawScreenQuad();
+	void DrawSceneToShadowMap();
+
+	virtual void DrawScene()override;
+	virtual void UpdateScene(float dt)override;
+
+	virtual void BuildGeometryBuffer() override;
+	void BuildSkullGeometryBuffer();
+	void BuildScreenQuadBuffers();
+
+	virtual void BuildConstantBuffer() override;
+	void BuildShadowTransform();
+
+	virtual void CleanupDevice() override;
+
+	virtual void BuildFX() override;
+
+private:
+
+	//
+
+	ID3D11InputLayout* mShadowMapInputLayout = nullptr;
+
+	ID3D11VertexShader* mShadowMapVertexShader = nullptr;
+	ID3D11PixelShader* mShadowMapPixelShader = nullptr;
+
+	ID3D11Buffer* mShadowConstantBuffers = nullptr;
+	ID3D11Buffer* mShadowMappingConstantBuffer = nullptr;
+
+	ID3D11InputLayout* mDisplacementVertexLayout = nullptr;
+
+	ID3D11VertexShader* mDisplacementVertexShader = nullptr;
+	ID3D11HullShader* mDisplacementHullShader = nullptr;
+	ID3D11DomainShader* mDisplacementDomainShader = nullptr;
+	ID3D11PixelShader* mDisplacementPixelShader = nullptr;
+
+	ID3D11VertexShader* mSkyVertexShader = nullptr;
+	ID3D11PixelShader* mSkyPixelShader = nullptr;
+
+	ID3D11Buffer* mSkyConstantBuffer = nullptr;
+
+	Sky* mSky;
+
+	ID3D11Buffer* mSkullVB = nullptr;
+	ID3D11Buffer* mSkullIB = nullptr;
+
+	ID3D11Buffer* mShapesVB = nullptr;
+	ID3D11Buffer* mShapesIB = nullptr;
+
+	ID3D11Buffer* mSkySphereVB = nullptr;
+	ID3D11Buffer* mSkySphereIB = nullptr;
+
+	ID3D11Buffer* mScreenQuadVB = nullptr;
+	ID3D11Buffer* mScreenQuadIB = nullptr;
+
+	ID3D11Buffer* mPerFrameBuffer = nullptr;
+	ID3D11SamplerState* mSamplerLinear = nullptr;
+	ID3D11SamplerState* mSamplerShadow = nullptr;
+	ID3D11SamplerState* mSamAnisotropic = nullptr;
+
+	XMFLOAT4X4 mMeshTexTransform;
+	XMFLOAT4X4 mMeshWorld;
+
+	ID3D11ShaderResourceView* mFloorSRV = nullptr;
+	ID3D11ShaderResourceView* mStoneSRV = nullptr;
+	ID3D11ShaderResourceView* mBrickSRV = nullptr;
+
+	ID3D11ShaderResourceView* mStoneNormalTexSRV = nullptr;
+	ID3D11ShaderResourceView* mBrickNormalTexSRV = nullptr;
+
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+
+	DirectX::BoundingSphere mSceneBounds;
+
+	static  const int SMapSize = 2048;
+	ShadowMap* mShadowMap;
+	XMFLOAT4X4 mLightView;
+	XMFLOAT4X4 mLightProj;
+	XMFLOAT4X4 mShadowTransform;
+
+	float mLightRotationAngle;
+	XMFLOAT3 mOriginalLightDir[3];
+	DirectionalLight mDirLights[3];
+
+
+
+	Material mGridMat;
+	Material mBoxMat;
+	Material mCylinderMat;
+	Material mSphereMat;
+	Material mSkullMat;
+
+	XMFLOAT4X4 mSphereWorld[10];
+	XMFLOAT4X4 mCylWorld[10];
+	XMFLOAT4X4 mBoxWorld;
+	XMFLOAT4X4 mGridWorld;
+	XMFLOAT4X4 mSkullWorld;
+
+
+	UINT mBoxVertexCount;
+	UINT mGridVertexCount;
+	UINT mSphereVertexCount;
+	UINT mCylinderVertexCount;
+
+	UINT mBoxVertexOffset;
+	UINT mGridVertexOffset;
+	UINT mSphereVertexOffset;
+	UINT mCylinderVertexOffset;
+
+	UINT mBoxIndexOffset;
+	UINT mGridIndexOffset;
+	UINT mSphereIndexOffset;
+	UINT mCylinderIndexOffset;
+
+	UINT mBoxIndexCount;
+	UINT mGridIndexCount;
+	UINT mSphereIndexCount;
+	UINT mCylinderIndexCount;
+
+	UINT mSkullIndexCount;
+
+	bool mFrustumCullingEnabled = true;
+};
+
+#endif
+
+

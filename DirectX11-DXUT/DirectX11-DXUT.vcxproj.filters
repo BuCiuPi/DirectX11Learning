@@ -141,6 +141,12 @@
     <ClInclude Include="ParticleApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadowMapApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -252,6 +258,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShadowMapApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -402,6 +414,9 @@
     <None Include="RainParticle.fxh">
       <Filter>FX</Filter>
     </None>
+    <None Include="BuildShadowMap.fxh">
+      <Filter>FX</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="LightingHelper.fxh">
@@ -411,6 +426,9 @@
       <Filter>FX</Filter>
     </Text>
     <Text Include="BezierTessellation.fxh">
+      <Filter>FX</Filter>
+    </Text>
+    <Text Include="BasicShadowMapping.fxh">
       <Filter>FX</Filter>
     </Text>
   </ItemGroup>

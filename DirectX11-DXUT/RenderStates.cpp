@@ -3,6 +3,7 @@
 ID3D11RasterizerState* RenderStates::WireframeRS = 0;
 ID3D11RasterizerState* RenderStates::NoCullRS = 0;
 ID3D11RasterizerState* RenderStates::CullClockwiseRS = 0;
+ID3D11RasterizerState* RenderStates::DepthOnlyRS = 0;
 
 ID3D11BlendState* RenderStates::AlphaToCoverageBS = 0;
 ID3D11BlendState* RenderStates::TransparentBS = 0;
@@ -195,6 +196,18 @@ void RenderStates::CreateRasterizerStates(ID3D11Device* device)
 	cullClockwiseDesc.CullMode = D3D11_CULL_BACK;
 	cullClockwiseDesc.FrontCounterClockwise = true;
 	cullClockwiseDesc.DepthClipEnable = true;
+
+	HR(device->CreateRasterizerState(&cullClockwiseDesc, &CullClockwiseRS));
+
+	D3D11_RASTERIZER_DESC depthOnlyDesc;
+	ZeroMemory(&depthOnlyDesc, sizeof(D3D11_RASTERIZER_DESC));
+	depthOnlyDesc.FillMode = D3D11_FILL_SOLID;
+	depthOnlyDesc.CullMode = D3D11_CULL_BACK;
+	depthOnlyDesc.FrontCounterClockwise = true;
+	depthOnlyDesc.DepthClipEnable = true;
+	depthOnlyDesc.DepthBias = 100000;
+	depthOnlyDesc.DepthBiasClamp = 0.0f;
+	depthOnlyDesc.SlopeScaledDepthBias = 1.0f;
 
 	HR(device->CreateRasterizerState(&cullClockwiseDesc, &CullClockwiseRS));
 }

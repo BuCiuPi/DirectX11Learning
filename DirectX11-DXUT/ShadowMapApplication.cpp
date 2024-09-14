@@ -1,13 +1,18 @@
-#include "NormalMappingApplication.h"
+#include "ShadowMapApplication.h"
 
 #include <fstream>
 
 #include "GeometryGenerator.h"
 
-NormalMappingApplication::NormalMappingApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
+ShadowMapApplication::ShadowMapApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
 {
 	mCamera.SetPosition(0.0f, 2.0f, -15.0f);
 	mCamera.CameraSpeed = 5.0f;
+
+	mLightRotationAngle = 0.0f;
+
+	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mSceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
 
 	XMMATRIX I = XMMatrixIdentity();
 	XMStoreFloat4x4(&mGridWorld, I);
@@ -70,7 +75,7 @@ NormalMappingApplication::NormalMappingApplication(HINSTANCE hinstance) : Direct
 	mSkullMat.Reflect = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 }
 
-bool NormalMappingApplication::Init(int nShowCmd)
+bool ShadowMapApplication::Init(int nShowCmd)
 {
 	if (!D3DApp::Init(nShowCmd))
 	{
@@ -80,22 +85,31 @@ bool NormalMappingApplication::Init(int nShowCmd)
 
 	BuildGeometryBuffer();
 	BuildSkullGeometryBuffer();
+	BuildScreenQuadBuffers();
 	BuildConstantBuffer();
 	BuildFX();
 
 	return true;
 }
 
-void NormalMappingApplication::DrawScene()
+void ShadowMapApplication::DrawScene()
 {
+	mShadowMap->BindDsvAndSetNullRenderTarget(g_pImmediateContext);
+
+	g_pImmediateContext->RSSetState(RenderStates::DepthOnlyRS);
+	DrawSceneToShadowMap();
+	g_pImmediateContext->RSSetState(0);
+	mShadowMap->UnBindDSV(g_pImmediateContext);
+
+	ID3D11RenderTargetView* renderTargets[1] = { g_pRenderTargetView };
+	g_pImmediateContext->OMSetRenderTargets(1, renderTargets, g_pDepthStencilView);
+	g_pImmediateContext->RSSetViewports(1, &g_pSceneViewport);
+
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
 	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	g_pImmediateContext->IASetInputLayout(mDisplacementVertexLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
-	//g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
 	UINT stride = sizeof(Vertex::PosNormalTexTan);
 	UINT offset = 0;
@@ -117,6 +131,11 @@ void NormalMappingApplication::DrawScene()
 	g_pImmediateContext->DSSetShader(mDisplacementDomainShader, nullptr, 0);
 	g_pImmediateContext->PSSetShader(mDisplacementPixelShader, nullptr, 0);
 
+	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+	g_pImmediateContext->DSSetSamplers(0, 1, &mSamplerLinear);
+
+	g_pImmediateContext->PSSetSamplers(1, 1, &mSamAnisotropic);
+
 	WaveConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(mCamera.View());
@@ -124,46 +143,14 @@ void NormalMappingApplication::DrawScene()
 	XMVECTOR detBox = XMMatrixDeterminant(g_World);
 	cb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&detBox, g_World));
 
-
-	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
-	g_pImmediateContext->DSSetSamplers(0, 1, &mSamplerLinear);
-	g_pImmediateContext->PSSetSamplers(1, 1, &mSamAnisotropic);
-
 	ID3D11ShaderResourceView* skySRV = mSky->CubeMapSRV();
 	g_pImmediateContext->PSSetShaderResources(1, 1, &skySRV);
 
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &mShapesVB, &stride, &offset);
 	g_pImmediateContext->IASetIndexBuffer(mShapesIB, DXGI_FORMAT_R32_UINT, 0);
 
-
-	cb.mWorld = XMLoadFloat4x4(&mGridWorld);
-	cb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(6.0f, 8.0f, 1.0f));
-	cb.gMaterial = mGridMat;
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-
-	g_pImmediateContext->PSSetShaderResources(0, 1, &mFloorSRV);
-	g_pImmediateContext->PSSetShaderResources(2, 1, &mStoneNormalTexSRV);
-
-	g_pImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
-
-	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mBoxWorld));
-	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
-	cb.gMaterial = mBoxMat;
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-
-	g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
-
-	g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
-
-
 	for (int i = 0; i < 10; ++i)
 	{
-
-		// todo : set shader
 		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mCylWorld[i]));
 		cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
 		cb.gMaterial = mCylinderMat;
@@ -179,28 +166,6 @@ void NormalMappingApplication::DrawScene()
 		g_pImmediateContext->DSSetShaderResources(2, 1, &mBrickNormalTexSRV);
 
 		g_pImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
-
-
-		//// draw sphere
-
-		//g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
-		//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		//g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
-		//g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
-
-		//cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSphereWorld[i]));
-		//cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
-		//cb.gMaterial = mSphereMat;
-
-		//g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-		//g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-		//g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-
-		//g_pImmediateContext->PSSetShaderResources(0, 1, &mStoneSRV);
-		//g_pImmediateContext->PSSetShaderResources(2, 1, &nullSRV);
-
-		//g_pImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
 	}
 
 	g_pImmediateContext->IASetInputLayout(g_pVertexLayout);
@@ -211,34 +176,217 @@ void NormalMappingApplication::DrawScene()
 	g_pImmediateContext->DSSetShader(nullptr, nullptr, 0);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
+	ShadowMappingConstantBuffer smcb;
+
+	smcb.mWorld = XMLoadFloat4x4(&mGridWorld);
+	smcb.mView = XMMatrixTranspose(mCamera.View());
+	smcb.mProjection = XMMatrixTranspose(mCamera.Proj());
+	smcb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(8.0f, 10.0f, 1.0f));
+	XMVECTOR sdetBox = XMMatrixDeterminant(smcb.mWorld);
+	smcb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&sdetBox, smcb.mWorld));
+
+	smcb.gMaterial = mGridMat;
+	smcb.gShadowTransform = XMMatrixTranspose(smcb.mWorld * XMLoadFloat4x4(&mShadowTransform));
+
+	ID3D11ShaderResourceView* shadowTransformSRV = mShadowMap->DepthMapSRV();
+	g_pImmediateContext->PSSetShaderResources(2, 1, &shadowTransformSRV);
+
+	g_pImmediateContext->PSSetSamplers(1, 1, &mSamplerShadow);
+
+	g_pImmediateContext->UpdateSubresource(mShadowMappingConstantBuffer, 0, nullptr, &smcb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowMappingConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &mShadowMappingConstantBuffer);
+
+	g_pImmediateContext->PSSetShaderResources(0, 1, &mFloorSRV);
+
+	g_pImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
+
+	//Draw Cube
+
+	smcb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mBoxWorld));
+	smcb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(2.0f, 1.0f, 1.0f));
+	sdetBox = XMMatrixDeterminant(smcb.mWorld);
+	smcb.mWorldInvTranspose = XMMatrixTranspose(XMMatrixInverse(&sdetBox, smcb.mWorld));
+
+	smcb.gMaterial = mBoxMat;
+	smcb.gShadowTransform = XMMatrixTranspose(XMLoadFloat4x4(&mShadowTransform));
+
+	g_pImmediateContext->UpdateSubresource(mShadowMappingConstantBuffer, 0, nullptr, &smcb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowMappingConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &mShadowMappingConstantBuffer);
+
+	//g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
+
+	g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
+
+	//DrawSkull(stride, offset, smcb, mShadowMappingConstantBuffer);
+	// draw sky
+	mSky->Draw(g_pImmediateContext, mCamera);
+
+	g_pSwapChain->Present(0, 0);
+}
+
+void ShadowMapApplication::DrawSkull(UINT stride, UINT offset, ShadowMappingConstantBuffer& cb, ID3D11Buffer* shadowConstantBuffer)
+{
 	g_pImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
 	g_pImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
 	// drawSkull
 	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSkullWorld));
 	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
 	cb.gMaterial = mSkullMat;
-	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
-	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	cb.gShadowTransform = XMMatrixTranspose(cb.mWorld * XMLoadFloat4x4(&mShadowTransform));
+
+	g_pImmediateContext->UpdateSubresource(shadowConstantBuffer, 0, nullptr, &cb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &shadowConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &shadowConstantBuffer);
 
 	g_pImmediateContext->PSSetShaderResources(0, 1, &nullSRV);
 
 	g_pImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
-
-
-	// draw sky
-	mSky->Draw(g_pImmediateContext, mCamera);
-
-
-	g_pSwapChain->Present(0, 0);
 }
 
-void NormalMappingApplication::UpdateScene(float dt)
+void ShadowMapApplication::DrawEnviroment(ShadowMappingConstantBuffer& cb, ID3D11Buffer* shadowConstantBuffer)
+{
+	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mBoxWorld));
+	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+	cb.gMaterial = mBoxMat;
+	cb.gShadowTransform = XMMatrixTranspose(cb.mWorld * XMLoadFloat4x4(&mShadowTransform));
+
+	g_pImmediateContext->UpdateSubresource(shadowConstantBuffer, 0, nullptr, &cb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &shadowConstantBuffer);
+	g_pImmediateContext->PSSetConstantBuffers(0, 1, &shadowConstantBuffer);
+
+	g_pImmediateContext->PSSetShaderResources(0, 1, &mBrickSRV);
+
+	g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
+
+	//for (int i = 0; i < 10; ++i)
+	//{
+	//	// draw sphere
+
+	//	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSphereWorld[i]));
+	//	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+	//	cb.gMaterial = mSphereMat;
+	//	cb.gShadowTransform = XMMatrixTranspose(cb.mWorld * XMLoadFloat4x4(&mShadowTransform));
+
+	//	g_pImmediateContext->UpdateSubresource(g_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+	//	g_pImmediateContext->VSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+	//	g_pImmediateContext->PSSetConstantBuffers(0, 1, &g_pConstantBuffer);
+
+	//	g_pImmediateContext->PSSetShaderResources(0, 1, &mStoneSRV);
+
+	//	g_pImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
+	//}
+}
+
+void ShadowMapApplication::DrawScreenQuad()
+{
+	UINT stride = sizeof(Vertex::Basic32);
+	UINT offset = 0;
+
+	g_pImmediateContext->IASetInputLayout(InputLayouts::Basic32);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
+	g_pImmediateContext->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R32_UINT, 0);
+
+	// Scale and shift quad to lower-right corner.
+	XMMATRIX world(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, -0.5f, 0.0f, 1.0f);
+
+	g_pImmediateContext->DrawIndexed(6, 0, 0);
+}
+
+void ShadowMapApplication::DrawSceneToShadowMap()
+{
+	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	g_pImmediateContext->IASetInputLayout(mShadowMapInputLayout);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	UINT stride = sizeof(Vertex::PosNormalTexTan);
+	UINT offset = 0;
+
+	g_pImmediateContext->VSSetShader(mShadowMapVertexShader, nullptr, 0);
+	g_pImmediateContext->PSSetShader(mShadowMapPixelShader, nullptr, 0);
+
+	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+
+	ShadowConstantBuffer cb;
+	cb.mWorld = XMMatrixTranspose(g_World);
+	cb.mView = XMMatrixTranspose(XMLoadFloat4x4(&mLightView));
+	cb.mProjection = XMMatrixTranspose(XMLoadFloat4x4(&mLightProj));
+
+	g_pImmediateContext->IASetVertexBuffers(0, 1, &mShapesVB, &stride, &offset);
+	g_pImmediateContext->IASetIndexBuffer(mShapesIB, DXGI_FORMAT_R32_UINT, 0);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mCylWorld[i]));
+		cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+
+		g_pImmediateContext->UpdateSubresource(mShadowConstantBuffers, 0, nullptr, &cb, 0, 0);
+		g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowConstantBuffers);
+
+		g_pImmediateContext->DrawIndexed(mCylinderIndexCount, mCylinderIndexOffset, mCylinderVertexOffset);
+	}
+
+	cb.mWorld = XMLoadFloat4x4(&mGridWorld);
+	cb.gTexTransform = XMMatrixTranspose(XMMatrixScaling(6.0f, 8.0f, 1.0f));
+	g_pImmediateContext->UpdateSubresource(mShadowConstantBuffers, 0, nullptr, &cb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowConstantBuffers);
+
+	g_pImmediateContext->DrawIndexed(mGridIndexCount, mGridIndexOffset, mGridVertexOffset);
+
+	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mBoxWorld));
+	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+	g_pImmediateContext->UpdateSubresource(mShadowConstantBuffers, 0, nullptr, &cb, 0, 0);
+	g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowConstantBuffers);
+
+	g_pImmediateContext->DrawIndexed(mBoxIndexCount, mBoxIndexOffset, mBoxVertexOffset);
+
+	//for (int i = 0; i < 10; ++i)
+	//{
+	//	// draw sphere
+
+	//	cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSphereWorld[i]));
+	//	cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+
+	//	g_pImmediateContext->UpdateSubresource(mShadowConstantBuffers, 0, nullptr, &cb, 0, 0);
+	//	g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowConstantBuffers);
+
+	//	g_pImmediateContext->DrawIndexed(mSphereIndexCount, mSphereIndexOffset, mSphereVertexOffset);
+	//}
+
+	//g_pImmediateContext->IASetVertexBuffers(0, 1, &mSkullVB, &stride, &offset);
+	//g_pImmediateContext->IASetIndexBuffer(mSkullIB, DXGI_FORMAT_R32_UINT, 0);
+	//// drawSkull
+	//cb.mWorld = XMMatrixTranspose(XMLoadFloat4x4(&mSkullWorld));
+	//cb.gTexTransform = XMMatrixTranspose(XMMatrixIdentity());
+
+	//g_pImmediateContext->UpdateSubresource(mShadowConstantBuffers, 0, nullptr, &cb, 0, 0);
+	//g_pImmediateContext->VSSetConstantBuffers(0, 1, &mShadowConstantBuffers);
+
+	//g_pImmediateContext->DrawIndexed(mSkullIndexCount, 0, 0);
+}
+
+void ShadowMapApplication::UpdateScene(float dt)
 {
 	DirectX11Application::UpdateScene(dt);
+
+	mLightRotationAngle += 0.002f * dt;
+
+	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
+	XMVECTOR lightDir = XMVector3TransformNormal(XMLoadFloat3(&mDirLights[0].Direction), R);
+	XMStoreFloat3(&mDirLights[0].Direction, lightDir);
+
+	BuildShadowTransform();
 }
 
-void NormalMappingApplication::BuildGeometryBuffer()
+void ShadowMapApplication::BuildGeometryBuffer()
 {
 	MeshData box;
 	MeshData grid;
@@ -352,7 +500,7 @@ void NormalMappingApplication::BuildGeometryBuffer()
 	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mShapesIB));
 }
 
-void NormalMappingApplication::BuildSkullGeometryBuffer()
+void ShadowMapApplication::BuildSkullGeometryBuffer()
 {
 	std::ifstream fin("Models/skull.txt");
 
@@ -415,8 +563,44 @@ void NormalMappingApplication::BuildSkullGeometryBuffer()
 	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mSkullIB));
 }
 
+void ShadowMapApplication::BuildScreenQuadBuffers()
+{
+	MeshData quad;
 
-void NormalMappingApplication::BuildConstantBuffer()
+	GeometryGenerator geoGen;
+	geoGen.CreateFullscreenQuad(quad);
+
+	std::vector<Vertex::Basic32> vertices(quad.Vertices.size());
+
+	for (UINT i = 0; i < quad.Vertices.size(); ++i)
+	{
+		vertices[i].Pos = quad.Vertices[i].Position;
+		vertices[i].Normal = quad.Vertices[i].Normal;
+		vertices[i].Tex = quad.Vertices[i].TexC;
+	}
+
+	D3D11_BUFFER_DESC vbd;
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.ByteWidth = sizeof(Vertex::Basic32) * quad.Vertices.size();
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.CPUAccessFlags = 0;
+	vbd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA vinitData;
+	vinitData.pSysMem = &vertices[0];
+	HR(g_pd3dDevice->CreateBuffer(&vbd, &vinitData, &mScreenQuadVB));
+
+	D3D11_BUFFER_DESC ibd;
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	ibd.ByteWidth = sizeof(UINT) * quad.Indices.size();
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.CPUAccessFlags = 0;
+	ibd.MiscFlags = 0;
+	D3D11_SUBRESOURCE_DATA iinitData;
+	iinitData.pSysMem = &quad.Indices[0];
+	HR(g_pd3dDevice->CreateBuffer(&ibd, &iinitData, &mScreenQuadIB));
+}
+
+void ShadowMapApplication::BuildConstantBuffer()
 {
 	D3D11_BUFFER_DESC bd;
 	// Create the constant buffer
@@ -440,6 +624,27 @@ void NormalMappingApplication::BuildConstantBuffer()
 
 	HR(g_pd3dDevice->CreateBuffer(&sbd, nullptr, &mSkyConstantBuffer));
 
+	D3D11_BUFFER_DESC Shadowbd;
+	// Create the constant buffer
+	Shadowbd.Usage = D3D11_USAGE_DEFAULT;
+	Shadowbd.ByteWidth = sizeof(ShadowConstantBuffer);
+	Shadowbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	Shadowbd.CPUAccessFlags = 0;
+	Shadowbd.MiscFlags = 0;
+	Shadowbd.StructureByteStride = 0;
+
+	HR(g_pd3dDevice->CreateBuffer(&Shadowbd, nullptr, &mShadowConstantBuffers));
+
+	D3D11_BUFFER_DESC ShadowMappingbd;
+	// Create the constant buffer
+	ShadowMappingbd.Usage = D3D11_USAGE_DEFAULT;
+	ShadowMappingbd.ByteWidth = sizeof(ShadowMappingConstantBuffer);
+	ShadowMappingbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	ShadowMappingbd.CPUAccessFlags = 0;
+	ShadowMappingbd.MiscFlags = 0;
+	ShadowMappingbd.StructureByteStride = 0;
+	HR(g_pd3dDevice->CreateBuffer(&ShadowMappingbd, nullptr, &mShadowMappingConstantBuffer));
+
 	D3D11_BUFFER_DESC pfb;
 
 	pfb.Usage = D3D11_USAGE_DEFAULT;
@@ -460,6 +665,7 @@ void NormalMappingApplication::BuildConstantBuffer()
 	//mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
 	//mSky = new Sky(g_pd3dDevice, L"Textures/snowcube1024.dds", 10.0f);
 	mSky = new Sky(g_pd3dDevice, L"Textures/desertcube1024.dds", 10.0f);
+	mShadowMap = new ShadowMap(g_pd3dDevice, SMapSize, SMapSize);
 
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -472,6 +678,22 @@ void NormalMappingApplication::BuildConstantBuffer()
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	HR(g_pd3dDevice->CreateSamplerState(&sampDesc, &mSamplerLinear));
+
+	D3D11_SAMPLER_DESC sSampDesc = {};
+	sSampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	sSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	sSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	sSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	sSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	sSampDesc.MipLODBias = 0.0f;
+	sSampDesc.MaxAnisotropy = 1;
+	sSampDesc.MinLOD = 0;
+	sSampDesc.MaxLOD = 0;
+	sSampDesc.BorderColor[0] = 0.0f;
+	sSampDesc.BorderColor[1] = 0.0f;
+	sSampDesc.BorderColor[2] = 0.0f;
+	sSampDesc.BorderColor[3] = 0.0f;
+	HR(g_pd3dDevice->CreateSamplerState(&sSampDesc, &mSamplerShadow));
 
 	D3D11_SAMPLER_DESC sampAni = {};
 	sampAni.Filter = D3D11_FILTER_ANISOTROPIC;
@@ -486,27 +708,44 @@ void NormalMappingApplication::BuildConstantBuffer()
 	HR(g_pd3dDevice->CreateSamplerState(&sampAni, &mSamAnisotropic));
 }
 
-void NormalMappingApplication::CleanupDevice()
+void ShadowMapApplication::BuildShadowTransform()
 {
-	DirectX11Application::CleanupDevice();
-	SafeDelete(mSky);
+	XMVECTOR lightDir = XMLoadFloat3(&mDirLights[0].Direction);
+	XMVECTOR lightPos = -2.0f * mSceneBounds.Radius * lightDir;
+	XMVECTOR targetPos = XMLoadFloat3(&mSceneBounds.Center);
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-	ReleaseCOM(mShapesVB);
-	ReleaseCOM(mShapesIB);
-	ReleaseCOM(mSkullVB);
-	ReleaseCOM(mSkullIB);
-	ReleaseCOM(mFloorSRV);
-	ReleaseCOM(mStoneSRV);
-	ReleaseCOM(mBrickSRV);
-	ReleaseCOM(mStoneNormalTexSRV);
-	ReleaseCOM(mBrickNormalTexSRV);
+	XMMATRIX V = XMMatrixLookAtLH(lightPos, targetPos, up);
+
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, V));
+
+	float l = sphereCenterLS.x - mSceneBounds.Radius;
+	float b = sphereCenterLS.y - mSceneBounds.Radius;
+	float n = sphereCenterLS.z - mSceneBounds.Radius;
+	float r = sphereCenterLS.x + mSceneBounds.Radius;
+	float t = sphereCenterLS.y + mSceneBounds.Radius;
+	float f = sphereCenterLS.z + mSceneBounds.Radius;
+	XMMATRIX P = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+	XMMATRIX T(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f
+	);
+
+	XMMATRIX S = V * P * T;
+
+	XMStoreFloat4x4(&mLightView, V);
+	XMStoreFloat4x4(&mLightProj, P);
+	XMStoreFloat4x4(&mShadowTransform, S);
 }
 
-void NormalMappingApplication::BuildFX()
+void ShadowMapApplication::BuildFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* pVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"NormalMap.fxh", "VS", "vs_5_0", &pVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"BasicShadowMapping.fxh", "VS", "vs_5_0", &pVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -531,7 +770,7 @@ void NormalMappingApplication::BuildFX()
 
 	// Compile the pixel shader
 	ID3DBlob* pPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"NormalMap.fxh", "PS", "ps_5_0", &pPSBlob);
+	hr = CompileShaderFromFile(L"BasicShadowMapping.fxh", "PS", "ps_5_0", &pPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -618,5 +857,62 @@ void NormalMappingApplication::BuildFX()
 	if (FAILED(hr))
 		return;
 
+	ID3DBlob* spVSBlob = nullptr;
+	hr = CompileShaderFromFile(L"BuildShadowMap.fxh", "VS", "vs_5_0", &spVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the vertex shader
+	hr = g_pd3dDevice->CreateVertexShader(spVSBlob->GetBufferPointer(), spVSBlob->GetBufferSize(), nullptr, &mShadowMapVertexShader);
+	if (FAILED(hr))
+	{
+		spVSBlob->Release();
+		return;
+	}
+
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, spVSBlob, InputLayoutDesc::PosNormalTexTan, ARRAYSIZE(InputLayoutDesc::PosNormalTexTan), &mShadowMapInputLayout);
+	if (FAILED(hr))
+	{
+		spVSBlob->Release();
+		return;
+	}
+
+	// Compile the pixel shader
+	ID3DBlob* spPSBlob = nullptr;
+	hr = CompileShaderFromFile(L"BuildShadowMap.fxh", "PS", "ps_5_0", &spPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the pixel shader
+	hr = g_pd3dDevice->CreatePixelShader(spPSBlob->GetBufferPointer(), spPSBlob->GetBufferSize(), nullptr, &mShadowMapPixelShader);
+	spPSBlob->Release();
+	if (FAILED(hr))
+		return;
+
 	mSky->BuildSkyFX(g_pd3dDevice);
+}
+
+void ShadowMapApplication::CleanupDevice()
+{
+	DirectX11Application::CleanupDevice();
+	SafeDelete(mSky);
+	SafeDelete(mShadowMap);
+
+	ReleaseCOM(mShapesVB);
+	ReleaseCOM(mShapesIB);
+	ReleaseCOM(mSkullVB);
+	ReleaseCOM(mSkullIB);
+	ReleaseCOM(mFloorSRV);
+	ReleaseCOM(mStoneSRV);
+	ReleaseCOM(mBrickSRV);
+	ReleaseCOM(mStoneNormalTexSRV);
+	ReleaseCOM(mBrickNormalTexSRV);
 }

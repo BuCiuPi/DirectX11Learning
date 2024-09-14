@@ -82,6 +82,17 @@ struct WaveConstantBuffer
 	Material gMaterial;
 };
 
+struct ShadowMappingConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+	XMMATRIX mWorldInvTranspose;
+	XMMATRIX gTexTransform;
+	XMMATRIX gShadowTransform;
+	Material gMaterial;
+};
+
 struct SkyConstantBuffer
 {
 	XMMATRIX mMVP;
@@ -146,6 +157,14 @@ struct TerrainPerFrameBuffer
 	XMFLOAT2 gTexScale;
 
 	XMFLOAT4 gWorldFrustumPlanes[6];
+};
+
+struct ShadowConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+	XMMATRIX gTexTransform;
 };
 
 struct InstancedData

@@ -179,6 +179,8 @@
     <ClInclude Include="PickingApplication.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="ShadowMapApplication.h" />
     <ClInclude Include="ShapesApplication.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="SphereApplication.h" />
@@ -219,6 +221,8 @@
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PickingApplication.cpp" />
     <ClCompile Include="RenderStates.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="ShadowMapApplication.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
@@ -271,6 +275,7 @@
   <ItemGroup>
     <None Include="Blending.fxh" />
     <None Include="Blur.fxh" />
+    <None Include="BuildShadowMap.fxh" />
     <None Include="color.fxh" />
     <None Include="DirLight.fxh" />
     <None Include="DirLightTex.fxh" />
@@ -294,6 +299,7 @@
     <None Include="Wave.fxh" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="BasicShadowMapping.fxh" />
     <Text Include="BezierTessellation.fxh" />
     <Text Include="LightingHelper.fxh" />
     <Text Include="ScreenQuad.fxh" />
