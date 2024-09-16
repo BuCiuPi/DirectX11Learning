@@ -101,7 +101,7 @@ void DirectX11Application::DrawScene()
 	//
 	// Update variables
 	//
-	ConstantBuffer cb;
+	BasicConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(mCamera.View());
 	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
@@ -191,7 +191,7 @@ void DirectX11Application::BuildConstantBuffer()
 	D3D11_BUFFER_DESC bd;
 	// Create the constant buffer
 	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(ConstantBuffer);
+	bd.ByteWidth = sizeof(BasicConstantBuffer);
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;

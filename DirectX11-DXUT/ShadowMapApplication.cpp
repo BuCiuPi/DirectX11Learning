@@ -1,7 +1,6 @@
 #include "ShadowMapApplication.h"
 
 #include <fstream>
-
 #include "GeometryGenerator.h"
 
 ShadowMapApplication::ShadowMapApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)

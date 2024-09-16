@@ -82,7 +82,7 @@ void LitApplication::DrawScene()
 
 
 
-	ConstantBuffer cb;
+	BasicConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(mCamera.View());
 	cb.mProjection = XMMatrixTranspose(mCamera.Proj());

@@ -19,6 +19,12 @@
     <Filter Include="Textures">
       <UniqueIdentifier>{1835a9a0-227b-4cc6-8efa-700a01b792e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ModelLoader">
+      <UniqueIdentifier>{5152884b-1d49-4ba7-bca0-281107ca316b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ModelLoader">
+      <UniqueIdentifier>{63a358a0-7ebd-41b5-8458-686e5cf8b8a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -147,6 +153,39 @@
     <ClInclude Include="ShadowMapApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Header Files\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferTypes.h">
+      <Filter>Header Files\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Header Files\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files\ModelLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelLoaderApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -264,6 +303,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShadowMapApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\ModelLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelLoaderApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StringHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -415,6 +475,9 @@
       <Filter>FX</Filter>
     </None>
     <None Include="BuildShadowMap.fxh">
+      <Filter>FX</Filter>
+    </None>
+    <None Include="NanoSuitSimpleLit.fxh">
       <Filter>FX</Filter>
     </None>
   </ItemGroup>

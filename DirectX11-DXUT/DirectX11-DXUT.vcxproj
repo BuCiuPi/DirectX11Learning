@@ -115,13 +115,13 @@
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Core;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Optional;$(SolutionDir)$(ProjectName)\Dependencies\Effects11\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\Dependencies\Assimp\Include;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Core;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Optional;$(SolutionDir)$(ProjectName)\Dependencies\Effects11\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;Effects11d.lib;dxguid.lib;comctl32.lib;usp10.lib;imm32.lib;version.lib;d3d11.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Core\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Optional\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3dcompiler.lib;Effects11d.lib;dxguid.lib;comctl32.lib;usp10.lib;imm32.lib;version.lib;d3d11.lib;legacy_stdio_definitions.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Core\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\DXUT-main\Optional\Bin\Desktop_2022_Win10\Win32\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug;$(SolutionDir)DirectX11-DXUT\Dependencies\Assimp\Lib</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderType>Effect</ShaderType>
@@ -136,7 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Core;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Optional;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)$(ProjectName)\Dependencies\Assimp\Include;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Core;$(SolutionDir)$(ProjectName)\Dependencies\DXUT-main\Optional;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +156,9 @@
     <ClInclude Include="BlurFilter.h" />
     <ClInclude Include="BoxApplication.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColorHelper.h" />
+    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferTypes.h" />
     <ClInclude Include="CrateApplication.h" />
     <ClInclude Include="CubeMapApplication.h" />
     <ClInclude Include="CylinderApplication.h" />
@@ -164,15 +167,20 @@
     <ClInclude Include="DirectX11Application.h" />
     <ClInclude Include="DynamicCubeMapApplication.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="HeartPlaneApplication.h" />
     <ClInclude Include="HillApplication.h" />
+    <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InstancingAndCullingApplication.h" />
     <ClInclude Include="LightHelper.h" />
     <ClInclude Include="LitApplication.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="MirrorApplication.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelLoaderApplication.h" />
     <ClInclude Include="NormalMappingApplication.h" />
     <ClInclude Include="ParticleApplication.h" />
     <ClInclude Include="ParticleSystem.h" />
@@ -184,10 +192,13 @@
     <ClInclude Include="ShapesApplication.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="SphereApplication.h" />
+    <ClInclude Include="StringHelper.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainApplication.h" />
     <ClInclude Include="TessellationApplication.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="WaveApplication.h" />
     <ClInclude Include="Waves.h" />
   </ItemGroup>
@@ -200,6 +211,7 @@
     <ClCompile Include="BlurFilter.cpp" />
     <ClCompile Include="BoxApplication.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColorHelper.cpp" />
     <ClCompile Include="CrateApplication.cpp" />
     <ClCompile Include="CubeMapApplication.cpp" />
     <ClCompile Include="CylinderApplication.cpp" />
@@ -208,6 +220,7 @@
     <ClCompile Include="DirectX11-DXUT.cpp" />
     <ClCompile Include="DirectX11Application.cpp" />
     <ClCompile Include="DynamicCubeMapApplication.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="HeartPlaneApplication.cpp" />
@@ -215,7 +228,10 @@
     <ClCompile Include="InstancingAndCullingApplication.cpp" />
     <ClCompile Include="LitApplication.cpp" />
     <ClCompile Include="MathHelper.cpp" />
+    <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MirrorApplication.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelLoaderApplication.cpp" />
     <ClCompile Include="NormalMappingApplication.cpp" />
     <ClCompile Include="ParticleApplication.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
@@ -226,9 +242,11 @@
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
+    <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainApplication.cpp" />
     <ClCompile Include="TessellationApplication.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="WaveApplication.cpp" />
     <ClCompile Include="Waves.cpp" />
   </ItemGroup>
@@ -283,6 +301,7 @@
     <None Include="FireParticle.fxh" />
     <None Include="heart.fxh" />
     <None Include="Instancing.fxh" />
+    <None Include="NanoSuitSimpleLit.fxh" />
     <None Include="normal.fxh" />
     <None Include="NormalMap.fxh" />
     <None Include="packages.config" />

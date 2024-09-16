@@ -46,7 +46,7 @@ void ShapeApplication::DrawScene()
 	g_pImmediateContext->IASetIndexBuffer(g_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 
-	ConstantBuffer cb;
+	BasicConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(mCamera.View());
 	cb.mProjection = XMMatrixTranspose(mCamera.Proj());

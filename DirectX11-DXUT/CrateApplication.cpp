@@ -61,7 +61,7 @@ void CrateApplication::DrawScene()
 	g_pImmediateContext->VSSetShader(g_pVertexShader, nullptr, 0);
 	g_pImmediateContext->PSSetShader(g_pPixelShader, nullptr, 0);
 
-	ConstantBuffer cb;
+	BasicConstantBuffer cb;
 	cb.mWorld = XMMatrixTranspose(g_World);
 	cb.mView = XMMatrixTranspose(mCamera.View());
 	cb.mProjection = XMMatrixTranspose(mCamera.Proj());
