@@ -2,6 +2,8 @@
 #define CONSTANT_BUFFER_TYPES_H
 #include <DirectXMath.h>
 
+#include "LightHelper.h"
+
 struct CB_VS_vertexshader
 {
 	DirectX::XMMATRIX mat;
