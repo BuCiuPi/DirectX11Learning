@@ -22,6 +22,8 @@ public:
 	void Draw();
 
 private:
+	void BuildVertexAmbientOcclusion(std::vector<Vertex::Vertex>& vertices, const std::vector<DWORD> indices);
+
 	VertexBuffer<Vertex::Vertex> vertexbuffer;
 	IndexBuffer indexbuffer;
 	ID3D11DeviceContext* deviceContext;

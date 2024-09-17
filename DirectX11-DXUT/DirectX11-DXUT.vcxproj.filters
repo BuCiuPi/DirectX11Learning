@@ -189,6 +189,9 @@
     <ClInclude Include="AmbientOcclusionApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -330,6 +333,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AmbientOcclusionApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -498,6 +504,9 @@
       <Filter>FX</Filter>
     </Text>
     <Text Include="BasicShadowMapping.fxh">
+      <Filter>FX</Filter>
+    </Text>
+    <Text Include="AmbientOcclusion.fxh">
       <Filter>FX</Filter>
     </Text>
   </ItemGroup>
