@@ -8,7 +8,7 @@
 AmbientOcclusionApplication::AmbientOcclusionApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
 {
 	mCamera.SetPosition(0.0f, 2.0f, -15.0f);
-	mCamera.CameraSpeed = 20.0f;
+	mCamera.CameraSpeed = 50.0f;
 
 	mLightRotationAngle = 0.0f;
 
@@ -58,7 +58,7 @@ void AmbientOcclusionApplication::DrawScene()
 	{
 		g_pImmediateContext->RSSetState(RenderStates::WireframeRS);
 	}
-	g_pImmediateContext->IASetInputLayout(InputLayouts::AmbientOcclusion);
+	g_pImmediateContext->IASetInputLayout(InputLayouts::NanoSuit);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	g_pImmediateContext->VSSetShader(mNanoSuitVertexShader, 0, 0);
@@ -146,9 +146,7 @@ void AmbientOcclusionApplication::BuildConstantBuffer()
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/grass.dds", nullptr, &mNanoSuitTexture));
 
 	mNanoSuitGameObject = new GameObject();
-	//mNanoSuitGameObject->Initialize("Models/Objects/frank/scene2.gltf", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
-	//mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
-	mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
 }
 
 void AmbientOcclusionApplication::CleanupDevice()
@@ -167,7 +165,7 @@ void AmbientOcclusionApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"AmbientOcclusion.fxh", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"NanoSuitSimpleLit.fxh", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -183,7 +181,7 @@ void AmbientOcclusionApplication::BuildNanoSuitFX()
 		return;
 	}
 
-	InputLayouts::BuildVertexLayout(g_pd3dDevice, skyVSBlob, InputLayoutDesc::AmbientOcclusion, ARRAYSIZE(InputLayoutDesc::AmbientOcclusion), &InputLayouts::AmbientOcclusion);
+	InputLayouts::BuildVertexLayout(g_pd3dDevice, skyVSBlob, InputLayoutDesc::NanoSuit, ARRAYSIZE(InputLayoutDesc::NanoSuit), &InputLayouts::NanoSuit);
 	if (FAILED(hr))
 	{
 		skyVSBlob->Release();
@@ -192,7 +190,7 @@ void AmbientOcclusionApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"AmbientOcclusion.fxh", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"NanoSuitSimpleLit.fxh", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
