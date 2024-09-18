@@ -18,6 +18,17 @@ void GameObject::Draw(const XMMATRIX& viewProjectionMatrix)
 	model.Draw(this->worldMatrix, viewProjectionMatrix);
 }
 
+void GameObject::DrawNormalAndDepth(Camera& camera)
+{
+	CB_VS_vertexshader_NormalAndDepth constantBuffer;
+	constantBuffer.gWorldView = XMMatrixTranspose(this->worldMatrix * camera.View());
+	constantBuffer.gWorldViewProj = XMMatrixTranspose(this->worldMatrix * camera.ViewProj());
+	constantBuffer.gTexTransform = XMMatrixIdentity();
+	constantBuffer.gWorldInvTransposeView = XMMatrixTranspose(MathHelper::InverseTranspose(this->worldMatrix) * camera.View());
+
+	model.DrawNormalAndDepth(constantBuffer);
+}
+
 void GameObject::UpdateWorldMatrix()
 {
 	this->worldMatrix = XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);

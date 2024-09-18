@@ -10,6 +10,8 @@ class Model
 public:
 	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader);
 	void Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix);
+	void DrawNormalAndDepth(const CB_VS_vertexshader_NormalAndDepth& constantBufffer);
+
 private:
 	std::vector<Mesh> meshes;
 	bool LoadModel(const std::string& filePath);
@@ -23,6 +25,8 @@ private:
 	ID3D11DeviceContext* deviceContext = nullptr;
 	ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader = nullptr;
 	std::string directory = "";
+
+	ConstantBuffer<CB_VS_vertexshader_NormalAndDepth>* cb_vs_vertexshader_NormalAndDepth = nullptr;
 
 	Material mMaterial;
 };

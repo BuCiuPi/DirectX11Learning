@@ -7,6 +7,13 @@ bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = cb_vs_vertexshader;
 
+	this->cb_vs_vertexshader_NormalAndDepth = new ConstantBuffer<CB_VS_vertexshader_NormalAndDepth>();
+	HRESULT hr = this->cb_vs_vertexshader_NormalAndDepth->Initialize(device, deviceContext);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The Constant Buffer cannot be Initialized.", L"Error", MB_OK);
+	}
 
 	this->mMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	this->mMaterial.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -23,13 +30,27 @@ void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatr
 	//Update Constant buffer with WVP Matrix
 	XMMATRIX MVP = worldMatrix * viewProjectionMatrix;
 	this->cb_vs_vertexshader->data.mat = XMMatrixTranspose(MVP);
-	this->cb_vs_vertexshader->ApplyChanges();
 	this->cb_vs_vertexshader->data.material = mMaterial;
+	this->cb_vs_vertexshader->ApplyChanges();
 
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 	this->deviceContext->PSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
+	{
+		meshes[i].Draw();
+	}
+}
+
+void Model::DrawNormalAndDepth(const CB_VS_vertexshader_NormalAndDepth& constantBufffer)
+{
+	this->cb_vs_vertexshader_NormalAndDepth->data = constantBufffer;
+	this->cb_vs_vertexshader_NormalAndDepth->ApplyChanges();
+
+	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader_NormalAndDepth->GetAddressOf());
+	this->deviceContext->PSSetConstantBuffers(0, 1, this->cb_vs_vertexshader_NormalAndDepth->GetAddressOf());
+
+	for (int i = 0; i < meshes.size(); ++i)
 	{
 		meshes[i].Draw();
 	}

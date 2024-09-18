@@ -10,6 +10,14 @@ struct CB_VS_vertexshader
 	Material material;
 };
 
+struct CB_VS_vertexshader_NormalAndDepth
+{
+	DirectX::XMMATRIX gWorldView;
+	DirectX::XMMATRIX gWorldInvTransposeView;
+	DirectX::XMMATRIX gWorldViewProj;
+	DirectX::XMMATRIX gTexTransform;
+};
+
 struct CB_PS_pixelshader
 {
 	DirectionalLight gDirLight[3];

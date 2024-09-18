@@ -44,6 +44,7 @@
 #include "ParticleApplication.h"
 #include "PickingApplication.h"
 #include "ShadowMapApplication.h"
+#include "SSAOApplication.h"
 #include "TerrainApplication.h"
 
 
@@ -54,7 +55,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    AmbientOcclusionApplication application(hInstance);
+    SSAOApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

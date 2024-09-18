@@ -55,6 +55,8 @@ HRESULT D3DApp::InitWindow(HINSTANCE hInstance, int nCmdShow)
 	// Create window
 	g_hInst = hInstance;
 	RECT rc = { 0, 0, 800, 600 };
+	mClientHeight = 600;
+	mClientWidth = 800;
 	AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 	g_hWnd = CreateWindow(L"TutorialWindowClass", mMainWndCaption.c_str(),
 		WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,

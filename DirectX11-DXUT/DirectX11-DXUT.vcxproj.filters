@@ -189,6 +189,12 @@
     <ClInclude Include="AmbientOcclusionApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SSAOApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSAO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -330,6 +336,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AmbientOcclusionApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAOApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SSAO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -486,6 +498,9 @@
     <None Include="NanoSuitSimpleLit.fxh">
       <Filter>FX</Filter>
     </None>
+    <None Include="NormalAndDepth.fxh">
+      <Filter>FX</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="LightingHelper.fxh">
@@ -498,6 +513,9 @@
       <Filter>FX</Filter>
     </Text>
     <Text Include="BasicShadowMapping.fxh">
+      <Filter>FX</Filter>
+    </Text>
+    <Text Include="SSAO.fxh">
       <Filter>FX</Filter>
     </Text>
   </ItemGroup>
