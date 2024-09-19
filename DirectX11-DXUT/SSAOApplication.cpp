@@ -13,6 +13,8 @@ SSAOApplication::SSAOApplication(HINSTANCE hinstance) : DirectX11Application(hin
 
 	mLightRotationAngle = 0.0f;
 
+	mIsWireFrame = false;
+
 	mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[0].Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -70,36 +72,38 @@ void SSAOApplication::DrawScene()
 		g_pImmediateContext->RSSetState(RenderStates::WireframeRS);
 	}
 
-	//mSSAO->SetNormalDepthRenderTarget(g_pDepthStencilView);
+	mSSAO->SetNormalDepthRenderTarget(g_pDepthStencilView);
 	
 	DrawSceneToSSAONormalDepthMap();
 
 	mSSAO->ComputeSSAO(mCamera);
-
-	// TODO: Blur ComputeSSAO result
+	mSSAO->BlurAmientMap(4);
 
 	ID3D11RenderTargetView* renderTargets[1] = { g_pRenderTargetView };
 	g_pImmediateContext->OMSetRenderTargets(1, renderTargets, g_pDepthStencilView);
 	g_pImmediateContext->RSSetViewports(1, &g_pSceneViewport);
 
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
+	g_pImmediateContext->OMSetDepthStencilState(RenderStates::LessEqualDSS, 0);
 
-	//g_pImmediateContext->IASetInputLayout(InputLayouts::NanoSuit);
-	//g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	g_pImmediateContext->IASetInputLayout(InputLayouts::NanoSuit);
+	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//g_pImmediateContext->VSSetShader(mNanoSuitVertexShader, 0, 0);
-	//g_pImmediateContext->PSSetShader(mNanoSuitPixelShader, 0, 0);
-	//g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+	g_pImmediateContext->VSSetShader(mNanoSuitVertexShader, 0, 0);
+	g_pImmediateContext->PSSetShader(mNanoSuitPixelShader, 0, 0);
+	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
 
-	//for (size_t i = 0; i < 3; i++)
-	//{
-	//	mPerFrameBuffer.data.gDirLights[i] = mDirLights[i];
-	//}
-	//mPerFrameBuffer.data.gEyePosW = mCamera.GetPosition();
-	//mPerFrameBuffer.ApplyChanges();
-	//mPerFrameBuffer.PSShaderUpdate();
+	for (size_t i = 0; i < 3; i++)
+	{
+		mPerFrameBuffer.data.gDirLights[i] = mDirLights[i];
+	}
+	mPerFrameBuffer.data.gEyePosW = mCamera.GetPosition();
+	mPerFrameBuffer.ApplyChanges();
+	mPerFrameBuffer.PSShaderUpdate();
 
-	//mNanoSuitGameObject->Draw(mCamera.ViewProj());
+	ID3D11ShaderResourceView* ambientSRV = mSSAO->AmbientSRV();
+	g_pImmediateContext->PSSetShaderResources(1, 1,&ambientSRV);
+	mNanoSuitGameObject->Draw(mCamera.ViewProj());
 	//draw sky
 
 	mSky->Draw(g_pImmediateContext, mCamera);
@@ -174,8 +178,8 @@ void SSAOApplication::BuildConstantBuffer()
 	mSSAO = new SSAO(g_pd3dDevice, g_pImmediateContext, mClientWidth, mClientHeight, mCamera.GetFovY(), mCamera.GetFarZ());
 
 	mNanoSuitGameObject = new GameObject();
-	mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
-	//mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	//mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
 	//mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
 }
 
@@ -196,7 +200,7 @@ void SSAOApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"NanoSuitSimpleLit.fxh", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"SSAOSImpleLit.fxh", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -221,7 +225,7 @@ void SSAOApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"NanoSuitSimpleLit.fxh", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"SSAOSImpleLit.fxh", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,

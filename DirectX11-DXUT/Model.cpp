@@ -31,6 +31,13 @@ void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatr
 	XMMATRIX MVP = worldMatrix * viewProjectionMatrix;
 	this->cb_vs_vertexshader->data.mat = XMMatrixTranspose(MVP);
 	this->cb_vs_vertexshader->data.material = mMaterial;
+	XMMATRIX toTexSpace(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+	this->cb_vs_vertexshader->data.gWorldViewProjTex = XMMatrixTranspose(MVP * toTexSpace);
+
 	this->cb_vs_vertexshader->ApplyChanges();
 
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());

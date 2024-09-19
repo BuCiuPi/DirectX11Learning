@@ -14,6 +14,17 @@ struct NormalDepthConstantBuffer
 	float gSurfaceEpsilon = 0.05f;
 };
 
+struct SSAOBlurConstantBuffer
+{
+
+	XMFLOAT2 gTexel;
+	XMFLOAT2 fill = XMFLOAT2(88.0f, 88.0f);
+	float gWeights[12] =
+	{
+		0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f, 0.05f
+	};
+};
+
 class SSAO
 {
 public:
@@ -46,6 +57,7 @@ private:
 	void DrawFullScreenQuad();
 	
 	void BuildNormalDepthFX();
+	void BuildSSAOBlurFX();
 	void BuildNormalDepthConstantBuffer();
 private:
 
@@ -58,18 +70,24 @@ private:
 	ID3D11ShaderResourceView* mRandomVectorSRV;
 	ID3D11SamplerState* mSamRandomVec;
 
+	NormalDepthConstantBuffer ndcb;
 	ID3D11Buffer* mNormalDepthConstantBuffer;
 	ID3D11SamplerState* mSamNormalDepth;
 
 	ID3D11VertexShader* mNormalDepthVertexShader;
 	ID3D11PixelShader* mNormalDepthPixelShader;
 
-	NormalDepthConstantBuffer ndcb;
-
-
 
 	ID3D11RenderTargetView* mNormalDepthRTV;
 	ID3D11ShaderResourceView* mNormalDepthSRV;
+
+
+	ID3D11VertexShader* mSSAOBlurVertexShader;
+	ID3D11PixelShader* mSSAOBlurPixelShader;
+
+	SSAOBlurConstantBuffer sbcb;
+	ID3D11Buffer* mSSAOBlurConstantBuffer;
+	ID3D11SamplerState* mSamSSAOBlur;
 
 	ID3D11RenderTargetView* mAmbientRTV0;
 	ID3D11ShaderResourceView* mAmbientSRV0;

@@ -316,6 +316,7 @@
     <None Include="RainParticle.fxh" />
     <None Include="RainStreamOutParticle.fxh" />
     <None Include="Sky.fxh" />
+    <None Include="SSAOBlur.fxh" />
     <None Include="Stencil.fxh" />
     <None Include="StreamOutParticle.fxh" />
     <None Include="Terrain.fxh" />
@@ -330,6 +331,7 @@
     <Text Include="LightingHelper.fxh" />
     <Text Include="ScreenQuad.fxh" />
     <Text Include="SSAO.fxh" />
+    <Text Include="SSAOSimpleLit.fxh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

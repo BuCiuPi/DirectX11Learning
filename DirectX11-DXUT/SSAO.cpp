@@ -12,6 +12,7 @@ SSAO::SSAO(ID3D11Device* device, ID3D11DeviceContext* dc, int width, int height,
 	BuildOffsetVectors();
 
 	BuildNormalDepthFX();
+	BuildSSAOBlurFX();
 	BuildRandomVectorTexture();
 	BuildNormalDepthConstantBuffer();
 }
@@ -111,8 +112,6 @@ void SSAO::BlurAmientMap(ID3D11ShaderResourceView* inputSRV, ID3D11RenderTargetV
 	mDC->ClearRenderTargetView(outputRTV, reinterpret_cast<const float*>(&Colors::Black));
 	mDC->RSSetViewports(1, &mAmbientMapViewport);
 
-	//TODO: set constant buffer
-
 	UINT stride = sizeof(Vertex::Basic32);
 	UINT offset = 0;
 
@@ -121,11 +120,27 @@ void SSAO::BlurAmientMap(ID3D11ShaderResourceView* inputSRV, ID3D11RenderTargetV
 	mDC->IASetVertexBuffers(0, 1, &mScreenQuadVB, &stride, &offset);
 	mDC->IASetIndexBuffer(mScreenQuadIB, DXGI_FORMAT_R16_UINT, 0);
 
-	//TODO:: set shaderResourceView
+	mDC->VSSetShader(mSSAOBlurVertexShader, nullptr, 0);
+	mDC->PSSetShader(mSSAOBlurPixelShader, nullptr, 0);
+
+	if (horzBlur)
+	{
+		sbcb.gTexel = XMFLOAT2(1.0f / mAmbientMapViewport.Width, 0.0f);
+	}
+	else
+	{
+		sbcb.gTexel = XMFLOAT2(0.0f, 1.0f / mAmbientMapViewport.Height );
+	}
+	mDC->UpdateSubresource(mSSAOBlurConstantBuffer, 0, nullptr, &sbcb, 0, 0);
+	mDC->PSSetConstantBuffers(0, 1, &mSSAOBlurConstantBuffer);
+
+	mDC->PSSetShaderResources(0, 1, &mNormalDepthSRV);
+	mDC->PSSetShaderResources(1, 1, &inputSRV);
+
+	mDC->PSSetSamplers(0, 1, &mSamSSAOBlur);
 
 	mDC->DrawIndexed(6, 0, 0);
 
-	//TODO:: set shaderResourceView
 }
 
 void SSAO::BlurAmientMap(int blurCount)
@@ -388,6 +403,50 @@ void SSAO::BuildNormalDepthFX()
 		return;
 }
 
+void SSAO::BuildSSAOBlurFX()
+{
+	// Compile the vertex shader
+	ID3DBlob* skyVSBlob = nullptr;
+	HRESULT hr = CompileShaderFromFile(L"SSAOBlur.fxh", "VS", "vs_5_0", &skyVSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the vertex shader
+	hr = md3dDevice->CreateVertexShader(skyVSBlob->GetBufferPointer(), skyVSBlob->GetBufferSize(), nullptr, &mSSAOBlurVertexShader);
+	if (FAILED(hr))
+	{
+		skyVSBlob->Release();
+		return;
+	}
+
+	//InputLayouts::BuildVertexLayout(md3dDevice, skyVSBlob, InputLayoutDesc::Basic32, ARRAYSIZE(InputLayoutDesc::Basic32), &InputLayouts::Basic32);
+	if (FAILED(hr))
+	{
+		skyVSBlob->Release();
+		return;
+	}
+
+	// Compile the pixel shader
+	ID3DBlob* skyPSBlob = nullptr;
+	hr = CompileShaderFromFile(L"SSAOBlur.fxh", "PS", "ps_5_0", &skyPSBlob);
+	if (FAILED(hr))
+	{
+		MessageBox(nullptr,
+			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
+		return;
+	}
+
+	// Create the pixel shader
+	hr = md3dDevice->CreatePixelShader(skyPSBlob->GetBufferPointer(), skyPSBlob->GetBufferSize(), nullptr, &mSSAOBlurPixelShader);
+	skyPSBlob->Release();
+	if (FAILED(hr))
+		return;
+}
+
 void SSAO::BuildNormalDepthConstantBuffer()
 {
 	D3D11_BUFFER_DESC bd;
@@ -400,6 +459,16 @@ void SSAO::BuildNormalDepthConstantBuffer()
 	bd.StructureByteStride = 0;
 
 	HR(md3dDevice->CreateBuffer(&bd, nullptr, &mNormalDepthConstantBuffer));
+
+	D3D11_BUFFER_DESC sbbd;
+	// Create the constant buffer
+	sbbd.Usage = D3D11_USAGE_DEFAULT;
+	sbbd.ByteWidth = sizeof(SSAOBlurConstantBuffer);
+	sbbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	sbbd.CPUAccessFlags = 0;
+	sbbd.MiscFlags = 0;
+	sbbd.StructureByteStride = 0;
+	HR(md3dDevice->CreateBuffer(&sbbd, nullptr, &mSSAOBlurConstantBuffer));
 
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
@@ -428,4 +497,16 @@ void SSAO::BuildNormalDepthConstantBuffer()
 	sampRDesc.MinLOD = 0;
 	sampRDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	HR(md3dDevice->CreateSamplerState(&sampRDesc, &mSamRandomVec));
+
+	D3D11_SAMPLER_DESC samSBDesc = {};
+	samSBDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	samSBDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samSBDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samSBDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samSBDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	samSBDesc.MipLODBias = 0.0f;
+	samSBDesc.MaxAnisotropy = 1;
+	samSBDesc.MinLOD = 0;
+	samSBDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	HR(md3dDevice->CreateSamplerState(&samSBDesc, &mSamSSAOBlur));
 }
