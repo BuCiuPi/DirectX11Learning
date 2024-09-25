@@ -71,7 +71,7 @@ void ModelLoaderApplication::DrawScene()
 	}
 	mPerFrameBuffer.data.gEyePosW = mCamera.GetPosition();
 	mPerFrameBuffer.ApplyChanges();
-	mPerFrameBuffer.PSShaderUpdate();
+	mPerFrameBuffer.PSShaderUpdate(1);
 
 	mNanoSuitGameObject->Draw(mCamera.ViewProj());
 	//draw sky
@@ -87,9 +87,9 @@ void ModelLoaderApplication::UpdateScene(float dt)
 
 	mLightRotationAngle += 0.002f * dt;
 
-	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
-	XMVECTOR lightDir = XMVector3TransformNormal(XMLoadFloat3(&mDirLights[0].Direction), R);
-	XMStoreFloat3(&mDirLights[0].Direction, lightDir);
+	//XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
+	//XMVECTOR lightDir = XMVector3TransformNormal(XMLoadFloat3(&mDirLights[0].Direction), R);
+	//XMStoreFloat3(&mDirLights[0].Direction, lightDir);
 }
 
 void ModelLoaderApplication::BuildGeometryBuffer()

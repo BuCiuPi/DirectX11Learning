@@ -5,6 +5,7 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector
 {
 	this->deviceContext = deviceContext;
 	this->textures = textures;
+	this->mSkinnedData = new SkinnedData();
 
 	HRESULT hr = this->vertexbuffer.Initialize(device, vertices.data(), vertices.size());
 	if (FAILED(hr))
@@ -25,6 +26,7 @@ Mesh::Mesh(const Mesh& mesh)
 	this->indexbuffer = mesh.indexbuffer;
 	this->vertexbuffer = mesh.vertexbuffer;
 	this->textures = mesh.textures;
+	this->mSkinnedData = mesh.mSkinnedData;
 }
 
 void Mesh::Draw()
@@ -43,4 +45,9 @@ void Mesh::Draw()
 	this->deviceContext->IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
 	this->deviceContext->IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	this->deviceContext->DrawIndexed(this->indexbuffer.BufferSize(), 0, 0);
+}
+
+void Mesh::SetSkinnedData(std::vector<BoneInfo>& boneInfos,	 std::map<std::string, AnimationClip>& map)
+{
+	mSkinnedData->Set(boneInfos, map);
 }

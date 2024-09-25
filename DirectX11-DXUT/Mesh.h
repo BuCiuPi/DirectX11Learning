@@ -10,6 +10,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "SkinnedData.h"
 #include "Texture.h"
 
 class Mesh
@@ -20,12 +21,15 @@ public:
 	Mesh(const Mesh& mesh);
 
 	void Draw();
+	void SetSkinnedData(std::vector<BoneInfo>& boneInfos, std::map<std::string, AnimationClip>& map);
 
+	SkinnedData* mSkinnedData;
 private:
 	VertexBuffer<Vertex::Vertex> vertexbuffer;
 	IndexBuffer indexbuffer;
 	ID3D11DeviceContext* deviceContext;
 	std::vector<Texture> textures;
+
 };
 
 #endif

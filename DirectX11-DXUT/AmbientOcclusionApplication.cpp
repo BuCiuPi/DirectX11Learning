@@ -71,7 +71,7 @@ void AmbientOcclusionApplication::DrawScene()
 	}
 	mPerFrameBuffer.data.gEyePosW = mCamera.GetPosition();
 	mPerFrameBuffer.ApplyChanges();
-	mPerFrameBuffer.PSShaderUpdate();
+	mPerFrameBuffer.PSShaderUpdate(1);
 
 	mNanoSuitGameObject->Draw(mCamera.ViewProj());
 	//draw sky

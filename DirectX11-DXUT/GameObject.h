@@ -33,8 +33,10 @@ public:
 	const XMVECTOR& GetBackwardVector();
 	const XMVECTOR& GetLeftVector();
 
-private:
+	void UpdateModelAnimation(float dt);
+
 	Model model;
+private:
 
 	void UpdateWorldMatrix();
 
