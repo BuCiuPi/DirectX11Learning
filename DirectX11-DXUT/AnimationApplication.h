@@ -40,11 +40,11 @@ private:
 	ConstantBuffer<WavePerFrameBuffer> mPerFrameBuffer;
 	ConstantBuffer<CB_VS_Skinned> mSkinnedBuffer;
 
-
 	DirectionalLight mDirLights[3];
 	bool mIsWireFrame;
 	float mLightRotationAngle;
 
+	float mBoneID = 0.0f;
 };
 
 #endif

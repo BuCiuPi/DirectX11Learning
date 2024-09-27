@@ -6,11 +6,13 @@
 #include "SkinnedData.h"
 #include "StringHelper.h"
 
-bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader)
+bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader, ConstantBuffer<CB_VS_Skinned>* cb_vs_skinnedBuffer)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = cb_vs_vertexshader;
+	this->cb_vs_skinnedBuffer = cb_vs_skinnedBuffer;
+
 
 	this->mMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	this->mMaterial.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -26,11 +28,11 @@ bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 
 void Model::Update(float dt)
 {
-	TimePos += dt;
+	TimePos += 20 * dt;
 
 	for (int i = 0; i < meshes.size(); ++i)
 	{
-		meshes[i].mSkinnedData->GetFirstClipFinalTransforms(TimePos, FinalTransform);
+		meshes[i].mSkinnedData->GetBoneTransforms(TimePos);
 	}
 
 	if (TimePos > meshes[0].mSkinnedData->GetFirstClipEndTime())
@@ -58,9 +60,20 @@ void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatr
 	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 	this->deviceContext->PSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
-	for (int i = 0; i < meshes.size(); i++)
+	for (int meshIndex = 0; meshIndex < meshes.size(); meshIndex++)
 	{
-		meshes[i].Draw();
+		for (int i = 0; i < meshes[meshIndex].mSkinnedData->mBoneHierarchy.size(); ++i)
+		{
+			cb_vs_skinnedBuffer->data.gBoneTransform[i] = (meshes[meshIndex].mSkinnedData->mBoneHierarchy[i].FinalTransform);
+			//BoneInfo* boneInfo = &meshes[meshIndex].mSkinnedData->mBoneHierarchy[i];
+			//XMMATRIX finalTransform = boneInfo->boneOffset * boneInfo->globalTransform;
+			//cb_vs_skinnedBuffer->data.gBoneTransform[i] = finalTransform;
+			//cb_vs_skinnedBuffer->data.gBoneTransform[i] = XMMatrixIdentity();
+		}
+		cb_vs_skinnedBuffer->ApplyChanges();
+		cb_vs_skinnedBuffer->VSShaderUpdate(2);
+
+		meshes[meshIndex].Draw();
 	}
 }
 
@@ -69,7 +82,7 @@ bool Model::LoadModel(const std::string& filePath)
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(filePath,
+	pScene = importer.ReadFile(filePath,
 		aiProcess_Triangulate |
 		aiProcess_ConvertToLeftHanded | aiProcess_PopulateArmatureData);
 
@@ -148,80 +161,169 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<BoneInfo> boneIndexToParentIndex;
 	std::map<std::string, AnimationClip> animations;
 
-	ReadBoneHierarchy(mesh, boneIndexToParentIndex);
+	ReadBoneHierarchy(mesh, boneIndexToParentIndex, vertices);
 	ReadAnimationClip(scene, boneIndexToParentIndex.size(), animations, boneIndexToParentIndex);
 
-	ConstructBoneWeightPerVertex(mesh, vertices);
+	//ConstructBoneWeightPerVertex(mesh, vertices);
 
 	Mesh curMesh(this->device, this->deviceContext, vertices, indices, textures);
-	curMesh.SetSkinnedData(boneIndexToParentIndex, animations);
+	curMesh.SetSkinnedData(boneIndexToParentIndex, animations, scene);
 
 	return curMesh;
 }
 
-void Model::ReadBoneHierarchy(aiMesh* mesh, std::vector<BoneInfo>& BoneIndexToParentIndex)
+void Model::ReadBoneHierarchy(aiMesh* mesh, std::vector<BoneInfo>& BoneIndexToParentIndex, std::vector<Vertex::Vertex>& vertices)
 {
-	std::string ignore;
-	//BoneIndexToParentIndex.resize(1);
 
-	int currentNodeHierarchy = 0;
-	LoadBone(mesh, mesh->mBones[0]->mNode, BoneIndexToParentIndex, -1);
-}
-
-void Model::LoadBone(aiMesh* mesh, aiNode* node, std::vector<BoneInfo>& BoneIndexToParentIndex, int currentNodeIndex)
-{
-	BoneInfo boneInfo;
-	boneInfo.HierarchyID = currentNodeIndex;
-	boneInfo.BoneName = node->mName.C_Str();
-
-	auto mOffsetMatrix = GetBoneOffsetFromNode(mesh, node, boneInfo);
-	auto mTransformation = node->mTransformation;
-
-	LoadMatrix(boneInfo.boneOffset,mOffsetMatrix * mTransformation.Transpose());
-
-	BoneIndexToParentIndex.push_back(boneInfo);
-
-	for (int i = 0; i < node->mNumChildren; ++i)
+	for (int i = 0; i < mesh->mNumBones; ++i)
 	{
-		LoadBone(mesh, node->mChildren[i], BoneIndexToParentIndex, currentNodeIndex + 1);
+		LoadBone(mesh, mesh->mBones[i], i, BoneIndexToParentIndex, vertices);
+	}
+
+	for (int i = 0; i < BoneIndexToParentIndex.size(); ++i)
+	{
+		BoneInfo* curBoneInfo = &BoneIndexToParentIndex[i];
+		if (curBoneInfo->HierarchyID != -1)
+		{
+			curBoneInfo->Parent = &BoneIndexToParentIndex[curBoneInfo->HierarchyID];
+		}
+
+		// get globalTransform
+		BoneInfo* curParent = curBoneInfo->Parent;
+		curBoneInfo->globalTransform = curBoneInfo->localTransform;
+		while (curParent != nullptr)
+		{
+			curBoneInfo->globalTransform *= curParent->localTransform;
+			curParent = curParent->Parent;
+		}
+		XMFLOAT4X4 globalTransform;
+		XMStoreFloat4x4(&globalTransform, curBoneInfo->globalTransform);
+		curBoneInfo->originalGlobalTransform = XMLoadFloat4x4(&globalTransform);
+
+		for (int j = i; j < BoneIndexToParentIndex.size(); ++j)
+		{
+			if (BoneIndexToParentIndex[j].HierarchyID == i)
+			{
+				curBoneInfo->Childrents.push_back(BoneIndexToParentIndex[j]);
+			}
+		}
 	}
 }
 
-aiMatrix4x4 Model::GetBoneOffsetFromNode(aiMesh* mesh, aiNode* node, BoneInfo& boneInfo)
+void Model::LoadBone(aiMesh* mesh, aiBone* bone, int boneIndex, std::vector<BoneInfo>& BoneIndexToParentIndex, std::vector<Vertex::Vertex>& vertices)
 {
-	for (int i = 0; i < mesh->mNumBones; ++i)
+	BoneInfo boneInfo;
+	boneInfo.BoneName = bone->mName.C_Str();
+	boneInfo.HierarchyID = -1;
+
+	if (bone->mNode->mParent != bone->mArmature)
 	{
-		if (mesh->mBones[i]->mName == node->mName)
+		for (int i = 0; i < BoneIndexToParentIndex.size(); ++i)
 		{
-			auto mOffsetMatrix = mesh->mBones[i]->mOffsetMatrix.Transpose();
-			return mOffsetMatrix;
+
+			if (BoneIndexToParentIndex[i].BoneName == bone->mNode->mParent->mName.C_Str())
+			{
+				boneInfo.HierarchyID = i;
+				break;
+			}
+
+			if (boneInfo.HierarchyID != -1)
+			{
+				break;
+			}
 		}
 	}
 
-	XMStoreFloat4x4(&boneInfo.boneOffset, XMMatrixIdentity());
+	auto mOffsetMatrix = bone->mOffsetMatrix;
+	auto mTransformation = bone->mNode->mTransformation;
+
+	LoadMatrix(boneInfo.boneOffset, mOffsetMatrix.Transpose());
+	LoadMatrix(boneInfo.localTransform, mTransformation.Transpose());
+	boneInfo.originalLocalTransform = boneInfo.localTransform;
+
+	for (int i = 0; i < bone->mNumWeights; ++i)
+	{
+		auto vertexWeight = bone->mWeights[i];
+		Vertex::Vertex* currentVertex = &vertices[vertexWeight.mVertexId];
+
+		std::wostringstream s;
+		s << "\nBoneIndex: " << boneIndex << "- Weight: " << vertexWeight.mWeight << " - VertexID: " << vertexWeight.mVertexId;
+		OutputDebugString(s.str().c_str());
+
+		if (currentVertex->weights.x == 0.0f)
+		{
+			currentVertex->weights.x = vertexWeight.mWeight;
+			currentVertex->BoneIndices[0] = (BYTE)boneIndex;
+			continue;
+		}
+
+		if (currentVertex->weights.y == 0.0f)
+		{
+			currentVertex->weights.y = vertexWeight.mWeight;
+			currentVertex->BoneIndices[1] = (BYTE)boneIndex;
+			continue;
+		}
+
+		if (currentVertex->weights.z == 0.0f)
+		{
+			currentVertex->weights.z = vertexWeight.mWeight;
+			currentVertex->BoneIndices[2] = (BYTE)boneIndex;
+			continue;
+		}
+	}
+
+	BoneIndexToParentIndex.push_back(boneInfo);
 }
 
-void Model::LoadMatrix(XMFLOAT4X4& matrixOut, const aiMatrix4x4& matrixIn)
+void Model::CalculatedBOneToWorldTransform(BoneInfo boneInfo)
 {
-	matrixOut(0, 0) = matrixIn.a1;
-	matrixOut(0, 1) = matrixIn.a2;
-	matrixOut(0, 2) = matrixIn.a3;
-	matrixOut(0, 3) = matrixIn.a4;
 
-	matrixOut(1, 0) = matrixIn.b1;
-	matrixOut(1, 1) = matrixIn.b2;
-	matrixOut(1, 2) = matrixIn.b3;
-	matrixOut(1, 3) = matrixIn.b4;
+}
 
-	matrixOut(2, 0) = matrixIn.c1;
-	matrixOut(2, 1) = matrixIn.c2;
-	matrixOut(2, 2) = matrixIn.c3;
-	matrixOut(2, 3) = matrixIn.c4;
+void Model::LoadMatrix(XMMATRIX& matrixOut, const aiMatrix4x4& matrixIn)
+{
+	XMFLOAT4X4 loadedMatrix;
+	loadedMatrix(0, 0) = matrixIn.a1;
+	loadedMatrix(0, 1) = matrixIn.a2;
+	loadedMatrix(0, 2) = matrixIn.a3;
+	loadedMatrix(0, 3) = matrixIn.a4;
 
-	matrixOut(3, 0) = matrixIn.d1;
-	matrixOut(3, 1) = matrixIn.d2;
-	matrixOut(3, 2) = matrixIn.d3;
-	matrixOut(3, 3) = matrixIn.d4;
+	loadedMatrix(1, 0) = matrixIn.b1;
+	loadedMatrix(1, 1) = matrixIn.b2;
+	loadedMatrix(1, 2) = matrixIn.b3;
+	loadedMatrix(1, 3) = matrixIn.b4;
+
+	loadedMatrix(2, 0) = matrixIn.c1;
+	loadedMatrix(2, 1) = matrixIn.c2;
+	loadedMatrix(2, 2) = matrixIn.c3;
+	loadedMatrix(2, 3) = matrixIn.c4;
+
+	loadedMatrix(3, 0) = matrixIn.d1;
+	loadedMatrix(3, 1) = matrixIn.d2;
+	loadedMatrix(3, 2) = matrixIn.d3;
+	loadedMatrix(3, 3) = matrixIn.d4;
+
+	//loadedMatrix(0, 0) = matrixIn.a1;
+	//loadedMatrix(1, 0) = matrixIn.a2;
+	//loadedMatrix(2, 0) = matrixIn.a3;
+	//loadedMatrix(3, 0) = matrixIn.a4;
+
+	//loadedMatrix(0, 1) = matrixIn.b1;
+	//loadedMatrix(1, 1) = matrixIn.b2;
+	//loadedMatrix(2, 1) = matrixIn.b3;
+	//loadedMatrix(3, 1) = matrixIn.b4;
+
+	//loadedMatrix(0, 2) = matrixIn.c1;
+	//loadedMatrix(1, 2) = matrixIn.c2;
+	//loadedMatrix(2, 2) = matrixIn.c3;
+	//loadedMatrix(3, 2) = matrixIn.c4;
+
+	//loadedMatrix(0, 3) = matrixIn.d1;
+	//loadedMatrix(1, 3) = matrixIn.d2;
+	//loadedMatrix(2, 3) = matrixIn.d3;
+	//loadedMatrix(3, 3) = matrixIn.d4;
+
+	matrixOut = XMLoadFloat4x4(&loadedMatrix);
 }
 
 void Model::ConstructBoneWeightPerVertex(const aiMesh* mesh, std::vector<Vertex::Vertex>& vertices)
@@ -239,21 +341,21 @@ void Model::ConstructBoneWeightPerVertex(const aiMesh* mesh, std::vector<Vertex:
 
 			if (currentVertex->weights.z < vertexWeight.mWeight)
 			{
-				currentVertex->weights.z = vertexWeight.mWeight;
+				//currentVertex->weights.z = vertexWeight.mWeight;
 				currentVertex->BoneIndices[2] = (BYTE)boneIndex;
 				continue;
 			}
 
 			if (currentVertex->weights.y < vertexWeight.mWeight)
 			{
-				currentVertex->weights.y = vertexWeight.mWeight;
+				//currentVertex->weights.y = vertexWeight.mWeight;
 				currentVertex->BoneIndices[1] = (BYTE)boneIndex;
 				continue;
 			}
 
 			if (currentVertex->weights.x < vertexWeight.mWeight)
 			{
-				currentVertex->weights.x = vertexWeight.mWeight;
+				//currentVertex->weights.x = vertexWeight.mWeight;
 				currentVertex->BoneIndices[0] = (BYTE)boneIndex;
 				continue;
 			}
@@ -274,31 +376,31 @@ void Model::ReadAnimationClip(const aiScene* scene, int numBones, std::map<std::
 		for (int boneIndex = 0; boneIndex < numBones; ++boneIndex)
 		{
 			BoneInfo boneInfo = boneInfos[boneIndex];
+			std::string boneName = boneInfo.BoneName;
 
-			for (int channelIndex = 0; channelIndex < aiAnimation->mNumChannels; ++channelIndex)
+			aiNodeAnim* aiNodeAnim = aiAnimation->mChannels[boneIndex];
+			std::string chanelName = aiNodeAnim->mNodeName.C_Str();
+			clip.BoneAnimations[boneIndex].Name = chanelName;
+
+			//int boneIndex = GetBoneIndexByName(chanelName, boneInfos);
+			//if (boneIndex < 0)
+			//{
+			//	continue;
+			//}
+
+
+			clip.BoneAnimations[boneIndex].keyFrames.resize(aiNodeAnim->mNumPositionKeys);
+			for (int keyframeIndex = 0; keyframeIndex < aiNodeAnim->mNumPositionKeys; ++keyframeIndex)
 			{
-				aiNodeAnim* aiNodeAnim = aiAnimation->mChannels[channelIndex];
-				std::string chanelName = aiNodeAnim->mNodeName.C_Str();
+				aiVectorKey position = aiNodeAnim->mPositionKeys[keyframeIndex];
+				clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].Translation = XMFLOAT3(position.mValue.x, position.mValue.y, position.mValue.z);
+				clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].TimePos = position.mTime;
 
-				int boneIndex = GetBoneIndexByName(chanelName, boneInfos);
-				if (boneIndex < 0)
-				{
-					continue;
-				}
+				aiQuatKey rotationQuat = aiNodeAnim->mRotationKeys[keyframeIndex];
+				clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].RotationQuat = XMFLOAT4(rotationQuat.mValue.x, rotationQuat.mValue.y, rotationQuat.mValue.z, rotationQuat.mValue.w);
 
-				clip.BoneAnimations[boneIndex].keyFrames.resize(aiNodeAnim->mNumPositionKeys);
-				for (int keyframeIndex = 0; keyframeIndex < aiNodeAnim->mNumPositionKeys; ++keyframeIndex)
-				{
-					aiVectorKey position = aiNodeAnim->mPositionKeys[keyframeIndex];
-					clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].Translation = XMFLOAT3(position.mValue.x, position.mValue.y, position.mValue.z);
-					clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].TimePos = position.mTime;
-
-					aiQuatKey rotationQuat = aiNodeAnim->mRotationKeys[keyframeIndex];
-					clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].RotationQuat = XMFLOAT4(rotationQuat.mValue.x, rotationQuat.mValue.y, rotationQuat.mValue.z, rotationQuat.mValue.w);
-
-					aiVectorKey scale = aiNodeAnim->mScalingKeys[keyframeIndex];
-					clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].Translation = XMFLOAT3(scale.mValue.x, scale.mValue.y, scale.mValue.z);
-				}
+				aiVectorKey scale = aiNodeAnim->mScalingKeys[keyframeIndex];
+				clip.BoneAnimations[boneIndex].keyFrames[keyframeIndex].Scale = XMFLOAT3(scale.mValue.x, scale.mValue.y, scale.mValue.z);
 			}
 		}
 

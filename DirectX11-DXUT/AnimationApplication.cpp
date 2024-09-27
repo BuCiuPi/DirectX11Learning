@@ -8,7 +8,8 @@
 AnimationApplication::AnimationApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
 {
 	mCamera.SetPosition(0.0f, 2.0f, -15.0f);
-	mCamera.CameraSpeed = 50.0f;
+mCamera.CameraSpeed = 20.0f;
+
 
 	mLightRotationAngle = 0.0f;
 
@@ -54,6 +55,17 @@ void AnimationApplication::DrawScene()
 		mIsWireFrame = !mIsWireFrame;
 	}
 
+	if (GetAsyncKeyState('2') & 1)
+	{
+		mBoneID -= 1.0f;
+	}
+	if (GetAsyncKeyState('3') & 1)
+	{
+		mBoneID+= 1.0f;
+	}
+
+	
+
 	if (mIsWireFrame)
 	{
 		g_pImmediateContext->RSSetState(RenderStates::WireframeRS);
@@ -70,18 +82,11 @@ void AnimationApplication::DrawScene()
 		mPerFrameBuffer.data.gDirLights[i] = mDirLights[i];
 	}
 	mPerFrameBuffer.data.gEyePosW = mCamera.GetPosition();
+	mPerFrameBuffer.data.boneID = mBoneID;
 	mPerFrameBuffer.ApplyChanges();
 	mPerFrameBuffer.PSShaderUpdate(1);
-
-	const std::vector<XMFLOAT4X4> finalTransform = mNanoSuitGameObject->model.FinalTransform;
-	for (int i = 0; i < finalTransform.size(); ++i)
-	{
-		mSkinnedBuffer.data.gBoneTransform[i] = XMLoadFloat4x4(&finalTransform[i]);
-		//mSkinnedBuffer.data.gBoneTransform[i] = XMMatrixScaling(i+1, i+1, i+1);
-	}
-	mSkinnedBuffer.ApplyChanges();
-	mSkinnedBuffer.VSShaderUpdate(2);
-
+	mPerFrameBuffer.VSShaderUpdate(1);
+	
 	mNanoSuitGameObject->Draw(mCamera.ViewProj());
 	//draw sky
 
@@ -153,7 +158,7 @@ void AnimationApplication::BuildConstantBuffer()
 		return;
 	}
 
-	hr = mSkinnedBuffer.Initialize(g_pd3dDevice, g_pImmediateContext);
+	 hr = mSkinnedBuffer.Initialize(g_pd3dDevice, g_pImmediateContext);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -165,8 +170,11 @@ void AnimationApplication::BuildConstantBuffer()
 
 	mNanoSuitGameObject = new GameObject();
 	//mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
-	//mNanoSuitGameObject->Initialize("Models/Objects/TestModel/animModel.fbx", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
-	mNanoSuitGameObject->Initialize("Models/Objects/SwingDance/SwingDance.fbx", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	//mNanoSuitGameObject->Initialize("Models/Objects/TestModel/animModel.fbx", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader, &mSkinnedBuffer);
+	mNanoSuitGameObject->Initialize("Models/Objects/boy.dae", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader, &mSkinnedBuffer);
+	//mNanoSuitGameObject->Initialize("Models/Objects/SwingDance/SwingDance.fbx", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader, &mSkinnedBuffer);
+	//mNanoSuitGameObject->Initialize("Models/Objects/chickenWarrior/source/ChickenWarrior2.fbx", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader, &mSkinnedBuffer);
+	//mNanoSuitGameObject->Initialize("Models/Objects/SwingDance/Swing Dancing.fbx", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader, &mSkinnedBuffer);
 	//mNanoSuitGameObject->Initialize("Models/Objects/frank/scene.gltf", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
 
 }

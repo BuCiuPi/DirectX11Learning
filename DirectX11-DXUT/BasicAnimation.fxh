@@ -1,8 +1,9 @@
 #include "LightingHelper.fxh"
-cbuffer cbPerFrame : register (b1)
+cbuffer cbPerFrame : register(b1)
 {
     DirectionalLight gDirLights[3];
     float3 gEyePosW;
+    float boneID;
 }
 
 cbuffer cbPerObject : register(b0)
@@ -17,7 +18,7 @@ cbuffer cbPerObject : register(b0)
 
 cbuffer cbSkinned : register(b2)
 {
-    matrix gBoneTransform[78];
+    matrix gBoneTransforms[161];
 }
 
 Texture2D gDiffuseMap : register(t0);
@@ -47,31 +48,48 @@ struct VertexOut
     float3 PosW : POSITION;
     float3 NormalW : NORMAL;
     float2 Tex : TEXCOORD;
+    float4 Color : COLOR;
 };
 
 VertexOut VS(SkinnedVertexIn vin)
 {
     VertexOut vout;
 
-    float weight[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    weight[0] = vin.Weights.x;
-    weight[1] = vin.Weights.y;
-    weight[2] = vin.Weights.z;
-    weight[3] = 1.0f - weight[0] - weight[1] - weight[2];
+    float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    weights[0] = vin.Weights.x;
+    weights[1] = vin.Weights.y;
+    weights[2] = vin.Weights.z;
+    weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
 
-    float3 PosL = float3(0.0f, 0.0f, 0.0f);
-    float3 NormalL = float3(0.0f, 0.0f, 0.0f);
-    for (int i = 0; i < 4; ++i)
+    float3 posL;
+
+    for (int i = 0; i < 3; ++i)
     {
-		
-        PosL += weight[i] * mul(float4(vin.PosL, 1.0f), gBoneTransform[vin.BoneIndices[i]]).xyz;
-        NormalL += weight[i] * mul(vin.NormalL, (float3x3)gBoneTransform[vin.BoneIndices[i]]);
+        //posL += weights[i] * mul(float4(vin.PosL, 1.0f), gBoneTransforms[vin.BoneIndices[i]]).xyz;
+
+
+        if (vin.BoneIndices[i] == boneID && vin.BoneIndices[i] != 0)
+        {
+            vout.Color = float4(weights[i], (1.0f * weights[i] - 0.5f) / 0.5f, 1.0f - weights[i], 1.0f);
+        }
     }
 
-    vout.PosW = mul(float4(PosL, 1.0f), gWorld);
-    vout.NormalW = mul(NormalL, (float3x3)gWorldInvTranspose);
+    float4x4 boneTransform = 
+    {
+         0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,
+    };
+    float weisum = 1.0f - weights[3];
 
-    vout.PosH = mul(float4(PosL, 1.0f), gWorldViewProj);
+    boneTransform = gBoneTransforms[int(vin.BoneIndices.x)] * (vin.Weights.x / weisum);
+    boneTransform += gBoneTransforms[int(vin.BoneIndices.y)] * (vin.Weights.y / weisum);
+    boneTransform += gBoneTransforms[int(vin.BoneIndices.z)] * (vin.Weights.z / weisum);
+    //boneTransform += gBoneTransforms[int(vin.BoneIndices.w)] * weights[3];
+
+    posL = mul(float4(vin.PosL, 1.0f), boneTransform).xyz;
+
+    vout.PosW = mul(float4(posL, 1.0f), gWorld).xyz;
+    vout.PosH = mul(float4(posL, 1.0f), gWorldViewProj);
+    vout.NormalW = vin.NormalL;
     vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 
     return vout;
@@ -107,5 +125,5 @@ float4 PS(VertexOut pin) : SV_Target
     float4 litColor = textureColor * (ambient + diffuse) + spec;
     litColor.a = gMaterial.Diffuse.a;
 
-    return litColor;
+    return pin.Color;
 }

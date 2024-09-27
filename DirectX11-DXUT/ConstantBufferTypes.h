@@ -15,7 +15,7 @@ struct CB_VS_vertexshader
 
 struct CB_VS_Skinned
 {
-	XMMATRIX gBoneTransform[78];
+	XMMATRIX gBoneTransform[161];
 };
 
 struct CB_PS_pixelshader

@@ -138,6 +138,7 @@ struct WavePerFrameBuffer
 {
 	DirectionalLight gDirLights[3];
 	XMFLOAT3 gEyePosW;
+	float boneID;
 };
 
 struct TerrainPerFrameBuffer
