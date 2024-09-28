@@ -183,6 +183,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelLoaderApplication.h" />
     <ClInclude Include="NormalMappingApplication.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="ParticleApplication.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PickingApplication.h" />
@@ -235,6 +236,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoaderApplication.cpp" />
     <ClCompile Include="NormalMappingApplication.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="ParticleApplication.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PickingApplication.cpp" />
@@ -324,6 +326,7 @@
     <Text Include="BezierTessellation.fxh" />
     <Text Include="LightingHelper.fxh" />
     <Text Include="ScreenQuad.fxh" />
+    <Text Include="AmbientOcclusion.fxh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
