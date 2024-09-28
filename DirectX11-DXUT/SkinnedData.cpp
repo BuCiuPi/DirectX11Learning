@@ -232,39 +232,58 @@ void SkinnedData::ReadNodeHierarchy(float AnimationTimeTicks, int currentIndex)
 	KeyFrame keyFrame;
 	if (boneAnim.keyFrames.size() > 0) {
 		// Interpolate scaling and generate scaling transformation matrix
-		keyFrame = CalcInterpolated(AnimationTimeTicks, boneAnim);
+		keyFrame = CalcInterpolated(0, boneAnim);
 		XMMATRIX ScalingM = XMMatrixScaling(keyFrame.Scale.x, keyFrame.Scale.y, keyFrame.Scale.z);
 		// Interpolate rotation and generate rotation transformation matrix
 
 		XMVECTOR quat = XMLoadFloat4(&keyFrame.RotationQuat);
-		quat = XMQuaternionNormalize(quat);
+		if (XMVector4Equal(quat, g_XMZero))
+			quat = XMQuaternionIdentity();
+		else
+			quat = XMQuaternionNormalize(quat);
 		//XMMATRIX RotationM = XMMatrixRotationQuaternion(XMVectorSet(keyFrame.RotationQuat.x, keyFrame.RotationQuat.y, keyFrame.RotationQuat.z, keyFrame.RotationQuat.w));
 		XMMATRIX RotationM = XMMatrixRotationQuaternion(quat);
 		// Interpolate translation and generate translation transformation matrix
 		XMMATRIX TranslationM = XMMatrixTranslation(keyFrame.Translation.x, keyFrame.Translation.y, keyFrame.Translation.z);
 		// Combine the above transformations
-		AnimTransMat = XMMatrixMultiply(XMMatrixMultiply(RotationM, ScalingM), TranslationM);
+		AnimTransMat = XMMatrixMultiply(XMMatrixMultiply(ScalingM, RotationM), TranslationM);
+
 	}
 
-	//XMVECTOR det = XMMatrixDeterminant((AnimTransMat));
-	//XMMATRIX inv = XMMatrixInverse(&det, XMMatrixTranspose(AnimTransMat));
-	curBoneInfo->localTransform = (AnimTransMat);
+	XMVECTOR det = XMMatrixDeterminant((AnimTransMat));
+	XMMATRIX inv = XMMatrixInverse(&det, (AnimTransMat));
+	//curBoneInfo->localTransform = AnimTransMat;
+
+	XMVECTOR S1;
+	XMVECTOR R1;
+	XMVECTOR T1;
+	XMMatrixDecompose(&S1, &R1, &T1, AnimTransMat);
+
+	XMVECTOR S;
+	XMVECTOR R;
+	XMVECTOR T;
+	XMMatrixDecompose(&S, &R, &T, curBoneInfo->originalLocalTransform);
 
 	int curParentIndex = curBoneInfo->HierarchyID;
-	curBoneInfo->globalTransform = curBoneInfo->localTransform;
+	//curBoneInfo->globalTransform =  curBoneInfo->localTransform;
 
-	if (currentIndex == 0)
+	//if (currentIndex == 0)
+	//{
+	//	curBoneInfo->globalTransform = curBoneInfo->originalLocalTransform;
+	//}
+
+	//while (curParentIndex > -1)
+	//{
+	//	curBoneInfo->globalTransform *= mBoneHierarchy[curParentIndex].localTransform;
+	//	curParentIndex = mBoneHierarchy[curParentIndex].HierarchyID;
+	//}
+
+	if (curParentIndex != -1)
 	{
-		curBoneInfo->globalTransform = curBoneInfo->originalLocalTransform;
+		curBoneInfo->globalTransform = XMMatrixMultiply(curBoneInfo->localTransform, mBoneHierarchy[curParentIndex].globalTransform);
 	}
 
-	while (curParentIndex > -1)
-	{
-		curBoneInfo->globalTransform *= mBoneHierarchy[curParentIndex].localTransform;
-		curParentIndex = mBoneHierarchy[curParentIndex].HierarchyID;
-	}
-
-	curBoneInfo->FinalTransform = curBoneInfo->boneOffset * curBoneInfo->globalTransform * m_GlobalInverseTransform;
+	curBoneInfo->FinalTransform = XMMatrixMultiply(XMMatrixMultiply(curBoneInfo->boneOffset, curBoneInfo->globalTransform) , m_GlobalInverseTransform);
 
 	for (UINT i = 0; i < mBoneHierarchy.size(); i++) {
 		if (mBoneHierarchy[i].HierarchyID == currentIndex)
@@ -347,43 +366,43 @@ KeyFrame SkinnedData::CalcInterpolated(float t, const BoneAnimation& boneAnimati
 		return keyFrame;
 	}
 
-	//if (t <= boneAnimation.keyFrames.front().TimePos)
-	//{
-	return boneAnimation.keyFrames.front();
-	//}
-	//else if (t >= boneAnimation.keyFrames.back().TimePos)
-	//{
-	//	return boneAnimation.keyFrames.back();
-	//}
-	//else
-	//{
-	//	for (int i = 0; i < boneAnimation.keyFrames.size() - 1; ++i)
-	//	{
-	//		if (t >= boneAnimation.keyFrames[i].TimePos && t <= boneAnimation.keyFrames[i + 1].TimePos)
-	//		{
-	//			float lerpPercent = (t - boneAnimation.keyFrames[i].TimePos) / (boneAnimation.keyFrames[i + 1].TimePos - boneAnimation.keyFrames[i].TimePos);
+	if (t <= boneAnimation.keyFrames.front().TimePos)
+	{
+		return boneAnimation.keyFrames.front();
+	}
+	else if (t >= boneAnimation.keyFrames.back().TimePos)
+	{
+		return boneAnimation.keyFrames.back();
+	}
+	else
+	{
+		for (int i = 0; i < boneAnimation.keyFrames.size() - 1; ++i)
+		{
+			if (t >= boneAnimation.keyFrames[i].TimePos && t <= boneAnimation.keyFrames[i + 1].TimePos)
+			{
+				float lerpPercent = (t - boneAnimation.keyFrames[i].TimePos) / (boneAnimation.keyFrames[i + 1].TimePos - boneAnimation.keyFrames[i].TimePos);
 
-	//			XMVECTOR s0 = XMLoadFloat3(&boneAnimation.keyFrames[i].Scale);
-	//			XMVECTOR s1 = XMLoadFloat3(&boneAnimation.keyFrames[i + 1].Scale);
+				XMVECTOR s0 = XMLoadFloat3(&boneAnimation.keyFrames[i].Scale);
+				XMVECTOR s1 = XMLoadFloat3(&boneAnimation.keyFrames[i + 1].Scale);
 
-	//			XMVECTOR p0 = XMLoadFloat3(&boneAnimation.keyFrames[i].Translation);
-	//			XMVECTOR p1 = XMLoadFloat3(&boneAnimation.keyFrames[i + 1].Translation);
+				XMVECTOR p0 = XMLoadFloat3(&boneAnimation.keyFrames[i].Translation);
+				XMVECTOR p1 = XMLoadFloat3(&boneAnimation.keyFrames[i + 1].Translation);
 
-	//			XMVECTOR q0 = XMLoadFloat4(&boneAnimation.keyFrames[i].RotationQuat);
-	//			XMVECTOR q1 = XMLoadFloat4(&boneAnimation.keyFrames[i + 1].RotationQuat);
+				XMVECTOR q0 = XMLoadFloat4(&boneAnimation.keyFrames[i].RotationQuat);
+				XMVECTOR q1 = XMLoadFloat4(&boneAnimation.keyFrames[i + 1].RotationQuat);
 
-	//			XMVECTOR S = XMVectorLerp(s0, s1, lerpPercent);
-	//			XMVECTOR P = XMVectorLerp(p0, p1, lerpPercent);
-	//			XMVECTOR Q = XMQuaternionSlerp(q0, q1, lerpPercent);
+				XMVECTOR S = XMVectorLerp(s0, s1, lerpPercent);
+				XMVECTOR P = XMVectorLerp(p0, p1, lerpPercent);
+				XMVECTOR Q = XMQuaternionSlerp(q0, q1, lerpPercent);
 
-	//			XMStoreFloat3(&keyFrame.Scale, S);
-	//			XMStoreFloat3(&keyFrame.Translation, P);
-	//			XMStoreFloat4(&keyFrame.RotationQuat, Q);
+				XMStoreFloat3(&keyFrame.Scale, S);
+				XMStoreFloat3(&keyFrame.Translation, P);
+				XMStoreFloat4(&keyFrame.RotationQuat, Q);
 
-	//			return keyFrame;
-	//		}
-	//	}
-	//}
+				return keyFrame;
+			}
+		}
+	}
 }
 void SkinnedData::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
