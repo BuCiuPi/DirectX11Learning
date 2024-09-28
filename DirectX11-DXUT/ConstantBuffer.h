@@ -54,16 +54,10 @@ public:
 		this->deviceContext->UpdateSubresource(buffer.Get(), 0, nullptr, &data, 0, 0);
 	}
 
-	void PSShaderUpdate(int slot)
+	void PSShaderUpdate()
 	{
-		this->deviceContext->PSSetConstantBuffers(slot, 1, buffer.GetAddressOf());
+		this->deviceContext->PSSetConstantBuffers(1, 1, buffer.GetAddressOf());
 	}
-
-	void VSShaderUpdate(int slot)
-	{
-		this->deviceContext->VSSetConstantBuffers(slot, 1, buffer.GetAddressOf());
-	}
-
 };
 
 #endif // ConstantBuffer_h__

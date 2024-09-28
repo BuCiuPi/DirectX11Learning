@@ -28,11 +28,6 @@ void GameObject::UpdateWorldMatrix()
 	this->vec_right = XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
 }
 
-void GameObject::UpdateModelAnimation(float dt)
-{
-	model.Update(dt);
-}
-
 const XMVECTOR& GameObject::GetPositionVector() const
 {
 	return this->posVector;

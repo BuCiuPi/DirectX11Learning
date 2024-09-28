@@ -191,13 +191,11 @@ namespace Vertex
 	struct Vertex
 	{
 		Vertex() {}
-		Vertex(float x, float y, float z, float u, float v) : pos(x, y, z), texCoord(u, v) {}
+		Vertex(float x, float y, float z, float u, float v) : pos(x, y, z), texCoord(u, v){}
 
 		XMFLOAT3 pos;
 		XMFLOAT3 normal;
 		XMFLOAT2 texCoord;
-		XMFLOAT3 weights;
-		BYTE BoneIndices[4];
 	};
 
 
@@ -243,7 +241,6 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC Terrain[3];
 	static const D3D11_INPUT_ELEMENT_DESC Particle[5];
 	static const D3D11_INPUT_ELEMENT_DESC NanoSuit[3];
-	static const D3D11_INPUT_ELEMENT_DESC Animation[5];
 
 };
 
@@ -259,7 +256,6 @@ public:
 	static ID3D11InputLayout* Terrain;
 	static ID3D11InputLayout* Particle;
 	static ID3D11InputLayout* NanoSuit;
-	static ID3D11InputLayout* Animation;
 };
 
 HRESULT LoadTextureArray(ID3D11DeviceContext* deviceContex, ID3D11Device* pd3dDevice, LPCTSTR* szTextureNames, int iNumTextures, ID3D11Texture2D** ppTex2D, ID3D11ShaderResourceView** ppSRV);

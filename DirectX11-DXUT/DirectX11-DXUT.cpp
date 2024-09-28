@@ -20,7 +20,6 @@
 #include <directxcolors.h>
 
 #include "AmbientOcclusionApplication.h"
-#include "AnimationApplication.h"
 #include "resource.h"
 #include "BoxApplication.h"
 #include "HillApplication.h"
@@ -55,7 +54,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    AnimationApplication application(hInstance);
+    AmbientOcclusionApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

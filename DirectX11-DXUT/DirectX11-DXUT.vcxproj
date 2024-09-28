@@ -149,7 +149,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AmbientOcclusionApplication.h" />
-    <ClInclude Include="AnimationApplication.h" />
     <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
     <ClInclude Include="BitmapBuilder.h" />
@@ -192,7 +191,6 @@
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="ShadowMapApplication.h" />
     <ClInclude Include="ShapesApplication.h" />
-    <ClInclude Include="SkinnedData.h" />
     <ClInclude Include="Sky.h" />
     <ClInclude Include="SphereApplication.h" />
     <ClInclude Include="StringHelper.h" />
@@ -207,7 +205,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AmbientOcclusionApplication.cpp" />
-    <ClCompile Include="AnimationApplication.cpp" />
     <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
     <ClCompile Include="BitmapBuilder.cpp" />
@@ -245,7 +242,6 @@
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="ShadowMapApplication.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
-    <ClCompile Include="SkinnedData.cpp" />
     <ClCompile Include="Sky.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
     <ClCompile Include="StringHelper.cpp" />
@@ -297,7 +293,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BasicAnimation.fxh" />
     <None Include="Blending.fxh" />
     <None Include="Blur.fxh" />
     <None Include="BuildShadowMap.fxh" />
