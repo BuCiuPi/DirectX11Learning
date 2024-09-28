@@ -78,15 +78,17 @@ VertexOut VS(SkinnedVertexIn vin)
     {
          0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,
     };
-    boneTransform = gBoneTransforms[int(vin.BoneIndices.x)] ;
-    //boneTransform += gBoneTransforms[int(vin.BoneIndices.y)] * (vin.Weights.y);
-    //boneTransform += gBoneTransforms[int(vin.BoneIndices.z)] * (vin.Weights.z );
+    float weisum = 1.0f - weights[3];
+
+    boneTransform = gBoneTransforms[int(vin.BoneIndices.x)] * (vin.Weights.x / weisum);
+    boneTransform += gBoneTransforms[int(vin.BoneIndices.y)] * (vin.Weights.y / weisum);
+    boneTransform += gBoneTransforms[int(vin.BoneIndices.z)] * (vin.Weights.z / weisum);
     //boneTransform += gBoneTransforms[int(vin.BoneIndices.w)] * weights[3];
 
     posL = mul(float4(vin.PosL, 1.0f), boneTransform).xyz;
 
     vout.PosW = mul(float4(posL, 1.0f), gWorld).xyz;
-    vout.PosH = mul(float4(vout.PosW, 1.0f), gWorldViewProj);
+    vout.PosH = mul(float4(posL, 1.0f), gWorldViewProj);
     vout.NormalW = vin.NormalL;
     vout.Tex = mul(float4(vin.Tex, 0.0f, 1.0f), gTexTransform).xy;
 
