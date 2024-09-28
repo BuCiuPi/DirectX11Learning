@@ -146,7 +146,7 @@ void ModelLoaderApplication::BuildConstantBuffer()
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/grass.dds", nullptr, &mNanoSuitTexture));
 
 	mNanoSuitGameObject = new GameObject();
-	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
 }
 
 void ModelLoaderApplication::CleanupDevice()

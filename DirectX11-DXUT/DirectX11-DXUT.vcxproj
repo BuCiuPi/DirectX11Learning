@@ -148,7 +148,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AmbientOcclusionApplication.h" />
     <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
     <ClInclude Include="BitmapBuilder.h" />
@@ -204,7 +203,6 @@
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AmbientOcclusionApplication.cpp" />
     <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
     <ClCompile Include="BitmapBuilder.cpp" />
