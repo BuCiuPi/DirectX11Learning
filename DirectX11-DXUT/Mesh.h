@@ -20,10 +20,8 @@ public:
 	     std::vector<DWORD>& indices, std::vector<Texture>& textures);
 	Mesh(const Mesh& mesh);
 
-	void Update(float dt);
 	void Draw();
-	void SetSkinnedData(std::vector<BoneInfo>& boneInfos, std::map<std::string, AnimationClip>& map, const aiScene* scene);
-	void LoadMatrix(XMFLOAT4X4& matrixOut, const aiMatrix4x4& matrixIn);
+	void SetSkinnedData(std::vector<BoneInfo>& boneInfos, std::map<std::string, AnimationClip>& map);
 
 	SkinnedData* mSkinnedData;
 private:
@@ -31,6 +29,7 @@ private:
 	IndexBuffer indexbuffer;
 	ID3D11DeviceContext* deviceContext;
 	std::vector<Texture> textures;
+
 };
 
 #endif
