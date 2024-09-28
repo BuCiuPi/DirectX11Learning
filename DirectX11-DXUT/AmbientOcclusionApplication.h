@@ -25,7 +25,6 @@ public:
 	virtual void BuildFX() override;
 	void BuildNanoSuitFX();
 
-
 private:
 	Sky* mSky;
 
