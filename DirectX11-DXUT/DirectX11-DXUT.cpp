@@ -19,7 +19,7 @@
 #include <directxmath.h>
 #include <directxcolors.h>
 
-#include "AmbientLightApplication.h"
+#include "LightingApplication.h"
 #include "resource.h"
 #include "BoxApplication.h"
 #include "HillApplication.h"
@@ -54,7 +54,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    AmbientLightApplication application(hInstance);
+    LightingApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

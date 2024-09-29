@@ -85,6 +85,30 @@ float3 CalcDirectionalLightHLSLCookBook(float3 position, float3 gEyePos, Materia
     return finalColor * material.Diffuse.rgb;
 }
 
+float3 CalcPointLightHLSLCookBook(float3 positon, float3 gEyePos, Material material, float3 normal, PointLight pointLight)
+{
+    float3 toLight = pointLight.Position - positon;
+    float3 toEye = gEyePos - positon;
+
+    float distToLight = length(toLight);
+    toLight /= distToLight;
+
+    float NDotL = (dot(toLight, normal));
+    float3 finalColor = pointLight.Diffuse * NDotL;
+
+    // specular
+    toEye = normalize(toEye);
+    float3 HalfVector = normalize(toEye + toLight);
+    float NDotH = saturate(dot(HalfVector, normal));
+    finalColor += pointLight.Diffuse.rgb * pow(NDotH, material.Specular.a) * material.Diffuse.a;
+
+    float DistToLightNor = 1.0 - saturate(distToLight / pointLight.Range);
+    float Attn = DistToLightNor * DistToLightNor;
+    finalColor *= material.Diffuse * Attn;
+
+    return finalColor;
+}
+
 void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, float3 toEye,
 							out float4 ambient,
 							out float4 diffuse,
@@ -215,7 +239,6 @@ float CalcShadowFactor(SamplerComparisonState samShadow, Texture2D shadowMap, fl
 float3 CalcAmbient(float3 normal, float3 color, float3 AmbientDown, float3 AmbientRange)
 {
     float up = normal.y * 0.5f + 0.5f;
-    float3 black = float3(0.0f, 0.0f, 0.0f);
 
     float3 ambient = AmbientDown + up * AmbientRange;
 

@@ -1,4 +1,4 @@
-#include "AmbientLightApplication.h"
+#include "LightingApplication.h"
 
 #include <fstream>
 #include <ratio>
@@ -6,14 +6,37 @@
 #include "GameObject.h"
 #include "GeometryGenerator.h"
 
-AmbientLightApplication::AmbientLightApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
+LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
 {
-	mCamera.SetPosition(0.0f, 2.0f, -15.0f);
+	mCamera.SetPosition(0.0f, 20.0f, -15.0f);
 	mCamera.CameraSpeed = 50.0f;
+
+	mLightingConstantBuffer.data.directionalLight.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mLightingConstantBuffer.data.directionalLight.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.directionalLight.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.directionalLight.Direction = XMFLOAT3(-0.57735f, 0.57735f, -0.57735f);
+
+	mLightingConstantBuffer.data.pointLight[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[0].Diffuse = XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[0].Position = XMFLOAT3(0.0f, 15.0f, 0.0f);
+	mLightingConstantBuffer.data.pointLight[0].Range = 40.0f;
+
+	mLightingConstantBuffer.data.pointLight[1].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[1].Diffuse = XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[1].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[1].Position = XMFLOAT3(10.0f, 20.0f, -10.0f);
+	mLightingConstantBuffer.data.pointLight[1].Range = 40.0f;
+
+	mLightingConstantBuffer.data.pointLight[2].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[2].Diffuse = XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[2].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[2].Position = XMFLOAT3(-10.0f, 20.0f, 10.0f);
+	mLightingConstantBuffer.data.pointLight[2].Range = 40.0f;
 
 }
 
-bool AmbientLightApplication::Init(int nShowCmd)
+bool LightingApplication::Init(int nShowCmd)
 {
 	if (!D3DApp::Init(nShowCmd))
 	{
@@ -29,7 +52,7 @@ bool AmbientLightApplication::Init(int nShowCmd)
 	return true;
 }
 
-void AmbientLightApplication::DrawScene()
+void LightingApplication::DrawScene()
 {
 	g_pImmediateContext->ClearRenderTargetView(g_pRenderTargetView, Colors::MidnightBlue);
 	g_pImmediateContext->ClearDepthStencilView(g_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -46,11 +69,12 @@ void AmbientLightApplication::DrawScene()
 	g_pImmediateContext->IASetInputLayout(InputLayouts::NanoSuit);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	mAmbientLightConstantBuffer.data.AmbientDown = XMFLOAT3(0.1f, 0.5f, 0.1f);
-	mAmbientLightConstantBuffer.data.AmbientRange = XMFLOAT3(0.1f, 0.2f, 0.5f);
+	mLightingConstantBuffer.data.AmbientDown = XMFLOAT3(0.1f, 0.2f, 0.1f);
+	mLightingConstantBuffer.data.AmbientRange = XMFLOAT3(0.1f, 0.2f, 0.2f);
+	mLightingConstantBuffer.data.gEyePosition = mCamera.GetPosition();
 
-	mAmbientLightConstantBuffer.ApplyChanges();
-	mAmbientLightConstantBuffer.PSShaderUpdate(1);
+	mLightingConstantBuffer.ApplyChanges();
+	mLightingConstantBuffer.PSShaderUpdate(1);
 
 	g_pImmediateContext->VSSetShader(mNanoSuitVertexShader, 0, 0);
 	g_pImmediateContext->PSSetShader(mNanoSuitPixelShader, 0, 0);
@@ -64,17 +88,17 @@ void AmbientLightApplication::DrawScene()
 	g_pSwapChain->Present(0, 0);
 }
 
-void AmbientLightApplication::UpdateScene(float dt)
+void LightingApplication::UpdateScene(float dt)
 {
 	DirectX11Application::UpdateScene(dt);
 }
 
-void AmbientLightApplication::BuildGeometryBuffer()
+void LightingApplication::BuildGeometryBuffer()
 {
 }
 
 
-void AmbientLightApplication::BuildConstantBuffer()
+void LightingApplication::BuildConstantBuffer()
 {
 	D3D11_BUFFER_DESC bd;
 	// Create the constant buffer
@@ -112,7 +136,7 @@ void AmbientLightApplication::BuildConstantBuffer()
 		return;
 	}
 
-	hr = mAmbientLightConstantBuffer.Initialize(g_pd3dDevice, g_pImmediateContext);
+	hr = mLightingConstantBuffer.Initialize(g_pd3dDevice, g_pImmediateContext);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -125,23 +149,23 @@ void AmbientLightApplication::BuildConstantBuffer()
 	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
 }
 
-void AmbientLightApplication::CleanupDevice()
+void LightingApplication::CleanupDevice()
 {
 	DirectX11Application::CleanupDevice();
 	SafeDelete(mSky);
 }
 
-void AmbientLightApplication::BuildFX()
+void LightingApplication::BuildFX()
 {
 	mSky->BuildSkyFX(g_pd3dDevice);
 	BuildNanoSuitFX();
 }
 
-void AmbientLightApplication::BuildNanoSuitFX()
+void LightingApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"AmbientLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"PointLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -166,7 +190,7 @@ void AmbientLightApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"AmbientLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"PointLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,

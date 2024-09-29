@@ -148,7 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AmbientLightApplication.h" />
+    <ClInclude Include="LightingApplication.h" />
     <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
     <ClInclude Include="BitmapBuilder.h" />
@@ -204,7 +204,7 @@
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AmbientLightApplication.cpp" />
+    <ClCompile Include="LightingApplication.cpp" />
     <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
     <ClCompile Include="BitmapBuilder.cpp" />
@@ -323,11 +323,12 @@
     <Text Include="BasicShadowMapping.fxh" />
     <Text Include="BezierTessellation.fxh" />
     <Text Include="LightingHelper.fxh" />
+    <Text Include="PointLight.hlsl" />
     <Text Include="ScreenQuad.fxh" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="AmbientLight.hlsl" />
-    <FxCompile Include="DirectionalLighht.hlsl" />
+    <FxCompile Include="DirectionalLight.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

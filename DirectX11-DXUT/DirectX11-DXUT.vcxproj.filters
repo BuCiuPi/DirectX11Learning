@@ -186,7 +186,7 @@
     <ClInclude Include="StringHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AmbientLightApplication.h">
+    <ClInclude Include="LightingApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -329,7 +329,7 @@
     <ClCompile Include="StringHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AmbientLightApplication.cpp">
+    <ClCompile Include="LightingApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -500,12 +500,15 @@
     <Text Include="BasicShadowMapping.fxh">
       <Filter>FX</Filter>
     </Text>
+    <Text Include="PointLight.hlsl">
+      <Filter>FX</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="AmbientLight.hlsl">
       <Filter>FX</Filter>
     </FxCompile>
-    <FxCompile Include="DirectionalLighht.hlsl">
+    <FxCompile Include="DirectionalLight.hlsl">
       <Filter>FX</Filter>
     </FxCompile>
   </ItemGroup>

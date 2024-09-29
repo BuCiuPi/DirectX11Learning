@@ -1,22 +1,27 @@
 #ifndef AMBIENT_LIGHT_APPLICATION_H
-#define AMBIENT_LIGHT_APPLICATION_H
+#define LIGHTING_APPLICATION_H
 #include "ConstantBuffer.h"
 #include "DirectX11Application.h"
 
 class GameObject;
 
-struct ambientLightConstantBuffer
+struct LightingConstantBuffer
 {
 	XMFLOAT3 AmbientDown;
 	float pad;
 	XMFLOAT3 AmbientRange;
 	float pad1;
+
+	DirectionalLight directionalLight;
+	PointLight pointLight[3];
+	XMFLOAT3 gEyePosition;
+	float pad3;
 };
 
-class AmbientLightApplication : public DirectX11Application
+class LightingApplication : public DirectX11Application
 {
 public:
-	AmbientLightApplication(HINSTANCE hInstance);
+	LightingApplication(HINSTANCE hInstance);
 
 
 	virtual bool Init(int nShowCmd) override;
@@ -44,7 +49,7 @@ private:
 	ID3D11SamplerState* mSamplerLinear;
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
-	ConstantBuffer<ambientLightConstantBuffer> mAmbientLightConstantBuffer;
+	ConstantBuffer<LightingConstantBuffer> mLightingConstantBuffer;
 
 
 	bool mIsWireFrame = false;
