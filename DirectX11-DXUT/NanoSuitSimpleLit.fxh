@@ -2,7 +2,8 @@
 
 cbuffer cbObject : register(b0)
 {
-    matrix MVP;
+    matrix gWorld;
+    matrix gWorldViewProj;
     Material gMaterial;
 }
 
@@ -38,7 +39,7 @@ VS_OUTPUT VS(VS_INPUT input)
 {
     VS_OUTPUT output = (VS_OUTPUT) 0;
     output.PosW = input.Pos;
-    output.Pos = mul(float4(output.PosW, 1.0f), MVP);
+    output.Pos = mul(float4(output.PosW, 1.0f), gWorldViewProj);
     
     output.NormalW = input.NormalL;
     output.Tex = input.Tex;

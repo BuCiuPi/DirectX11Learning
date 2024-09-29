@@ -186,6 +186,9 @@
     <ClInclude Include="StringHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AmbientLightApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -324,6 +327,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StringHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AmbientLightApplication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -494,5 +500,13 @@
     <Text Include="BasicShadowMapping.fxh">
       <Filter>FX</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="AmbientLight.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="DirectionalLighht.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

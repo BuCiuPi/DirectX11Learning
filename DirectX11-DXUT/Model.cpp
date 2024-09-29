@@ -22,7 +22,8 @@ void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatr
 {
 	//Update Constant buffer with WVP Matrix
 	XMMATRIX MVP = worldMatrix * viewProjectionMatrix;
-	this->cb_vs_vertexshader->data.mat = XMMatrixTranspose(MVP);
+	this->cb_vs_vertexshader->data.gWorld = XMMatrixTranspose(worldMatrix);
+	this->cb_vs_vertexshader->data.gWorldViewProj = XMMatrixTranspose(MVP);
 	this->cb_vs_vertexshader->ApplyChanges();
 	this->cb_vs_vertexshader->data.material = mMaterial;
 
