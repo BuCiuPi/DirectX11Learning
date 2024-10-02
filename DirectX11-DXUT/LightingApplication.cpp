@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <ratio>
+#include <sstream>
 
 #include "GameObject.h"
 #include "GeometryGenerator.h"
@@ -42,8 +43,13 @@ LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Applica
 	mLightingConstantBuffer.data.spotLight.Direction = XMFLOAT3(0.5f, -1.0f, 0.3f);
 	float spotLightInner = 1.0f / cosf(XM_PI * 50.0f / 180.0f);
 	float spotLightOuter = cosf(XM_PI * 55.0f / 180.0f);
-	mLightingConstantBuffer.data.spotLight.Attenuation = XMFLOAT3(spotLightInner,spotLightOuter, 0.0f);
+	mLightingConstantBuffer.data.spotLight.Attenuation = XMFLOAT3(spotLightInner, spotLightOuter, 0.0f);
 	mLightingConstantBuffer.data.spotLight.Range = 200.0f;
+
+	mLightingConstantBuffer.data.capsuleLight.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+	mLightingConstantBuffer.data.capsuleLight.Position = XMFLOAT3(0.0f,10.0f, -5.0f);
+	mLightingConstantBuffer.data.capsuleLight.Range = 40.0f;
+	mLightingConstantBuffer.data.capsuleLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 }
 
@@ -102,6 +108,14 @@ void LightingApplication::DrawScene()
 void LightingApplication::UpdateScene(float dt)
 {
 	DirectX11Application::UpdateScene(dt);
+
+	mTotalTime += dt;
+	mLightingConstantBuffer.data.capsuleLight.Len = (sinf(mTotalTime) * 2) * 5.0f;
+	mLightingConstantBuffer.ApplyChanges();
+
+	std::wostringstream s;
+	s << mLightingConstantBuffer.data.capsuleLight.Len << std::endl;
+	OutputDebugString(s.str().c_str());
 }
 
 void LightingApplication::BuildGeometryBuffer()
@@ -176,7 +190,7 @@ void LightingApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"SpotLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"CapsuleLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -201,7 +215,7 @@ void LightingApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"SpotLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"CapsuleLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,

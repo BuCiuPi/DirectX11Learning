@@ -36,6 +36,17 @@ struct SpotLight
     float pad;
 };
 
+struct CapsuleLight
+{
+    float4 Diffuse;
+
+    float3 Position;
+    float Range;
+
+    float3 Direction;
+    float Len;
+};
+
 struct Material
 {
     float4 Ambient;
@@ -131,6 +142,36 @@ float3 CalcSpotLightHLSLCookBook(float3 position, float3 gEyePos, Material mater
     float distToLightNorm = 1.0 - saturate(distToLight * 1/spotLight.Range);
     float attn = distToLightNorm * distToLightNorm;
     finalColor *= material.Diffuse * attn * conAtt;
+
+    return finalColor;
+}
+
+float3 CalcCapsuleLightHLSLCookBook(float3 position, float3 gEyePos, Material material, float3 normal, CapsuleLight capsuleLight)
+{
+    float3 ToEye = gEyePos - position;
+
+    // projection the position onto capsule center line
+    float3 ToCapsuleStart = position - capsuleLight.Position;
+    float distOnLine = dot(ToCapsuleStart, capsuleLight.Direction) / capsuleLight.Len;
+    distOnLine = saturate(distOnLine) * capsuleLight.Len;
+    float3 PointOnLine = capsuleLight.Position + capsuleLight.Direction * distOnLine;
+
+    // get direction from position to Light
+    float3 Tolight = PointOnLine - position;
+    float distToLight = length(Tolight);
+
+    Tolight /= distToLight; // normalize 
+    float NDotL = saturate(dot(Tolight, normal));
+    float3 finalColor = material.Diffuse * NDotL;
+
+    ToEye = normalize(ToEye);
+    float3 halfVector = normalize(ToEye + Tolight);
+    float NDotH = saturate(dot(halfVector, normal));
+    finalColor += pow(NDotH, material.Specular.a);
+
+    float DistToLightNorm = 1.0 - saturate(distToLight * 1/capsuleLight.Range);
+    float attn = DistToLightNorm * DistToLightNorm;
+    finalColor *= capsuleLight.Diffuse.rgb * attn * capsuleLight.Diffuse.a;
 
     return finalColor;
 }

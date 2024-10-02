@@ -15,6 +15,7 @@ struct LightingConstantBuffer
 	DirectionalLight directionalLight;
 	PointLight pointLight[3];
 	SpotLight spotLight;
+	CapsuleLight capsuleLight;
 	XMFLOAT3 gEyePosition;
 	float pad3;
 };
@@ -54,7 +55,7 @@ private:
 
 
 	bool mIsWireFrame = false;
-	float mLightRotationAngle;
+	float mTotalTime = 0.0f;
 };
 #endif
 

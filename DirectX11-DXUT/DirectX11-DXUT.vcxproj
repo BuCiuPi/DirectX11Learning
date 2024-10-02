@@ -328,6 +328,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="AmbientLight.hlsl" />
+    <FxCompile Include="CapsuleLight.hlsl" />
     <FxCompile Include="DirectionalLight.hlsl" />
     <FxCompile Include="SpotLight.hlsl" />
   </ItemGroup>

@@ -50,6 +50,19 @@ struct SpotLight
 	float Pad; // Pad the last float so we can set an array of lights if we wanted.
 };
 
+struct CapsuleLight
+{
+	CapsuleLight() { ZeroMemory(this, sizeof(this)); }
+
+	XMFLOAT4 Diffuse;
+
+	XMFLOAT3 Position;
+	float Range;
+
+	XMFLOAT3 Direction;
+	float Len;
+};
+
 struct Material
 {
 	Material() { ZeroMemory(this, sizeof(this)); }
