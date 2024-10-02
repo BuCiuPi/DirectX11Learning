@@ -12,7 +12,7 @@ LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Applica
 	mCamera.CameraSpeed = 50.0f;
 
 	mLightingConstantBuffer.data.directionalLight.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	mLightingConstantBuffer.data.directionalLight.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.directionalLight.Diffuse = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 	mLightingConstantBuffer.data.directionalLight.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLightingConstantBuffer.data.directionalLight.Direction = XMFLOAT3(-0.57735f, 0.57735f, -0.57735f);
 
@@ -33,6 +33,17 @@ LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Applica
 	mLightingConstantBuffer.data.pointLight[2].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[2].Position = XMFLOAT3(-10.0f, 20.0f, 10.0f);
 	mLightingConstantBuffer.data.pointLight[2].Range = 40.0f;
+
+	mLightingConstantBuffer.data.spotLight.Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	mLightingConstantBuffer.data.spotLight.Diffuse = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
+	mLightingConstantBuffer.data.spotLight.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.spotLight.Position = XMFLOAT3(0.0f, 20.0f, -5.0f);
+
+	mLightingConstantBuffer.data.spotLight.Direction = XMFLOAT3(0.5f, -1.0f, 0.3f);
+	float spotLightInner = 1.0f / cosf(XM_PI * 50.0f / 180.0f);
+	float spotLightOuter = cosf(XM_PI * 55.0f / 180.0f);
+	mLightingConstantBuffer.data.spotLight.Attenuation = XMFLOAT3(spotLightInner,spotLightOuter, 0.0f);
+	mLightingConstantBuffer.data.spotLight.Range = 200.0f;
 
 }
 
@@ -165,7 +176,7 @@ void LightingApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"PointLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"SpotLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -190,7 +201,7 @@ void LightingApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"PointLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"SpotLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,

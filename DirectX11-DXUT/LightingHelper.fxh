@@ -109,6 +109,32 @@ float3 CalcPointLightHLSLCookBook(float3 positon, float3 gEyePos, Material mater
     return finalColor;
 }
 
+float3 CalcSpotLightHLSLCookBook(float3 position, float3 gEyePos, Material material, float3 normal, SpotLight spotLight)
+{
+    float3 ToLight = spotLight.Position - position;
+    float3 ToEye = gEyePos - position;
+    float distToLight = length(ToLight);
+
+    ToLight /= distToLight;
+    float NdotL = saturate(dot(ToLight, normal));
+    float3 finalColor = spotLight.Diffuse * NdotL;
+
+    ToEye = normalize(ToEye);
+    float3 halfVector = normalize(ToEye * ToLight);
+    float NdotH = saturate(dot(halfVector, normal));
+    finalColor += spotLight.Diffuse * pow(NdotH, material.Specular.a);
+
+    float cosAng = dot(normalize(spotLight.Direction), -ToLight);
+    float conAtt = saturate((cosAng - spotLight.Attenuation.y) * spotLight.Attenuation.x);
+    conAtt *= conAtt;
+
+    float distToLightNorm = 1.0 - saturate(distToLight * 1/spotLight.Range);
+    float attn = distToLightNorm * distToLightNorm;
+    finalColor *= material.Diffuse * attn * conAtt;
+
+    return finalColor;
+}
+
 void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, float3 toEye,
 							out float4 ambient,
 							out float4 diffuse,

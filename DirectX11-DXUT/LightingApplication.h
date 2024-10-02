@@ -14,6 +14,7 @@ struct LightingConstantBuffer
 
 	DirectionalLight directionalLight;
 	PointLight pointLight[3];
+	SpotLight spotLight;
 	XMFLOAT3 gEyePosition;
 	float pad3;
 };
