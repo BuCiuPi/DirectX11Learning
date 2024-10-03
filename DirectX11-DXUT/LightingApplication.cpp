@@ -18,19 +18,19 @@ LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Applica
 	mLightingConstantBuffer.data.directionalLight.Direction = XMFLOAT3(-0.57735f, 0.57735f, -0.57735f);
 
 	mLightingConstantBuffer.data.pointLight[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	mLightingConstantBuffer.data.pointLight[0].Diffuse = XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[0].Diffuse = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[0].Position = XMFLOAT3(0.0f, 15.0f, 0.0f);
 	mLightingConstantBuffer.data.pointLight[0].Range = 40.0f;
 
 	mLightingConstantBuffer.data.pointLight[1].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	mLightingConstantBuffer.data.pointLight[1].Diffuse = XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[1].Diffuse = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[1].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[1].Position = XMFLOAT3(10.0f, 20.0f, -10.0f);
 	mLightingConstantBuffer.data.pointLight[1].Range = 40.0f;
 
 	mLightingConstantBuffer.data.pointLight[2].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	mLightingConstantBuffer.data.pointLight[2].Diffuse = XMFLOAT4(0.0f, 0.5f, 0.0f, 1.0f);
+	mLightingConstantBuffer.data.pointLight[2].Diffuse = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[2].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mLightingConstantBuffer.data.pointLight[2].Position = XMFLOAT3(-10.0f, 20.0f, 10.0f);
 	mLightingConstantBuffer.data.pointLight[2].Range = 40.0f;
@@ -97,6 +97,8 @@ void LightingApplication::DrawScene()
 	g_pImmediateContext->PSSetShader(mNanoSuitPixelShader, 0, 0);
 	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
 
+	g_pImmediateContext->PSSetShaderResources(1, 1, &mStarCubeMap);
+
 	mNanoSuitGameObject->Draw(mCamera.ViewProj());
 	//draw sky
 
@@ -116,6 +118,10 @@ void LightingApplication::UpdateScene(float dt)
 	std::wostringstream s;
 	s << mLightingConstantBuffer.data.capsuleLight.Len << std::endl;
 	OutputDebugString(s.str().c_str());
+
+	mLightRotationAngle += 0.2f * dt;
+	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
+	mLightingConstantBuffer.data.gLightTransform = R;
 }
 
 void LightingApplication::BuildGeometryBuffer()
@@ -152,6 +158,8 @@ void LightingApplication::BuildConstantBuffer()
 	//mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
 	//mSky = new Sky(g_pd3dDevice, L"Textures/snowcube1024.dds", 10.0f);
 	mSky = new Sky(g_pd3dDevice, L"Textures/desertcube1024.dds", 10.0f);
+
+	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/Star.dds", nullptr, &mStarCubeMap));
 
 	HRESULT hr = cb_vs_vertexshader.Initialize(g_pd3dDevice, g_pImmediateContext);
 	if (FAILED(hr))
@@ -190,7 +198,7 @@ void LightingApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"CapsuleLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"PointLightProjected.hlsl", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -215,7 +223,7 @@ void LightingApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"CapsuleLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"PointLightProjected.hlsl", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,

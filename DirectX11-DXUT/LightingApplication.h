@@ -16,6 +16,9 @@ struct LightingConstantBuffer
 	PointLight pointLight[3];
 	SpotLight spotLight;
 	CapsuleLight capsuleLight;
+
+	XMMATRIX gLightTransform = XMMatrixIdentity();
+
 	XMFLOAT3 gEyePosition;
 	float pad3;
 };
@@ -53,9 +56,12 @@ private:
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<LightingConstantBuffer> mLightingConstantBuffer;
 
+	ID3D11ShaderResourceView* mStarCubeMap;
+
 
 	bool mIsWireFrame = false;
 	float mTotalTime = 0.0f;
+	float mLightRotationAngle = 0.0f;
 };
 #endif
 

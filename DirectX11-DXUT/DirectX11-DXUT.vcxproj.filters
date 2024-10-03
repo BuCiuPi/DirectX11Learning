@@ -517,5 +517,8 @@
     <FxCompile Include="CapsuleLight.hlsl">
       <Filter>FX</Filter>
     </FxCompile>
+    <FxCompile Include="PointLightProjected.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

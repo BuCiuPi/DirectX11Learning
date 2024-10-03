@@ -176,6 +176,39 @@ float3 CalcCapsuleLightHLSLCookBook(float3 position, float3 gEyePos, Material ma
     return finalColor;
 }
 
+float3 GetDirToLight(float3 position, PointLight pointLight)
+{
+    float3 ToLight = pointLight.Position - position;
+    return ToLight;
+}
+
+float3 GetColorFromCube(TextureCube cubeTexture, SamplerState cubeSampler, float3 sampleDirection, float3 colorLight)
+{
+    return colorLight * cubeTexture.Sample( cubeSampler, sampleDirection);
+}
+
+float3 CalcPointLightProjectedHLSLCookBook(float3 position, float3 gEyePos, Material material, float3 normal, PointLight pointLight)
+{
+    float3 ToLight = GetDirToLight(position, pointLight);
+    float3 ToEye = gEyePos - position;
+    float distToLight = length(ToLight);
+
+    ToLight /= distToLight;
+    float NDotL = saturate(dot(ToLight, normal));
+    float3 finalColor = pointLight.Diffuse.xyz * NDotL;
+
+    ToEye = normalize(ToEye);
+    float3 halfVector = normalize(ToEye + ToLight);
+    float NDotH = saturate(dot(halfVector, normal));
+    finalColor += pointLight.Diffuse.xyz * pow(NDotH, material.Specular);
+
+    float distToLightNorm = 1.0 - saturate(distToLight * 1 / pointLight.Range);
+    float attn = distToLightNorm * distToLightNorm;
+    finalColor *= material.Diffuse * attn;
+
+    return finalColor;
+}
+
 void ComputePointLight(Material mat, PointLight L, float3 pos, float3 normal, float3 toEye,
 							out float4 ambient,
 							out float4 diffuse,

@@ -330,6 +330,7 @@
     <FxCompile Include="AmbientLight.hlsl" />
     <FxCompile Include="CapsuleLight.hlsl" />
     <FxCompile Include="DirectionalLight.hlsl" />
+    <FxCompile Include="PointLightProjected.hlsl" />
     <FxCompile Include="SpotLight.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
