@@ -63,6 +63,25 @@ struct CapsuleLight
 	float Len;
 };
 
+struct FourCapsuleLight
+{
+	XMFLOAT4 DiffuseR;
+	XMFLOAT4 DiffuseG;
+	XMFLOAT4 DiffuseB;
+
+	XMFLOAT4 PositionX;
+	XMFLOAT4 PositionY;
+	XMFLOAT4 PositionZ;
+
+	XMFLOAT4 Range;
+
+	XMFLOAT4 DirectionX;
+	XMFLOAT4 DirectionY;
+	XMFLOAT4 DirectionZ;
+
+	XMFLOAT4 Len;
+};
+
 struct Material
 {
 	Material() { ZeroMemory(this, sizeof(this)); }

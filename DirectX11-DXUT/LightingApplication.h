@@ -16,6 +16,7 @@ struct LightingConstantBuffer
 	PointLight pointLight[3];
 	SpotLight spotLight;
 	CapsuleLight capsuleLight;
+	FourCapsuleLight fourCapsuleLight;
 
 	XMMATRIX gLightTransform = XMMatrixIdentity();
 

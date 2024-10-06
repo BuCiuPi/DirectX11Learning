@@ -51,6 +51,23 @@ LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Applica
 	mLightingConstantBuffer.data.capsuleLight.Range = 40.0f;
 	mLightingConstantBuffer.data.capsuleLight.Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
+	mLightingConstantBuffer.data.fourCapsuleLight.DiffuseR = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.DiffuseG = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.DiffuseB = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
+	mLightingConstantBuffer.data.fourCapsuleLight.PositionX = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.PositionY = XMFLOAT4(30.0f, 30.0f, 30.0f, 30.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.PositionZ = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	mLightingConstantBuffer.data.fourCapsuleLight.Range =  XMFLOAT4(40.0f, 40.0f, 40.0f, 40.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.Range =  XMFLOAT4(80.0f, 80.0f, 80.0f, 80.0f);
+
+	mLightingConstantBuffer.data.fourCapsuleLight.DirectionX = XMFLOAT4(1.0f, -1.0f, 0.0f, 0.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.DirectionY = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	mLightingConstantBuffer.data.fourCapsuleLight.DirectionZ = XMFLOAT4(0.0f, 0.0f, 1.0f, -1.0f);
+
+	mLightingConstantBuffer.data.fourCapsuleLight.Len =  XMFLOAT4(10.0f, 10.0f, 10.0f, 10.0f);
+
 }
 
 bool LightingApplication::Init(int nShowCmd)
@@ -198,7 +215,7 @@ void LightingApplication::BuildNanoSuitFX()
 {
 	// Compile the vertex shader
 	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"PointLightProjected.hlsl", "VS", "vs_5_0", &skyVSBlob);
+	HRESULT hr = CompileShaderFromFile(L"FourCapsuleLight.hlsl", "VS", "vs_5_0", &skyVSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,
@@ -223,7 +240,7 @@ void LightingApplication::BuildNanoSuitFX()
 
 	// Compile the pixel shader
 	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"PointLightProjected.hlsl", "PS", "ps_5_0", &skyPSBlob);
+	hr = CompileShaderFromFile(L"FourCapsuleLight.hlsl", "PS", "ps_5_0", &skyPSBlob);
 	if (FAILED(hr))
 	{
 		MessageBox(nullptr,

@@ -520,5 +520,8 @@
     <FxCompile Include="PointLightProjected.hlsl">
       <Filter>FX</Filter>
     </FxCompile>
+    <FxCompile Include="FourCapsuleLight.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
