@@ -3,6 +3,7 @@
 
 #include "DirectX11Application.h"
 #include "GameObject.h"
+#include "ShaderMaterial.h"
 
 class ModelLoaderApplication : public DirectX11Application
 {
@@ -27,20 +28,23 @@ private:
 	Sky* mSky;
 
 	GameObject* mNanoSuitGameObject;
+	Material mMaterial;
 
 	ID3D11ShaderResourceView* mNanoSuitTexture;
 
-	ID3D11VertexShader* mNanoSuitVertexShader;
-	ID3D11PixelShader* mNanoSuitPixelShader;
+	ID3D11InputLayout* mInputLayout;
+
+	ShaderMaterial* mShaderMaterial;
+
 	ID3D11SamplerState* mSamplerLinear;
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<WavePerFrameBuffer> mPerFrameBuffer;
 
-
 	DirectionalLight mDirLights[3];
 	bool mIsWireFrame;
 	float mLightRotationAngle;
+
 
 };
 #endif

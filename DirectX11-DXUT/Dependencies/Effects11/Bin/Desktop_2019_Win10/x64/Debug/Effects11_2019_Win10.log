@@ -4,5 +4,7 @@
   EffectNonRuntime.cpp
   EffectReflection.cpp
   EffectRuntime.cpp
+  Running Code Analysis for C/C++...
   Generating Code...
   Effects11_2019_Win10.vcxproj -> F:\CPlusPlus\DirectX11Learning\DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug\Effects11d.lib
+F:\CPlusPlus\DirectX11Learning\DirectX11-DXUT\Dependencies\Effects11\EffectLoad.cpp(2491): warning C6001: Using uninitialized memory '*pAn'.

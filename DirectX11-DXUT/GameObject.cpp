@@ -1,9 +1,22 @@
 #include "GameObject.h"
 
-bool GameObject::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader)
+GameObject::GameObject()
+{
+}
+
+GameObject::GameObject(GameObject* gameObject)
+{
+	this->model = gameObject->model;
+
+	this->SetPosition(0.0f, 0.0f, 0.0f);
+	this->SetRotation(0.0f, 0.0f, 0.0f);
+	this->UpdateWorldMatrix();
+}
+
+bool GameObject::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 
-	if (!this->model.Initialize(filePath, device, deviceContext, cb_vs_vertexshader))
+	if (!this->model.Initialize(filePath, device, deviceContext))
 		return false;
 
 	this->SetPosition(0.0f, 0.0f, 0.0f);
@@ -186,6 +199,19 @@ const XMVECTOR& GameObject::GetBackwardVector()
 const XMVECTOR& GameObject::GetLeftVector()
 {
 	return this->vec_left;
+}
+
+const XMMATRIX& GameObject::GetWorldMatrix()
+{
+	return worldMatrix;
+}
+
+GameObject& GameObject::operator=(GameObject&& other) noexcept
+{
+	if (this != &other) {
+		model = std::move(other.model);  // Transfer ownership of resource
+	}
+	return *this;
 }
 
 

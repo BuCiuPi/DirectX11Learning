@@ -68,6 +68,13 @@ LightingApplication::LightingApplication(HINSTANCE hinstance) : DirectX11Applica
 
 	mLightingConstantBuffer.data.fourCapsuleLight.Len =  XMFLOAT4(10.0f, 10.0f, 10.0f, 10.0f);
 
+
+	this->mMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	this->mMaterial.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	this->mMaterial.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 32.0f);
+	this->mMaterial.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+
+
 }
 
 bool LightingApplication::Init(int nShowCmd)
@@ -102,6 +109,15 @@ void LightingApplication::DrawScene()
 	}
 	g_pImmediateContext->IASetInputLayout(InputLayouts::NanoSuit);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// set constant buffer
+	XMMATRIX worldMatrix = mNanoSuitGameObject->GetWorldMatrix();
+	XMMATRIX MVP = worldMatrix * mCamera.ViewProj();
+	this->cb_vs_vertexshader.data.gWorld = XMMatrixTranspose(worldMatrix);
+	this->cb_vs_vertexshader.data.gWorldViewProj = XMMatrixTranspose(MVP);
+	this->cb_vs_vertexshader.data.material = mMaterial;
+	this->cb_vs_vertexshader.ApplyChanges();
+	this->cb_vs_vertexshader.VSShaderUpdate(0);
 
 	mLightingConstantBuffer.data.AmbientDown = XMFLOAT3(0.1f, 0.2f, 0.1f);
 	mLightingConstantBuffer.data.AmbientRange = XMFLOAT3(0.1f, 0.2f, 0.2f);
@@ -196,7 +212,7 @@ void LightingApplication::BuildConstantBuffer()
 
 	mNanoSuitGameObject = new GameObject();
 	//mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
-	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext);
 }
 
 void LightingApplication::CleanupDevice()

@@ -5,9 +5,11 @@
 
 class GameObject
 {
+private:
 public:
-	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<
-	                CB_VS_vertexshader>* cb_vs_vertexshader);
+	GameObject();
+	GameObject(GameObject* gameObject);
+	bool Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void Draw(const XMMATRIX& viewProjectionMatrix);
 
 	const XMVECTOR& GetPositionVector() const;
@@ -32,7 +34,10 @@ public:
 	const XMVECTOR& GetRightVector();
 	const XMVECTOR& GetBackwardVector();
 	const XMVECTOR& GetLeftVector();
+	const XMMATRIX& GetWorldMatrix();
 
+	GameObject(GameObject&& other) noexcept = default;  // Move constructor
+	GameObject& operator=(GameObject&& other) noexcept;
 private:
 	Model model;
 

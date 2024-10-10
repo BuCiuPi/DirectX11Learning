@@ -26,6 +26,11 @@ ModelLoaderApplication::ModelLoaderApplication(HINSTANCE hinstance) : DirectX11A
 	mDirLights[2].Diffuse = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[2].Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	mDirLights[2].Direction = XMFLOAT3(0.0f, -0.707f, -0.707f);
+
+	this->mMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	this->mMaterial.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	this->mMaterial.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 32.0f);
+	this->mMaterial.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 bool ModelLoaderApplication::Init(int nShowCmd)
@@ -58,12 +63,22 @@ void ModelLoaderApplication::DrawScene()
 	{
 		g_pImmediateContext->RSSetState(RenderStates::WireframeRS);
 	}
-	g_pImmediateContext->IASetInputLayout(InputLayouts::NanoSuit);
+
+	// set Shader
+	g_pImmediateContext->IASetInputLayout(mInputLayout);
 	g_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	g_pImmediateContext->VSSetShader(mNanoSuitVertexShader, 0, 0);
-	g_pImmediateContext->PSSetShader(mNanoSuitPixelShader, 0, 0);
+	mShaderMaterial->SetShader(g_pImmediateContext);
 	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
+
+	// set constant buffer
+	XMMATRIX worldMatrix = mNanoSuitGameObject->GetWorldMatrix();
+	XMMATRIX MVP = worldMatrix * mCamera.ViewProj();
+	this->cb_vs_vertexshader.data.gWorld = XMMatrixTranspose(worldMatrix);
+	this->cb_vs_vertexshader.data.gWorldViewProj = XMMatrixTranspose(MVP);
+	this->cb_vs_vertexshader.data.material = mMaterial;
+	this->cb_vs_vertexshader.ApplyChanges();
+	this->cb_vs_vertexshader.VSShaderUpdate(0);
 
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -73,7 +88,9 @@ void ModelLoaderApplication::DrawScene()
 	mPerFrameBuffer.ApplyChanges();
 	mPerFrameBuffer.PSShaderUpdate(1);
 
+	// Draw
 	mNanoSuitGameObject->Draw(mCamera.ViewProj());
+
 	//draw sky
 
 	mSky->Draw(g_pImmediateContext, mCamera);
@@ -145,8 +162,9 @@ void ModelLoaderApplication::BuildConstantBuffer()
 
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/grass.dds", nullptr, &mNanoSuitTexture));
 
+	mShaderMaterial = new ShaderMaterial();
 	mNanoSuitGameObject = new GameObject();
-	mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext, &cb_vs_vertexshader);
+	mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext);
 }
 
 void ModelLoaderApplication::CleanupDevice()
@@ -163,44 +181,7 @@ void ModelLoaderApplication::BuildFX()
 
 void ModelLoaderApplication::BuildNanoSuitFX()
 {
-	// Compile the vertex shader
-	ID3DBlob* skyVSBlob = nullptr;
-	HRESULT hr = CompileShaderFromFile(L"NanoSuitSimpleLit.fxh", "VS", "vs_5_0", &skyVSBlob);
-	if (FAILED(hr))
-	{
-		MessageBox(nullptr,
-			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
-		return;
-	}
-
-	// Create the vertex shader
-	hr = g_pd3dDevice->CreateVertexShader(skyVSBlob->GetBufferPointer(), skyVSBlob->GetBufferSize(), nullptr, &mNanoSuitVertexShader);
-	if (FAILED(hr))
-	{
-		skyVSBlob->Release();
-		return;
-	}
-
-	InputLayouts::BuildVertexLayout(g_pd3dDevice, skyVSBlob, InputLayoutDesc::NanoSuit, ARRAYSIZE(InputLayoutDesc::NanoSuit), &InputLayouts::NanoSuit);
-	if (FAILED(hr))
-	{
-		skyVSBlob->Release();
-		return;
-	}
-
-	// Compile the pixel shader
-	ID3DBlob* skyPSBlob = nullptr;
-	hr = CompileShaderFromFile(L"NanoSuitSimpleLit.fxh", "PS", "ps_5_0", &skyPSBlob);
-	if (FAILED(hr))
-	{
-		MessageBox(nullptr,
-			L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
-		return;
-	}
-
-	// Create the pixel shader
-	hr = g_pd3dDevice->CreatePixelShader(skyPSBlob->GetBufferPointer(), skyPSBlob->GetBufferSize(), nullptr, &mNanoSuitPixelShader);
-	skyPSBlob->Release();
-	if (FAILED(hr))
-		return;
+	ID3DBlob* vsBlob = mShaderMaterial->BuildShader(g_pd3dDevice, L"BasicUnlit.hlsl", VertexShader);
+	mInputLayout = mShaderMaterial->BuildInputLayout(g_pd3dDevice, vsBlob, InputLayoutDesc::NanoSuit, ARRAYSIZE(InputLayoutDesc::NanoSuit));
+	mShaderMaterial->BuildShader(g_pd3dDevice, L"BasicUnlit.hlsl", PixelShader);
 }

@@ -189,6 +189,21 @@
     <ClInclude Include="LightingApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DeferredShadingApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CGBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CSceneManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CLightManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX11-DXUT.cpp">
@@ -330,6 +345,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LightingApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeferredShadingApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CGBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CSceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLightManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -503,6 +533,9 @@
     <Text Include="PointLight.hlsl">
       <Filter>FX</Filter>
     </Text>
+    <Text Include="BasicUnlit.hlsl">
+      <Filter>FX</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="AmbientLight.hlsl">
@@ -521,6 +554,15 @@
       <Filter>FX</Filter>
     </FxCompile>
     <FxCompile Include="FourCapsuleLight.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="DeferredShading.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="common.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="DeferredDirectionalLight.hlsl">
       <Filter>FX</Filter>
     </FxCompile>
   </ItemGroup>

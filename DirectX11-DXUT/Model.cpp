@@ -1,17 +1,10 @@
 #include "Model.h"
 #include "StringHelper.h"
 
-bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ConstantBuffer<CB_VS_vertexshader>* cb_vs_vertexshader)
+bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	this->device = device;
 	this->deviceContext = deviceContext;
-	this->cb_vs_vertexshader = cb_vs_vertexshader;
-
-
-	this->mMaterial.Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	this->mMaterial.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	this->mMaterial.Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 32.0f);
-	this->mMaterial.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	if (!this->LoadModel(filePath))
 		return false;
@@ -21,14 +14,6 @@ bool Model::Initialize(const std::string& filePath, ID3D11Device* device, ID3D11
 void Model::Draw(const XMMATRIX& worldMatrix, const XMMATRIX& viewProjectionMatrix)
 {
 	//Update Constant buffer with WVP Matrix
-	XMMATRIX MVP = worldMatrix * viewProjectionMatrix;
-	this->cb_vs_vertexshader->data.gWorld = XMMatrixTranspose(worldMatrix);
-	this->cb_vs_vertexshader->data.gWorldViewProj = XMMatrixTranspose(MVP);
-	this->cb_vs_vertexshader->ApplyChanges();
-	this->cb_vs_vertexshader->data.material = mMaterial;
-
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
-	this->deviceContext->PSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
 	{

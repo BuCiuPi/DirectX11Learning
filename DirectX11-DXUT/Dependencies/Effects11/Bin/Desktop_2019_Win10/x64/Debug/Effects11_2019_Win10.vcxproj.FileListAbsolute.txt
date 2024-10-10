@@ -1,2 +1,4 @@
 F:\CPlusPlus\directx-sdk-samples-main\Effects11\Bin\Desktop_2019_Win10\x64\Debug\Effects11d.lib
 F:\CPlusPlus\DirectX11Learning\DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug\Effects11d.lib
+F:\CPlusPlus\DirectX11Learning\DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug\Effects11d.lib.lastcodeanalysissucceeded
+F:\CPlusPlus\DirectX11Learning\DirectX11-DXUT\Dependencies\Effects11\Bin\Desktop_2019_Win10\x64\Debug\NativeCodeAnalysis.read.1.tlog

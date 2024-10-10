@@ -148,6 +148,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CGBuffer.h" />
+    <ClInclude Include="CLightManager.h" />
+    <ClInclude Include="DeferredShadingApplication.h" />
     <ClInclude Include="LightingApplication.h" />
     <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
@@ -188,6 +191,8 @@
     <ClInclude Include="PickingApplication.h" />
     <ClInclude Include="RenderStates.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="CSceneManager.h" />
+    <ClInclude Include="ShaderMaterial.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="ShadowMapApplication.h" />
     <ClInclude Include="ShapesApplication.h" />
@@ -204,6 +209,9 @@
     <ClInclude Include="Waves.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CGBuffer.cpp" />
+    <ClCompile Include="CLightManager.cpp" />
+    <ClCompile Include="DeferredShadingApplication.cpp" />
     <ClCompile Include="LightingApplication.cpp" />
     <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
@@ -239,6 +247,8 @@
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PickingApplication.cpp" />
     <ClCompile Include="RenderStates.cpp" />
+    <ClCompile Include="CSceneManager.cpp" />
+    <ClCompile Include="ShaderMaterial.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="ShadowMapApplication.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
@@ -321,6 +331,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="BasicShadowMapping.fxh" />
+    <Text Include="BasicUnlit.hlsl" />
     <Text Include="BezierTessellation.fxh" />
     <Text Include="LightingHelper.fxh" />
     <Text Include="PointLight.hlsl" />
@@ -329,6 +340,9 @@
   <ItemGroup>
     <FxCompile Include="AmbientLight.hlsl" />
     <FxCompile Include="CapsuleLight.hlsl" />
+    <FxCompile Include="common.hlsl" />
+    <FxCompile Include="DeferredDirectionalLight.hlsl" />
+    <FxCompile Include="DeferredShading.hlsl" />
     <FxCompile Include="DirectionalLight.hlsl" />
     <FxCompile Include="FourCapsuleLight.hlsl" />
     <FxCompile Include="PointLightProjected.hlsl" />

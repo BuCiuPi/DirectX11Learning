@@ -1,0 +1,107 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.40.33811.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/effectruntime.cpp"
+          },
+          "roles": [
+            "analysisTarget"
+          ],
+          "hashes": {
+            "sha-256": "2ad62c50f600ff47151d7029742c8cd2ac550a779cf8bb4be1719e27afc4e5c0"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/pchfx.h"
+          },
+          "hashes": {
+            "sha-256": "74b3ad6758dc2a5913ead1cb969d87f3feeff141f17f44a774b417b7336c4e48"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/inc/d3dx11effect.h"
+          },
+          "hashes": {
+            "sha-256": "744dc81c44e37b4164bf603618e04c54c2fa5a916db8a38fa2be0ec53ccf959e"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/inc/d3dxglobal.h"
+          },
+          "hashes": {
+            "sha-256": "0f1f798c1f05a079c4dc377a39e88bc356e187527e8b4188fe3d6b9ecd5ebfac"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/effect.h"
+          },
+          "hashes": {
+            "sha-256": "9fb20c0bdd1a9052906921ae697db6d398314bd28d3cb48ce670d8439df1da23"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/binary/effectbinaryformat.h"
+          },
+          "hashes": {
+            "sha-256": "4f7e216496430203c65217bedca057b11e1a40ac8f426f6f7a6e13b42cc9a60c"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/iunknownimp.h"
+          },
+          "hashes": {
+            "sha-256": "8582e8a31eb4626743f975b964d6b19cd0f75b96b5716c01324beebe7d3be666"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/effectvariable.inl"
+          },
+          "hashes": {
+            "sha-256": "de0e15516c90fb8ff40b9baa1c82ad40056aa82df089196de4ca85ffeea79dfc"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/binary/effectstatebase11.h"
+          },
+          "hashes": {
+            "sha-256": "daa72faf594550fb231078d178fb730c2522984f2ce52a4f68cca48572d205c8"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///f:/cplusplus/directx11learning/directx11-dxut/dependencies/effects11/effectload.h"
+          },
+          "hashes": {
+            "sha-256": "b077ad68ee32f35dd9b6457842d13573fa627252a7526a56947733a868be40a0"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,34 +1,16 @@
-#ifndef AMBIENT_LIGHT_APPLICATION_H
-#define LIGHTING_APPLICATION_H
-#include "ConstantBuffer.h"
+#ifndef DEFERRED_SHADING_APPLICATION_H
+#define DEFERRED_SHADING_APPLICATION_H
+#include "CGBuffer.h"
+#include "CLightManager.h"
+#include "CSceneManager.h"
 #include "DirectX11Application.h"
+#include "GameObject.h"
+#include "ShaderMaterial.h"
 
-class GameObject;
-
-struct LightingConstantBuffer
-{
-	XMFLOAT3 AmbientDown;
-	float pad;
-	XMFLOAT3 AmbientRange;
-	float pad1;
-
-	DirectionalLight directionalLight;
-	PointLight pointLight[3];
-	SpotLight spotLight;
-	CapsuleLight capsuleLight;
-	FourCapsuleLight fourCapsuleLight;
-
-	XMMATRIX gLightTransform = XMMatrixIdentity();
-
-	XMFLOAT3 gEyePosition;
-	float pad3;
-};
-
-class LightingApplication : public DirectX11Application
+class DeferredShadingApplication : public DirectX11Application
 {
 public:
-	LightingApplication(HINSTANCE hInstance);
-
+	DeferredShadingApplication(HINSTANCE hInstance);
 
 	virtual bool Init(int nShowCmd) override;
 
@@ -44,26 +26,29 @@ public:
 	virtual void BuildFX() override;
 	void BuildNanoSuitFX();
 
+	void InitScene();
 private:
-	Sky* mSky;
-
 	GameObject* mNanoSuitGameObject;
-
 
 	ID3D11VertexShader* mNanoSuitVertexShader;
 	ID3D11PixelShader* mNanoSuitPixelShader;
 	ID3D11SamplerState* mSamplerLinear;
 
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
-	ConstantBuffer<LightingConstantBuffer> mLightingConstantBuffer;
 
 	ID3D11ShaderResourceView* mStarCubeMap;
+
+	CGBuffer mCgBuffer;
+	CSceneManager mSceneManager;
+	CLightManager mLightManager;
 
 
 	bool mIsWireFrame = false;
 	float mTotalTime = 0.0f;
 	float mLightRotationAngle = 0.0f;
 
+	ShaderMaterial* mShaderMaterial;
+	ID3D11InputLayout* mInputLayout;
 	Material mMaterial;
 };
 #endif

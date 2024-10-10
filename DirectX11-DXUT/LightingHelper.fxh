@@ -115,6 +115,7 @@ float3 CalcDirectionalLightHLSLCookBook(float3 position, float3 gEyePos, Materia
     return finalColor * material.Diffuse.rgb;
 }
 
+
 float3 CalcPointLightHLSLCookBook(float3 positon, float3 gEyePos, Material material, float3 normal, PointLight pointLight)
 {
     float3 toLight = pointLight.Position - positon;
