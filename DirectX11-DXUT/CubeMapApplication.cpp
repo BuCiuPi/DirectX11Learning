@@ -199,7 +199,7 @@ void CubeMapApplication::DrawScene()
 	g_pImmediateContext->PSSetShader(mSkyPixelShader, nullptr, 0);
 	g_pImmediateContext->PSSetSamplers(0, 1, &mSamplerLinear);
 
-	SkyConstantBuffer scb;
+	SkyBoxConstantBuffer scb;
 	XMFLOAT3 camPos = mCamera.GetPosition();
 	XMMATRIX skyWorld = XMMatrixTranslation(camPos.x, camPos.y, camPos.z);
 
@@ -416,7 +416,7 @@ void CubeMapApplication::BuildConstantBuffer()
 	D3D11_BUFFER_DESC sbd;
 	// Create the constant buffer
 	sbd.Usage = D3D11_USAGE_DEFAULT;
-	sbd.ByteWidth = sizeof(SkyConstantBuffer);
+	sbd.ByteWidth = sizeof(SkyBoxConstantBuffer);
 	sbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	sbd.CPUAccessFlags = 0;
 	sbd.MiscFlags = 0;
@@ -438,7 +438,7 @@ void CubeMapApplication::BuildConstantBuffer()
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/stone.dds", nullptr, &mStoneSRV));
 	HR(CreateDDSTextureFromFile(g_pd3dDevice, L"Textures/bricks.dds", nullptr, &mBrickSRV));
 
-	mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
+	mSky = new Sky(g_pd3dDevice,g_pImmediateContext, L"Textures/grasscube1024.dds", 10.0f);
 
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

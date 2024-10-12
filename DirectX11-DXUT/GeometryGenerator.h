@@ -35,6 +35,7 @@ class GeometryGenerator
 {
 public:
 	GeometryGenerator();
+	void CreateCube(MeshData& meshData, UINT& vertexCount, UINT& indexCount);
 
 	void CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData);
 	void CreateCylinder(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount, MeshData& meshData);

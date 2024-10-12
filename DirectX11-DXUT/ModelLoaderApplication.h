@@ -44,7 +44,5 @@ private:
 	DirectionalLight mDirLights[3];
 	bool mIsWireFrame;
 	float mLightRotationAngle;
-
-
 };
 #endif

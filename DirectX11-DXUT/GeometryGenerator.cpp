@@ -6,6 +6,85 @@ GeometryGenerator::GeometryGenerator()
 {
 }
 
+void GeometryGenerator::CreateCube(MeshData& meshData, UINT& vertexCount, UINT& indexCount)
+{
+	vertexCount = 24;
+	indexCount = 36;
+
+	const float length = 1.0f;
+	const float width = 1.0f;
+	const float height = 1.0f;
+
+	XMFLOAT3 p0 = XMFLOAT3(-length * .5f, -width * .5f, height * .5f);
+	XMFLOAT3 p1 = XMFLOAT3(length * .5f, -width * .5f, height * .5f);
+	XMFLOAT3 p2 = XMFLOAT3(length * .5f, -width * .5f, -height * .5f);
+	XMFLOAT3 p3 = XMFLOAT3(-length * .5f, -width * .5f, -height * .5f);
+
+	XMFLOAT3 p4 = XMFLOAT3(-length * .5f, width * .5f, height * .5f);
+	XMFLOAT3 p5 = XMFLOAT3(length * .5f, width * .5f, height * .5f);
+	XMFLOAT3 p6 = XMFLOAT3(length * .5f, width * .5f, -height * .5f);
+	XMFLOAT3 p7 = XMFLOAT3(-length * .5f, width * .5f, -height * .5f);
+
+	meshData.Vertices.resize(24);
+
+	meshData.Vertices[0].Position = p0;
+	meshData.Vertices[1].Position = p1;
+	meshData.Vertices[2].Position = p2;
+	meshData.Vertices[3].Position = p3;
+
+	meshData.Vertices[4].Position = p7;
+	meshData.Vertices[5].Position = p4;
+	meshData.Vertices[6].Position = p0;
+	meshData.Vertices[7].Position = p3;
+
+	meshData.Vertices[8].Position = p4;
+	meshData.Vertices[9].Position = p5;
+	meshData.Vertices[10].Position = p1;
+	meshData.Vertices[11].Position = p0;
+
+	meshData.Vertices[12].Position = p6;
+	meshData.Vertices[13].Position = p7;
+	meshData.Vertices[14].Position = p3;
+	meshData.Vertices[15].Position = p2;
+
+	meshData.Vertices[16].Position = p5;
+	meshData.Vertices[17].Position = p6;
+	meshData.Vertices[18].Position = p2;
+	meshData.Vertices[19].Position = p1;
+
+	meshData.Vertices[20].Position = p7;
+	meshData.Vertices[21].Position = p6;
+	meshData.Vertices[22].Position = p5;
+	meshData.Vertices[23].Position = p4;
+
+	XMFLOAT2 _00 = XMFLOAT2(0.0f, 0.0f);
+	XMFLOAT2 _10 = XMFLOAT2(1.0f, 0.0f);
+	XMFLOAT2 _01 = XMFLOAT2(0.0f, 1.0f);
+	XMFLOAT2 _11 = XMFLOAT2(1.0f, 1.0f);
+
+	for (int i = 0; i < 6; ++i)
+	{
+		meshData.Vertices[i * 4].TexC = _11;
+		meshData.Vertices[i * 4 + 1].TexC = _01;
+		meshData.Vertices[i * 4 + 2].TexC = _00;
+		meshData.Vertices[i * 4 + 3].TexC = _10;
+	}
+
+	meshData.Indices.resize(36);
+	int index = 0;
+	for (int i = 0; i < 6; ++i)
+	{
+		meshData.Indices[index++] = i * 4;
+		meshData.Indices[index++] = i * 4 + 1;
+		meshData.Indices[index++] = i * 4 + 3;
+
+		meshData.Indices[index++] = i * 4 + 1;
+		meshData.Indices[index++] = i * 4 + 2;
+		meshData.Indices[index++] = i * 4 + 3;
+	}
+}
+
+
 void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, MeshData& meshData)
 {
 	UINT vertextCount = m * n;

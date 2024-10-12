@@ -150,7 +150,10 @@
   <ItemGroup>
     <ClInclude Include="CGBuffer.h" />
     <ClInclude Include="CLightManager.h" />
+    <ClInclude Include="CubeMap.h" />
     <ClInclude Include="DeferredShadingApplication.h" />
+    <ClInclude Include="IntegrateBRDFShader.h" />
+    <ClInclude Include="IrradianceShader.h" />
     <ClInclude Include="LightingApplication.h" />
     <ClInclude Include="BezierApplication.h" />
     <ClInclude Include="BillboardApplication.h" />
@@ -188,8 +191,13 @@
     <ClInclude Include="NormalMappingApplication.h" />
     <ClInclude Include="ParticleApplication.h" />
     <ClInclude Include="ParticleSystem.h" />
+    <ClInclude Include="PBRShadingApplication.h" />
     <ClInclude Include="PickingApplication.h" />
+    <ClInclude Include="PreFilterShader.h" />
+    <ClInclude Include="RectToCubeMapRenderShader.h" />
+    <ClInclude Include="RenderShader.h" />
     <ClInclude Include="RenderStates.h" />
+    <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="CSceneManager.h" />
     <ClInclude Include="ShaderMaterial.h" />
@@ -197,12 +205,14 @@
     <ClInclude Include="ShadowMapApplication.h" />
     <ClInclude Include="ShapesApplication.h" />
     <ClInclude Include="Sky.h" />
+    <ClInclude Include="SkyBoxShader.h" />
     <ClInclude Include="SphereApplication.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainApplication.h" />
     <ClInclude Include="TessellationApplication.h" />
+    <ClInclude Include="ModelTexture.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="WaveApplication.h" />
@@ -211,7 +221,10 @@
   <ItemGroup>
     <ClCompile Include="CGBuffer.cpp" />
     <ClCompile Include="CLightManager.cpp" />
+    <ClCompile Include="CubeMap.cpp" />
     <ClCompile Include="DeferredShadingApplication.cpp" />
+    <ClCompile Include="IntegrateBRDFShader.cpp" />
+    <ClCompile Include="IrradianceShader.cpp" />
     <ClCompile Include="LightingApplication.cpp" />
     <ClCompile Include="BezierApplication.cpp" />
     <ClCompile Include="BillboardApplication.cpp" />
@@ -245,19 +258,26 @@
     <ClCompile Include="NormalMappingApplication.cpp" />
     <ClCompile Include="ParticleApplication.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="PBRShadingApplication.cpp" />
     <ClCompile Include="PickingApplication.cpp" />
+    <ClCompile Include="PreFilterShader.cpp" />
+    <ClCompile Include="RectToCubeMapRenderShader.cpp" />
+    <ClCompile Include="RenderShader.cpp" />
     <ClCompile Include="RenderStates.cpp" />
     <ClCompile Include="CSceneManager.cpp" />
+    <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="ShaderMaterial.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="ShadowMapApplication.cpp" />
     <ClCompile Include="ShapesApplication.cpp" />
     <ClCompile Include="Sky.cpp" />
+    <ClCompile Include="SkyBoxShader.cpp" />
     <ClCompile Include="SphereApplication.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainApplication.cpp" />
     <ClCompile Include="TessellationApplication.cpp" />
+    <ClCompile Include="ModelTexture.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="WaveApplication.cpp" />
     <ClCompile Include="Waves.cpp" />
@@ -333,6 +353,7 @@
     <Text Include="BasicShadowMapping.fxh" />
     <Text Include="BasicUnlit.hlsl" />
     <Text Include="BezierTessellation.fxh" />
+    <Text Include="IrradianceShader.hlsl" />
     <Text Include="LightingHelper.fxh" />
     <Text Include="PointLight.hlsl" />
     <Text Include="ScreenQuad.fxh" />
@@ -345,7 +366,12 @@
     <FxCompile Include="DeferredShading.hlsl" />
     <FxCompile Include="DirectionalLight.hlsl" />
     <FxCompile Include="FourCapsuleLight.hlsl" />
+    <FxCompile Include="IntegrateBRDFShader.hlsl" />
+    <FxCompile Include="PBRShader.hlsl" />
     <FxCompile Include="PointLightProjected.hlsl" />
+    <FxCompile Include="PreFilterShader.hlsl" />
+    <FxCompile Include="RectToCubeMap.hlsl" />
+    <FxCompile Include="SkyBox.hlsl" />
     <FxCompile Include="SpotLight.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

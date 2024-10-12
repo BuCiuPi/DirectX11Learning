@@ -9,6 +9,7 @@ ShaderMaterial::~ShaderMaterial()
 {
 	SAFE_RELEASE(mPixelShader);
 	SAFE_RELEASE(mVertexShader);
+	SAFE_RELEASE(mInputLayout);
 }
 
 ID3DBlob* ShaderMaterial::BuildShader(ID3D11Device* device, const WCHAR* fileName, ShaderMaterialType type)
@@ -32,6 +33,11 @@ ID3D11InputLayout* ShaderMaterial::BuildInputLayout(ID3D11Device* device, ID3DBl
 {
 	InputLayouts::BuildVertexLayout(device, blob, inputLayoutDesc, numElements, &mInputLayout);
 	return mInputLayout;
+}
+
+void ShaderMaterial::SetInputLayout(ID3D11DeviceContext* deviceContext)
+{
+	deviceContext->IASetInputLayout(mInputLayout);
 }
 
 void ShaderMaterial::SetShader(ID3D11DeviceContext* deviceContext)

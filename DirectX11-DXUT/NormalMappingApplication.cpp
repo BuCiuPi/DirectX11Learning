@@ -432,7 +432,7 @@ void NormalMappingApplication::BuildConstantBuffer()
 	D3D11_BUFFER_DESC sbd;
 	// Create the constant buffer
 	sbd.Usage = D3D11_USAGE_DEFAULT;
-	sbd.ByteWidth = sizeof(SkyConstantBuffer);
+	sbd.ByteWidth = sizeof(SkyBoxConstantBuffer);
 	sbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	sbd.CPUAccessFlags = 0;
 	sbd.MiscFlags = 0;
@@ -459,7 +459,7 @@ void NormalMappingApplication::BuildConstantBuffer()
 
 	//mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
 	//mSky = new Sky(g_pd3dDevice, L"Textures/snowcube1024.dds", 10.0f);
-	mSky = new Sky(g_pd3dDevice, L"Textures/desertcube1024.dds", 10.0f);
+	mSky = new Sky(g_pd3dDevice,g_pImmediateContext, L"Textures/desertcube1024.dds", 10.0f);
 
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

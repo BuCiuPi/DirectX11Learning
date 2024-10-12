@@ -1,7 +1,8 @@
 TextureCube skyTexture : register(t0);
+Texture2D texture2 : register(t1);
 SamplerState samLinear : register(s0);
 
-cbuffer ConstantBuffer : register(b0)
+cbuffer cbBuffer : register(b0)
 {
     matrix gMVP;
 }

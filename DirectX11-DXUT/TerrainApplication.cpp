@@ -110,7 +110,7 @@ void TerrainApplication::BuildConstantBuffer()
 
 	//mSky = new Sky(g_pd3dDevice, L"Textures/grasscube1024.dds", 10.0f);
 	//mSky = new Sky(g_pd3dDevice, L"Textures/snowcube1024.dds", 10.0f);
-	mSky = new Sky(g_pd3dDevice, L"Textures/desertcube1024.dds", 10.0f);
+	mSky = new Sky(g_pd3dDevice,g_pImmediateContext, L"Textures/desertcube1024.dds", 10.0f);
 }
 
 void TerrainApplication::CleanupDevice()

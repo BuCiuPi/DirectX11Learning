@@ -43,6 +43,7 @@
 #include "ModelLoaderApplication.h"
 #include "NormalMappingApplication.h"
 #include "ParticleApplication.h"
+#include "PBRShadingApplication.h"
 #include "PickingApplication.h"
 #include "ShadowMapApplication.h"
 #include "TerrainApplication.h"
@@ -55,7 +56,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    DeferredShadingApplication application(hInstance);
+    PBRShadingApplication application(hInstance);
 
     if (!application.Init(nCmdShow))
     {

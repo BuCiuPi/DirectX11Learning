@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11_1.h>
+#include <string>
 #include "d3dcompiler.h"
 #include <directxcolors.h>
 #include "DirectXMath.h"
@@ -11,7 +12,9 @@
 #include "RenderStates.h"
 #include "Waves.h"
 #include "Camera.h"
+#include "ConstantBuffer.h"
 #include "Sky.h"
+
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
@@ -93,10 +96,6 @@ struct ShadowMappingConstantBuffer
 	Material gMaterial;
 };
 
-struct SkyConstantBuffer
-{
-	XMMATRIX mMVP;
-};
 
 struct TerrainConstantBuffer
 {
@@ -139,6 +138,8 @@ struct WavePerFrameBuffer
 	DirectionalLight gDirLights[3];
 	XMFLOAT3 gEyePosW;
 };
+
+
 
 struct TerrainPerFrameBuffer
 {
@@ -241,6 +242,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC Terrain[3];
 	static const D3D11_INPUT_ELEMENT_DESC Particle[5];
 	static const D3D11_INPUT_ELEMENT_DESC NanoSuit[3];
+	static const D3D11_INPUT_ELEMENT_DESC PBRShading[3];
 
 };
 

@@ -38,6 +38,7 @@ public:
 
 	ID3D11Texture2D* g_pDepthStencilBuffer;
 	ID3D11DepthStencilView* g_pDepthStencilView;
+	ID3D11DepthStencilState* g_pDepthStencilState;
 
 	ID3D11RenderTargetView* g_pRenderTargetView = nullptr;
 	ID3D11VertexShader* g_pVertexShader = nullptr;
@@ -54,6 +55,9 @@ public:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 	HRESULT InitDevice();
 	virtual void OnResize();
+	void ResizeViewPort(int width, int height);
+	bool ResizeDepthBuffer(int width, int height);
+
 	virtual void CleanupDevice();
 	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 

@@ -177,7 +177,7 @@
     <ClInclude Include="GameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="ModelTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColorHelper.h">
@@ -202,6 +202,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLightManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PBRShadingApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RectToCubeMapRenderShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IrradianceShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PreFilterShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IntegrateBRDFShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyBoxShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -335,7 +365,7 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="ModelTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ColorHelper.cpp">
@@ -360,6 +390,36 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CLightManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PBRShadingApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RectToCubeMapRenderShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IrradianceShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PreFilterShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IntegrateBRDFShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyBoxShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -536,6 +596,9 @@
     <Text Include="BasicUnlit.hlsl">
       <Filter>FX</Filter>
     </Text>
+    <Text Include="IrradianceShader.hlsl">
+      <Filter>FX</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="AmbientLight.hlsl">
@@ -563,6 +626,21 @@
       <Filter>FX</Filter>
     </FxCompile>
     <FxCompile Include="DeferredDirectionalLight.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="RectToCubeMap.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="PreFilterShader.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="IntegrateBRDFShader.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyBox.hlsl">
+      <Filter>FX</Filter>
+    </FxCompile>
+    <FxCompile Include="PBRShader.hlsl">
       <Filter>FX</Filter>
     </FxCompile>
   </ItemGroup>
