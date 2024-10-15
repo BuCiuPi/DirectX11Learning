@@ -160,9 +160,9 @@ void DeferredShadingApplication::InitScene()
 
 	mShaderMaterial = new ShaderMaterial();
 	mNanoSuitGameObject = new GameObject();
-	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext);
+	//mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext);
 	//mNanoSuitGameObject->Initialize("Models/Objects/TestSphere/TestSphere.fbx", g_pd3dDevice, g_pImmediateContext);
-	//mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext);
+	mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext);
 
 
 	mCgBuffer.Init(g_pd3dDevice, mClientWidth, mClientHeight);

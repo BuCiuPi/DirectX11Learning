@@ -27,7 +27,7 @@ bool Model::LoadModel(const std::string& filePath)
 	Assimp::Importer importer;
 
 	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
+	aiProcess_Triangulate | aiProcess_CalcTangentSpace |
 		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == nullptr)
@@ -93,6 +93,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	std::vector<ModelTexture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+	std::vector<ModelTexture> normalTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_HEIGHT, scene);
+	textures.insert(textures.end(), normalTextures.begin(), normalTextures.end());
 
 	return Mesh(this->device, this->deviceContext, vertices, indices, textures);
 }
@@ -185,7 +187,7 @@ std::vector<ModelTexture> Model::LoadMaterialTextures(aiMaterial* pMaterial, aiT
 
 	if (materialTextures.size() == 0)
 	{
-		materialTextures.push_back(ModelTexture(this->device, ColorHelpers::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		materialTextures.push_back(ModelTexture(this->device, ColorHelpers::UnhandledTextureColor, textureType));
 	}
 	return materialTextures;
 

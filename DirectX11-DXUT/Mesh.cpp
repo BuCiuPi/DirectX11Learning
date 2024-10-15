@@ -31,11 +31,24 @@ void Mesh::Draw()
 {
 	UINT offset = 0;
 
+	bool diffuseTextureSetted = false;
+	bool normalTextureSetted = false;
 	for (int i = 0; i < textures.size(); i++)
 	{
 		if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE)
 		{
 			this->deviceContext->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress());
+			diffuseTextureSetted = true;
+		}
+
+		if (textures[i].GetType() == aiTextureType::aiTextureType_HEIGHT)
+		{
+			this->deviceContext->PSSetShaderResources(1, 1, textures[i].GetTextureResourceViewAddress());
+			normalTextureSetted = true;
+		}
+
+		if (diffuseTextureSetted && normalTextureSetted)
+		{
 			break;
 		}
 	}

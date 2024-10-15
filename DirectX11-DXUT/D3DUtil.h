@@ -196,6 +196,7 @@ namespace Vertex
 
 		XMFLOAT3 pos;
 		XMFLOAT3 normal;
+		XMFLOAT3 tangent;
 		XMFLOAT2 texCoord;
 	};
 
