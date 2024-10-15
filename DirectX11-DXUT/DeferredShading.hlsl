@@ -56,7 +56,7 @@ PS_GBUFFER_OUT PackGBuffer(float3 BaseColor, float3 Normal, float SpecIntensity,
     float SpecPowerNorm = max(0.0001, (SpecPower - g_SpecPowerRange.x) / g_SpecPowerRange.y);
 
     Output.ColorSpecInt = float4(BaseColor.rgb, SpecIntensity);
-    Output.Normal = float4(Normal * 0.5 * 0.5, 0.0);
+    Output.Normal = float4(Normal * 0.5 + 0.5, 0.0);
     Output.SpecPow = float4(SpecPowerNorm, 0.0, 0.0, 0.0);
 
     return Output;

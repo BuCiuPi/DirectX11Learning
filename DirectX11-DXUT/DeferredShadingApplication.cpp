@@ -18,7 +18,7 @@ DeferredShadingApplication::DeferredShadingApplication(HINSTANCE hinstance) : Di
 	this->mMaterial.Reflect = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	XMFLOAT3 ambientLowerColor = XMFLOAT3(0.1f, 0.2f, 0.1f);
-	XMFLOAT3 ambientUpperColor = XMFLOAT3(0.1f, 0.2f, 0.2f);
+	XMFLOAT3 ambientUpperColor = XMFLOAT3(0.0f, 0.0f, 0.1f);
 
 	XMVECTOR directionalLightDir = XMVectorSet(1.0f, -1.0f, 0.0f, 1.0f);
 	XMFLOAT3 directionalLightColor = XMFLOAT3(0.85f, 0.8f, 0.5f);
@@ -161,6 +161,7 @@ void DeferredShadingApplication::InitScene()
 	mShaderMaterial = new ShaderMaterial();
 	mNanoSuitGameObject = new GameObject();
 	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext);
+	//mNanoSuitGameObject->Initialize("Models/Objects/TestSphere/TestSphere.fbx", g_pd3dDevice, g_pImmediateContext);
 	//mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext);
 
 
@@ -175,11 +176,13 @@ void DeferredShadingApplication::InitScene()
 	gameObjects.push_back(newGameObject);
 
 	newGameObject = new GameObject(mNanoSuitGameObject);	
+	//newGameObject->SetPosition(-2.0f, 0.0f, 0.0f);
 	newGameObject->SetPosition(-50.0f, 0.0f, 0.0f);
 	newGameObject->SetRotation(0.0f, 90.0f, 0.0f);
 	gameObjects.push_back(newGameObject);
 	
 	newGameObject = new GameObject(mNanoSuitGameObject);
+	//newGameObject->SetPosition(2.0f, 0.0f, 0.0f);
 	newGameObject->SetPosition(50.0f, 0.0f, 0.0f);
 	newGameObject->SetRotation(0.0f, -90.0f, 0.0f);
 	gameObjects.push_back(newGameObject);

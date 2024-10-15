@@ -23,8 +23,9 @@ static const float2 arrBasePos[4] =
 
 struct VS_OUTPUT
 {
-    float4 Positon : SV_POSITION;
+    float4 Positon : SV_Position;
     float2 cpPos : TEXCOORD0;
+    float2 id : TEXCOORD1;
 };
 
 VS_OUTPUT VS(uint VertexID : SV_VERTEXID)
@@ -33,13 +34,14 @@ VS_OUTPUT VS(uint VertexID : SV_VERTEXID)
 
     output.Positon = float4(arrBasePos[VertexID].xy, 0.0, 1.0);
     output.cpPos = output.Positon.xy;
+    output.id = VertexID.xx;
 
     return output;
 }
 
 float3 CalcDeferredDirectionalLight(float3 position, float3 gEyePos, GMaterial material)
 {
-    float toLight = normalize(-gLightDir);
+    float toLight = normalize(gLightDir);
     float NDotL = dot(toLight, material.normal);
     float3 finalColor = gDirLightColor * saturate(NDotL);
 
@@ -50,6 +52,7 @@ float3 CalcDeferredDirectionalLight(float3 position, float3 gEyePos, GMaterial m
     float NDotH = saturate(dot(HalfVector, material.normal));
     finalColor += gDirLightColor * pow(NDotH, material.specPow) * material.specIntensity;
 
+    //return pow(NDotH, material.specPow);
     return finalColor * material.diffuseColor;
 }
 
@@ -62,10 +65,9 @@ float4 PS(VS_OUTPUT In) : SV_TARGET
 
     float position = CalcWorldPos(In.cpPos, gbd.LinearDepth);
 
-    float3 finalColor = CalcAmbient(mat.normal, mat.diffuseColor.xyz, gAmbientDown, gAmbientUp);
-
+    float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+    finalColor = CalcAmbient(mat.normal, mat.diffuseColor.xyz, gAmbientDown, gAmbientUp);
     finalColor += CalcDeferredDirectionalLight(position, EyePosition, mat);
-
 
     return float4(finalColor, 1.0f);
 }

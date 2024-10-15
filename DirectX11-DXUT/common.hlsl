@@ -84,7 +84,7 @@ SURFACE_DATA UnpackGBuffer_Loc(int2 location)
     Output.Color = baseColorSpecInt.xyz;
     Output.SpecIntensity = baseColorSpecInt.w;
     Output.Normal = NormalTexture.Load(location3).xyz;
-    Output.Normal = normalize(Output.Normal * 2.0f - 1.0f);
+    Output.Normal = normalize(Output.Normal * 2.0 - 1.0);
     Output.SpecPow = SpecPowTexture.Load(location3).x;
 
     return Output;

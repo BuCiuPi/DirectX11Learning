@@ -168,7 +168,7 @@ void CGBuffer::PreRender(ID3D11DeviceContext* pd3dImmediateContext)
 {
 	pd3dImmediateContext->ClearDepthStencilView(m_DepthStencilDSV, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
 
-	float clearColor[4] = { 0.50f, 0.50f, 0.50f, 0.0f };
+	float clearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	pd3dImmediateContext->ClearRenderTargetView(m_ColorSpecIntensityRTV, clearColor);
 	pd3dImmediateContext->ClearRenderTargetView(m_NormalRTV, clearColor);
 	pd3dImmediateContext->ClearRenderTargetView(m_SpecPowerRTV, clearColor);
