@@ -251,20 +251,20 @@ bool Sky::CreateCubeMap(D3DApp* app, const wchar_t* fileName)
 	{
 		XMFLOAT3(x + 1.0f, y, z), // +X
 		XMFLOAT3(x - 1.0f, y, z), // -X
-		XMFLOAT3(x, y - 1.0f, z), // -Y
 		XMFLOAT3(x, y + 1.0f, z), // +Y
-		XMFLOAT3(x, y, z - 1.0f),  // -Z
+		XMFLOAT3(x, y - 1.0f, z), // -Y
 		XMFLOAT3(x, y, z + 1.0f), // +Z
+		XMFLOAT3(x, y, z - 1.0f),  // -Z
 	};
 
 	XMFLOAT3 ups[6] =
 	{
-		XMFLOAT3(0.0f, -1.0f, 0.0f),  // +X
-		XMFLOAT3(0.0f, -1.0f, 0.0f),  // -X
-		XMFLOAT3(0.0f, 0.0f, +1.0f), // +Y
-		XMFLOAT3(0.0f, 0.0f, -1.0f), // -Y
-		XMFLOAT3(0.0f, -1.0f, 0.0f),	 // +Z
-		XMFLOAT3(0.0f, -1.0f, 0.0f),	 // -Z
+		XMFLOAT3(0.0f, 1.0f, 0.0f),  // +X
+		XMFLOAT3(0.0f, 1.0f, 0.0f),  // -X
+		XMFLOAT3(0.0f, 0.0f, -1.0f), // +Y
+		XMFLOAT3(0.0f, 0.0f, 1.0f), // -Y
+		XMFLOAT3(0.0f, 1.0f, 0.0f),	 // +Z
+		XMFLOAT3(0.0f, 1.0f, 0.0f),	 // -Z
 	};
 
 	mSkyCubeConstantBuffer.Initialize(device, deviceContext);

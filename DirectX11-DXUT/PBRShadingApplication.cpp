@@ -10,7 +10,7 @@
 PBRShadingApplication::PBRShadingApplication(HINSTANCE hinstance) : DirectX11Application(hinstance)
 {
 	mCamera.SetPosition(0.0f, 2.0f, -15.0f);
-	mCamera.CameraSpeed = 50.0f;
+	mCamera.CameraSpeed = 20.0f;
 
 	mLightRotationAngle = 0.0f;
 
@@ -47,7 +47,7 @@ bool PBRShadingApplication::Init(int nShowCmd)
 	BuildConstantBuffer();
 
 	BuildFX();
-	mSky->CreateCubeMap(this, L"Textures/enviroment2.dds");
+	mSky->CreateCubeMap(this, L"Textures/enviroment3.dds");
 	OnResize();
 
 	return true;
@@ -103,12 +103,60 @@ void PBRShadingApplication::DrawScene()
 
 	for (int i = 0; i < 8; ++i)
 	{
-		this->cbFrameBuffer.data.CustomData = XMFLOAT4(1.0/8 * i, 1.0/8 * i, 0.0f, 0.0f);
+			this->cbFrameBuffer.data.CustomData = XMFLOAT4(1.0 / 8 * i, 1.0 / 8.0 * i, 0.0f, 0.0f);
 		this->cbFrameBuffer.ApplyChanges();
 		this->cbFrameBuffer.VSShaderUpdate(1);
 		this->cbFrameBuffer.PSShaderUpdate(1);
 
-		mNanoSuitGameObject->SetPosition(40.0f * i, 0.0f, 0.0f);
+		mNanoSuitGameObject->SetPosition(2.0f * i, 0.0f, 0.0f);
+		XMMATRIX worldMatrix = mNanoSuitGameObject->GetWorldMatrix();
+		this->cbObjectBuffer.data.World = XMMatrixTranspose(worldMatrix);
+		this->cbObjectBuffer.ApplyChanges();
+		this->cbObjectBuffer.VSShaderUpdate(0);
+
+		mNanoSuitGameObject->Draw(mCamera.ViewProj());
+	}
+
+	for (int i = 0; i < 8; ++i)
+	{
+		this->cbFrameBuffer.data.CustomData = XMFLOAT4(1.0 / 8 * i, 1.0f, 0.0f, 0.0f);
+		this->cbFrameBuffer.ApplyChanges();
+		this->cbFrameBuffer.VSShaderUpdate(1);
+		this->cbFrameBuffer.PSShaderUpdate(1);
+
+		mNanoSuitGameObject->SetPosition(2.0f * i, -2.0f, 0.0f);
+		XMMATRIX worldMatrix = mNanoSuitGameObject->GetWorldMatrix();
+		this->cbObjectBuffer.data.World = XMMatrixTranspose(worldMatrix);
+		this->cbObjectBuffer.ApplyChanges();
+		this->cbObjectBuffer.VSShaderUpdate(0);
+
+		mNanoSuitGameObject->Draw(mCamera.ViewProj());
+	}
+
+	for (int i = 0; i < 8; ++i)
+	{
+		this->cbFrameBuffer.data.CustomData = XMFLOAT4(0.01f, 1.0 / 8 * i, 0.0f, 0.0f);
+		this->cbFrameBuffer.ApplyChanges();
+		this->cbFrameBuffer.VSShaderUpdate(1);
+		this->cbFrameBuffer.PSShaderUpdate(1);
+
+		mNanoSuitGameObject->SetPosition(2.0f * i, -4.0f, 0.0f);
+		XMMATRIX worldMatrix = mNanoSuitGameObject->GetWorldMatrix();
+		this->cbObjectBuffer.data.World = XMMatrixTranspose(worldMatrix);
+		this->cbObjectBuffer.ApplyChanges();
+		this->cbObjectBuffer.VSShaderUpdate(0);
+
+		mNanoSuitGameObject->Draw(mCamera.ViewProj());
+	}
+
+	for (int i = 0; i < 8; ++i)
+	{
+		this->cbFrameBuffer.data.CustomData = XMFLOAT4(1.0 / 8 * i,0.0f, 0.0f, 0.0f);
+		this->cbFrameBuffer.ApplyChanges();
+		this->cbFrameBuffer.VSShaderUpdate(1);
+		this->cbFrameBuffer.PSShaderUpdate(1);
+
+		mNanoSuitGameObject->SetPosition(2.0f * i, -6.0f, 0.0f);
 		XMMATRIX worldMatrix = mNanoSuitGameObject->GetWorldMatrix();
 		this->cbObjectBuffer.data.World = XMMatrixTranspose(worldMatrix);
 		this->cbObjectBuffer.ApplyChanges();
@@ -210,7 +258,7 @@ void PBRShadingApplication::BuildConstantBuffer()
 	this->cbFrameBuffer.data.LightColours[2] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	this->cbFrameBuffer.data.LightColours[3] = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	this->cbFrameBuffer.data.LightPositions[0] = XMFLOAT4(0.0f, 10.0f, 0.0f, 1.0f);
+	this->cbFrameBuffer.data.LightPositions[0] = XMFLOAT4(10.0f, 10.0f, 0.0f, 1.0f);
 	this->cbFrameBuffer.data.LightPositions[1] = XMFLOAT4(0.0f, 20.0f, 0.0f, 1.0f);
 	this->cbFrameBuffer.data.LightPositions[2] = XMFLOAT4(0.0f, 30.0f, 0.0f, 1.0f);
 	this->cbFrameBuffer.data.LightPositions[3] = XMFLOAT4(0.0f, 40.0f, 0.0f, 1.0f);
@@ -222,7 +270,8 @@ void PBRShadingApplication::BuildConstantBuffer()
 	mShaderMaterial = new ShaderMaterial();
 	mNanoSuitGameObject = new GameObject();
 	//mNanoSuitGameObject->Initialize("Models/Objects/nanosuit/nanosuit.obj", g_pd3dDevice, g_pImmediateContext);
-	mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext);
+	//mNanoSuitGameObject->Initialize("Models/Objects/nile/source/nile2.obj", g_pd3dDevice, g_pImmediateContext);
+	mNanoSuitGameObject->Initialize("Models/Objects/TestSphere/TestSphere.fbx", g_pd3dDevice, g_pImmediateContext);
 }
 
 void PBRShadingApplication::CleanupDevice()

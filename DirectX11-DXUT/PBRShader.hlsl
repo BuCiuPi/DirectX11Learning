@@ -46,12 +46,12 @@ PixelInputType VS(VertexInputType input)
 
     output.uv = input.uv;
     output.position = mul(float4(input.position, 1.0f), worldMatrix);
+    output.worldPos.xyz = output.position.xyz;
     output.position.w = 1.0f;
-    output.worldPos = output.position.xyz;
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-    output.normal = mul(normalize(input.normal), worldMatrix);
+    output.normal = input.normal;
     output.color = float4(1.0f, 1.0f, 1.0f, 1.0f);
     return output;
 }
@@ -60,7 +60,7 @@ static const float PI = 3.14159265359f;
 
 float3 fresnelSchlick(float cosTheta, float3 F0)
 {
-    return F0 * (1.0f - F0) * pow(1.0f - cosTheta, 5.0f);
+    return F0 + (1.0f - F0) * pow(1.0f - cosTheta, 5.0f);
 }
 
 float3 fresnelSchlickRoughness(float cosTheta, float F0, float roughtness)
@@ -106,14 +106,14 @@ float GeometrySmith(float3 N ,float3 V, float3 L, float roughness)
 
 float4 PS(PixelInputType input) : SV_TARGET
 {
-    float worldPos = input.worldPos;
+    float3 worldPos = input.worldPos;
     //float3 albedo = input.color.rgb;
     float3 albedo = DiffuseTexture.Sample(textureSample, input.uv);
     float3 Normal = input.normal/* * normalMap.Sample(textureSample, input.uv).rgb*/;
     //float roughness = roughnessMap.Sample(textureSample, input.uv).r;
     float roughness = customData.x;
     //float metallic = metallicMap.Sample(textureSample, input.uv).r;
-    float metallic = 0.0f;
+    float metallic = 1.0f - customData.y;
 
     float ao = 1.0f;
 
@@ -128,32 +128,32 @@ float4 PS(PixelInputType input) : SV_TARGET
 
     //for (int i = 0; i < 4; ++i)
     //{
-        float3 L = normalize(lightPosition[2].xyz - worldPos);
+        float3 L = normalize(lightPosition[0].xyz - worldPos);
         float3 H = normalize(V + L);
 
-        float distance = length(lightPosition[2].xyz - worldPos);
+        float distance = length(lightPosition[0].xyz - worldPos);
         float attenuation = 1.0f - saturate(distance/50.0f);
-        float3 radiance = lightColor[3].xyz * attenuation * attenuation;
+        float3 radiance = lightColor[0].xyz * attenuation * attenuation;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
-        float F = fresnelSchlick(max(dot(H, V), 0.0f), F0);
+        float3 F = fresnelSchlick(max(dot(H, V), 0.0f), F0);
 
-        float ks = F;
-        float kD = float3(1.0f, 1.0f, 1.0f) - ks;
+        float3 ks = F;
+        float3 kD = float3(1.0f, 1.0f, 1.0f) - ks;
         kD *= 1.0 - metallic;
 
         float3 numerator = NDF * G * F;
         float denominator = 4.0f * max(dot(N, V), 0.0) * max(dot(N, L), 0.0f);
-        float specular = numerator / max(denominator, 0.001f);
+        float3 specular = numerator / max(denominator, 0.001f);
 
         float NDotL = max(dot(N, L), 0.0f);
-        Lo += (kD * albedo / PI * specular) * radiance * NDotL;
-	//}
+        Lo += (kD * albedo / PI + specular) * radiance * NDotL;
+    //}
 
     float3 F1 = fresnelSchlickRoughness(max(dot(N, V), 0.0f), F0, roughness);
     
-    float ks1 = F1;
+    float3 ks1 = F1;
     float3 kD1 = 1.0 - ks1;
     kD1 *= 1.0 - metallic;
 
@@ -162,7 +162,7 @@ float4 PS(PixelInputType input) : SV_TARGET
 
     const float MAX_REFLECTION_LOD = 4.0;
     float3 prefilteredColor = preFilterMap.SampleLevel(textureSample, R, roughness * MAX_REFLECTION_LOD).rgb;
-    float2 envBRDF = brdfLUT.Sample(textureSample, float2(max(dot(N, V), 0.0f), roughness)).rg;
+    float2 envBRDF = brdfLUT.Sample(textureSample, float2(1 - max(dot(N, V), 0.0), .9 - roughness)).rg;
     float3 specular1 = prefilteredColor * (F1 * envBRDF.x + envBRDF.y);
 
     float3 ambient = (kD1 * diffuse + specular1) * ao;
@@ -172,5 +172,5 @@ float4 PS(PixelInputType input) : SV_TARGET
     color = color / (color + float3(1.0f, 1.0f, 1.0f));
     color = pow(color, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 
-    return float4(color, 1.0f);
+    return float4(color,1.0f);
 }
